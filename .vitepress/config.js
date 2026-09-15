@@ -64,7 +64,8 @@ export default defineConfig({
             { text: 'Smart Contracts', link: '/technical/smart-contracts' },
             { text: 'Database Schema', link: '/technical/database-schema' },
             { text: 'Stellar Integration', link: '/technical/stellar-integration' },
-            { text: 'Mobile Money Integration', link: '/technical/mobile-money' }
+            { text: 'Mobile Money Integration', link: '/technical/mobile-money' },
+            { text: 'RecycleGraph Protocol', link: '/technical/recyclegraph-protocol' }
           ]
         }
       ],
