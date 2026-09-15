@@ -63,7 +63,8 @@ export default defineConfig({
             { text: 'Design Decisions', link: '/technical/design-decisions' },
             { text: 'Smart Contracts', link: '/technical/smart-contracts' },
             { text: 'Database Schema', link: '/technical/database-schema' },
-            { text: 'Stellar Integration', link: '/technical/stellar-integration' }
+            { text: 'Stellar Integration', link: '/technical/stellar-integration' },
+            { text: 'Mobile Money Integration', link: '/technical/mobile-money' }
           ]
         }
       ],
