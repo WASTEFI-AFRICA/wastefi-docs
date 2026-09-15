@@ -45,7 +45,9 @@ export default defineConfig({
         {
           text: 'Developer Resources',
           items: [
-            { text: 'Docker Development Setup', link: '/guide/docker-setup' }
+            { text: 'Docker Development Setup', link: '/guide/docker-setup' },
+            { text: 'Testing Documentation', link: '/guide/testing' },
+            { text: 'CI/CD Pipeline Guide', link: '/guide/ci-cd' }
           ]
         }
       ],
