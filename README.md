@@ -49,11 +49,12 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ## 📖 Documentation Roadmap
 
 - [x] Initialize documentation site
-- [ ] Project overview and vision
-- [ ] Architecture documentation
-- [ ] Technical specifications
-- [ ] User guides
-- [ ] API reference
+- [x] Project overview, vision, and problem statement
+- [ ] Architecture documentation with diagrams
+- [ ] Technology stack and design decisions
+- [ ] Smart contract documentation
+- [ ] API reference with examples
+- [ ] User guides and manuals
 - [ ] Developer resources
 - [ ] Standards and protocols
 

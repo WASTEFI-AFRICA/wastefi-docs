@@ -11,7 +11,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'API', link: '/api/overview' },
-      { text: 'About', link: '/about/vision' }
+      { text: 'About', link: '/about/overview' }
     ],
 
     sidebar: {
@@ -35,7 +35,9 @@ export default defineConfig({
         {
           text: 'About WasteFi',
           items: [
-            { text: 'Vision', link: '/about/vision' }
+            { text: 'Project Overview', link: '/about/overview' },
+            { text: 'Vision & Mission', link: '/about/vision' },
+            { text: 'The Problem', link: '/about/problem' }
           ]
         }
       ]
