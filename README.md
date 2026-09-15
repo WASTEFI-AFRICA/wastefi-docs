@@ -54,7 +54,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - [x] Technology stack and design decisions
 - [x] Smart contract documentation with function references
 - [x] API documentation with request/response examples
-- [ ] Database schema and ER diagrams
+- [x] Database schema and ER diagrams
 - [ ] Deployment guides for all components
 - [ ] User guides and manuals
 - [ ] Developer resources

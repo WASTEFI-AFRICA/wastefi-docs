@@ -46,7 +46,8 @@ export default defineConfig({
             { text: 'System Design', link: '/technical/system-design' },
             { text: 'Technology Stack', link: '/technical/technology-stack' },
             { text: 'Design Decisions', link: '/technical/design-decisions' },
-            { text: 'Smart Contracts', link: '/technical/smart-contracts' }
+            { text: 'Smart Contracts', link: '/technical/smart-contracts' },
+            { text: 'Database Schema', link: '/technical/database-schema' }
           ]
         }
       ],
