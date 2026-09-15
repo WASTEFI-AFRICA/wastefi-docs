@@ -36,7 +36,9 @@ export default defineConfig({
         {
           text: 'Technical Documentation',
           items: [
-            { text: 'System Design', link: '/technical/system-design' }
+            { text: 'System Design', link: '/technical/system-design' },
+            { text: 'Technology Stack', link: '/technical/technology-stack' },
+            { text: 'Design Decisions', link: '/technical/design-decisions' }
           ]
         }
       ],
