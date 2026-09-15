@@ -19,7 +19,8 @@ export default defineConfig({
         {
           text: 'Introduction',
           items: [
-            { text: 'Getting Started', link: '/guide/getting-started' }
+            { text: 'Getting Started', link: '/guide/getting-started' },
+            { text: 'Architecture', link: '/guide/architecture' }
           ]
         }
       ],
@@ -28,6 +29,14 @@ export default defineConfig({
           text: 'API Reference',
           items: [
             { text: 'Overview', link: '/api/overview' }
+          ]
+        }
+      ],
+      '/technical/': [
+        {
+          text: 'Technical Documentation',
+          items: [
+            { text: 'System Design', link: '/technical/system-design' }
           ]
         }
       ],

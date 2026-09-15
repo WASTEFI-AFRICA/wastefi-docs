@@ -50,7 +50,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 - [x] Initialize documentation site
 - [x] Project overview, vision, and problem statement
-- [ ] Architecture documentation with diagrams
+- [x] Architecture documentation with system diagrams
 - [ ] Technology stack and design decisions
 - [ ] Smart contract documentation
 - [ ] API reference with examples
