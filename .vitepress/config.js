@@ -22,6 +22,14 @@ export default defineConfig({
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Architecture', link: '/guide/architecture' }
           ]
+        },
+        {
+          text: 'Deployment',
+          items: [
+            { text: 'Deployment Overview', link: '/guide/deployment' },
+            { text: 'Local Development', link: '/guide/local-development' },
+            { text: 'Production Setup', link: '/guide/production-setup' }
+          ]
         }
       ],
       '/api/': [

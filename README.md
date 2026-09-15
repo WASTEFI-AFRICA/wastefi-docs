@@ -55,7 +55,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - [x] Smart contract documentation with function references
 - [x] API documentation with request/response examples
 - [x] Database schema and ER diagrams
-- [ ] Deployment guides for all components
+- [x] Deployment guides for all components
 - [ ] User guides and manuals
 - [ ] Developer resources
 - [ ] Standards and protocols
