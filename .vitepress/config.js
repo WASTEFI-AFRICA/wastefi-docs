@@ -28,7 +28,14 @@ export default defineConfig({
         {
           text: 'API Reference',
           items: [
-            { text: 'Overview', link: '/api/overview' }
+            { text: 'Overview', link: '/api/overview' },
+            { text: 'Authentication', link: '/api/authentication' },
+            { text: 'Users', link: '/api/users' },
+            { text: 'Transactions', link: '/api/transactions' },
+            { text: 'Materials', link: '/api/materials' },
+            { text: 'Collection Points', link: '/api/collection-points' },
+            { text: 'Payments', link: '/api/payments' },
+            { text: 'Impact', link: '/api/impact' }
           ]
         }
       ],

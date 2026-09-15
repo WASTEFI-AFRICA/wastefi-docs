@@ -53,7 +53,9 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - [x] Architecture documentation with system diagrams
 - [x] Technology stack and design decisions
 - [x] Smart contract documentation with function references
-- [ ] API reference with examples
+- [x] API documentation with request/response examples
+- [ ] Database schema and ER diagrams
+- [ ] Deployment guides for all components
 - [ ] User guides and manuals
 - [ ] Developer resources
 - [ ] Standards and protocols
