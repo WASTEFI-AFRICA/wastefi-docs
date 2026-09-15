@@ -1,0 +1,24 @@
+{
+  "name": "wastefi-docs",
+  "version": "0.1.0",
+  "description": "Documentation for WasteFi - Financial Inclusion Through Waste Collection",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "keywords": [
+    "wastefi",
+    "waste-management",
+    "blockchain",
+    "stellar",
+    "recycling",
+    "documentation"
+  ],
+  "author": "WasteFi Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.0.0"
+  }
+}
