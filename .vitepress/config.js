@@ -41,6 +41,12 @@ export default defineConfig({
             { text: 'Local Development', link: '/guide/local-development' },
             { text: 'Production Setup', link: '/guide/production-setup' }
           ]
+        },
+        {
+          text: 'Developer Resources',
+          items: [
+            { text: 'Docker Development Setup', link: '/guide/docker-setup' }
+          ]
         }
       ],
       '/api/': [
