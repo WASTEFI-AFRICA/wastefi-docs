@@ -56,9 +56,13 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - [x] API documentation with request/response examples
 - [x] Database schema and ER diagrams
 - [x] Deployment guides for all components
-- [ ] User guides and manuals
-- [ ] Developer resources
-- [ ] Standards and protocols
+- [x] Stellar integration and wallet management
+- [x] Mobile money integration guides per provider
+- [x] RecycleGraph protocol specification
+- [x] Collector onboarding and user manuals
+- [x] Troubleshooting guides and FAQ
+- [x] Local development setup and testing guides
+- [x] Grant templates and impact reporting
 
 ## 📄 License
 

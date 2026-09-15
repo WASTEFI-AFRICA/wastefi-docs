@@ -24,6 +24,13 @@ export default defineConfig({
           ]
         },
         {
+          text: 'User Guides',
+          items: [
+            { text: 'Collector Guide', link: '/guide/collector-guide' },
+            { text: 'FAQ', link: '/guide/faq' }
+          ]
+        },
+        {
           text: 'Deployment',
           items: [
             { text: 'Deployment Overview', link: '/guide/deployment' },
