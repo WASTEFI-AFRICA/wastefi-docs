@@ -27,6 +27,7 @@ export default defineConfig({
           text: 'User Guides',
           items: [
             { text: 'Collector Guide', link: '/guide/collector-guide' },
+            { text: 'Operator Guide', link: '/guide/operator-guide' },
             { text: 'FAQ', link: '/guide/faq' }
           ]
         },
