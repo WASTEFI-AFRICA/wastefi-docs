@@ -62,7 +62,8 @@ export default defineConfig({
             { text: 'Technology Stack', link: '/technical/technology-stack' },
             { text: 'Design Decisions', link: '/technical/design-decisions' },
             { text: 'Smart Contracts', link: '/technical/smart-contracts' },
-            { text: 'Database Schema', link: '/technical/database-schema' }
+            { text: 'Database Schema', link: '/technical/database-schema' },
+            { text: 'Stellar Integration', link: '/technical/stellar-integration' }
           ]
         }
       ],
