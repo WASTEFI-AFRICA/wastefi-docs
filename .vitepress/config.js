@@ -30,6 +30,7 @@ export default defineConfig({
             { text: 'Operator Guide', link: '/guide/operator-guide' },
             { text: 'Admin Dashboard Guide', link: '/guide/admin-guide' },
             { text: 'Security & Privacy', link: '/guide/security' },
+            { text: 'Troubleshooting', link: '/guide/troubleshooting' },
             { text: 'FAQ', link: '/guide/faq' }
           ]
         },
