@@ -52,7 +52,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - [x] Project overview, vision, and problem statement
 - [x] Architecture documentation with system diagrams
 - [x] Technology stack and design decisions
-- [ ] Smart contract documentation
+- [x] Smart contract documentation with function references
 - [ ] API reference with examples
 - [ ] User guides and manuals
 - [ ] Developer resources

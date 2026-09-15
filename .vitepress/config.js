@@ -38,7 +38,8 @@ export default defineConfig({
           items: [
             { text: 'System Design', link: '/technical/system-design' },
             { text: 'Technology Stack', link: '/technical/technology-stack' },
-            { text: 'Design Decisions', link: '/technical/design-decisions' }
+            { text: 'Design Decisions', link: '/technical/design-decisions' },
+            { text: 'Smart Contracts', link: '/technical/smart-contracts' }
           ]
         }
       ],
