@@ -11,6 +11,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'API', link: '/api/overview' },
+      { text: 'Standards', link: '/standards/recyclegraph-standards' },
       { text: 'About', link: '/about/overview' }
     ],
 
@@ -91,6 +92,14 @@ export default defineConfig({
             { text: 'Project Overview', link: '/about/overview' },
             { text: 'Vision & Mission', link: '/about/vision' },
             { text: 'The Problem', link: '/about/problem' }
+          ]
+        }
+      ],
+      '/standards/': [
+        {
+          text: 'Open Standards',
+          items: [
+            { text: 'RecycleGraph Standards', link: '/standards/recyclegraph-standards' }
           ]
         }
       ]
