@@ -49,7 +49,8 @@ export default defineConfig({
             { text: 'Testing Documentation', link: '/guide/testing' },
             { text: 'CI/CD Pipeline Guide', link: '/guide/ci-cd' },
             { text: 'Environment Variables & Configuration', link: '/guide/configuration' },
-            { text: 'API Integration Examples', link: '/guide/api-examples' }
+            { text: 'API Integration Examples', link: '/guide/api-examples' },
+            { text: 'Extending and Customizing WasteFi', link: '/guide/customization' }
           ]
         }
       ],
