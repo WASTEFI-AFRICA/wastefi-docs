@@ -37,6 +37,8 @@ npm run preview
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
+**Code of Conduct:** All contributors must abide by our [Code of Conduct](CODE_OF_CONDUCT.md). We are committed to providing a welcoming and inclusive environment for everyone.
+
 ### Development
 
 1. Fork the repository
@@ -48,21 +50,40 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📖 Documentation Roadmap
 
-- [x] Initialize documentation site
-- [x] Project overview, vision, and problem statement
-- [x] Architecture documentation with system diagrams
-- [x] Technology stack and design decisions
-- [x] Smart contract documentation with function references
-- [x] API documentation with request/response examples
-- [x] Database schema and ER diagrams
-- [x] Deployment guides for all components
-- [x] Stellar integration and wallet management
-- [x] Mobile money integration guides per provider
-- [x] RecycleGraph protocol specification
-- [x] Collector onboarding and user manuals
-- [x] Troubleshooting guides and FAQ
-- [x] Local development setup and testing guides
-- [x] Grant templates and impact reporting
+### Phase 1: Foundation ✅
+- [x] Initialize documentation site with VitePress
+- [x] Create project overview, vision, and problem statement
+- [x] Add architecture documentation with system diagrams
+- [x] Document technology stack and design decisions
+- [x] Create contribution guidelines and code of conduct
+
+### Phase 2: Technical Documentation ✅
+- [x] Add smart contract documentation with function references
+- [x] Document API endpoints with request/response examples
+- [x] Create database schema documentation and ER diagrams
+- [x] Add deployment guides for all components
+- [x] Document Stellar integration and wallet management
+- [x] Create mobile money integration guides per provider
+- [x] Add RecycleGraph protocol specification and standards
+
+### Phase 3: User Guides ✅
+- [x] Create collector onboarding and user manual
+- [x] Add collection point operator guide with best practices
+- [x] Document admin dashboard usage and workflows
+- [x] Add security and privacy guidelines for users
+- [x] Create troubleshooting guide and FAQ
+
+### Phase 4: Developer Resources ✅
+- [x] Create local development setup guide with Docker
+- [x] Add testing documentation and CI/CD pipeline guide
+- [x] Document environment variables and configuration
+- [x] Create API integration examples in multiple languages
+- [x] Add extending and customizing WasteFi guide
+
+### Phase 5: Standards & Community ✅
+- [x] Publish RecycleGraph material identification standards
+- [x] Create grant application templates and impact reporting guide
+- [x] Add roadmap, changelog, and community resources
 
 ## 📄 License
 
