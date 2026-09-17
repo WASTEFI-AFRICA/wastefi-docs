@@ -102,6 +102,14 @@ export default defineConfig({
             { text: 'RecycleGraph Standards', link: '/standards/recyclegraph-standards' }
           ]
         }
+      ],
+      '/community/': [
+        {
+          text: 'Community Resources',
+          items: [
+            { text: 'Grant Templates & Impact Reporting', link: '/community/grant-templates' }
+          ]
+        }
       ]
     },
 
