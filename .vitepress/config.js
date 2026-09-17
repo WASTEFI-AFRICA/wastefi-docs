@@ -107,7 +107,8 @@ export default defineConfig({
         {
           text: 'Community Resources',
           items: [
-            { text: 'Grant Templates & Impact Reporting', link: '/community/grant-templates' }
+            { text: 'Grant Templates & Impact Reporting', link: '/community/grant-templates' },
+            { text: 'Roadmap & Changelog', link: '/community/roadmap' }
           ]
         }
       ]
