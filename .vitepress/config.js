@@ -128,7 +128,29 @@ export default defineConfig({
     },
 
     search: {
-      provider: 'local'
+      provider: 'local',
+      options: {
+        detailedView: true,
+        miniSearch: {
+          searchOptions: {
+            fuzzy: 0.2,
+            prefix: true,
+            boost: {
+              title: 4,
+              text: 2,
+              titles: 1
+            }
+          }
+        },
+        _render(src, env, md) {
+          const html = md.render(src, env)
+          if (env.frontmatter?.search === false) return ''
+          if (env.relativePath.startsWith('api/')) {
+            return html
+          }
+          return html
+        }
+      }
     }
   },
 

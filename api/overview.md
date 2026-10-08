@@ -2,6 +2,8 @@
 
 The WasteFi API provides programmatic access to the platform's core functionality. This RESTful API enables developers to integrate waste collection, payment processing, and impact tracking into their applications.
 
+<ApiPlayground />
+
 ## Base URL
 
 ```

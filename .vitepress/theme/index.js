@@ -1,6 +1,9 @@
 import DefaultTheme from 'vitepress/theme'
-import './custom.css'
+import ApiPlayground from './components/ApiPlayground.vue'
 
 export default {
-  extends: DefaultTheme
+  extends: DefaultTheme,
+  enhanceApp({ app }) {
+    app.component('ApiPlayground', ApiPlayground)
+  }
 }
