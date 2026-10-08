@@ -58,7 +58,7 @@ export default defineConfig({
 
 ### Application Settings
 
-```env
+```ini
 # Environment
 NODE_ENV=development
 # Options: development, staging, production
@@ -93,7 +93,7 @@ CORS_CREDENTIALS=true
 
 ### Database Configuration
 
-```env
+```ini
 # PostgreSQL
 DATABASE_URL=postgresql://wastefi:password@localhost:5432/wastefi_dev
 # Full connection string
@@ -131,7 +131,7 @@ RUN_MIGRATIONS_ON_START=true
 
 ### Redis Configuration
 
-```env
+```ini
 # Redis
 REDIS_URL=redis://localhost:6379
 # Full Redis connection string
@@ -161,7 +161,7 @@ SESSION_TTL=604800
 
 ### Authentication & Security
 
-```env
+```ini
 # JWT
 JWT_SECRET=your-super-secret-jwt-key-change-in-production
 # Secret key for signing JWTs
@@ -205,7 +205,7 @@ OTP_SECRET=your-otp-secret-key
 
 ### Stellar Network
 
-```env
+```ini
 # Network
 STELLAR_NETWORK=testnet
 # Options: testnet, public
@@ -242,7 +242,7 @@ STELLAR_TIMEOUT=30
 
 ### Mobile Money Integration
 
-```env
+```ini
 # M-Pesa (Kenya)
 MPESA_ENVIRONMENT=sandbox
 # Options: sandbox, production
@@ -292,7 +292,7 @@ CHIPPER_CALLBACK_URL=https://api.wastefi.org/webhooks/chipper
 
 ### Email Configuration
 
-```env
+```ini
 # SMTP
 SMTP_HOST=smtp.gmail.com
 # SMTP server hostname
@@ -331,7 +331,7 @@ EMAIL_TEMPLATE_DIR=./src/templates/email
 
 ### SMS Configuration
 
-```env
+```ini
 # Twilio
 TWILIO_ACCOUNT_SID=your_account_sid
 TWILIO_AUTH_TOKEN=your_auth_token
@@ -354,7 +354,7 @@ SMS_PROVIDER=africas_talking
 
 ### Logging
 
-```env
+```ini
 # Log Level
 LOG_LEVEL=info
 # Options: error, warn, info, http, verbose, debug, silly
@@ -389,7 +389,7 @@ DATADOG_API_KEY=your_datadog_api_key
 
 ### Feature Flags
 
-```env
+```ini
 # Features
 ENABLE_REGISTRATION=true
 # Allow new user registration
@@ -428,7 +428,7 @@ MAINTENANCE_MESSAGE=We'll be back soon!
 
 ### Third-Party Integrations
 
-```env
+```ini
 # Google Maps
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 # For geocoding and maps
@@ -455,7 +455,7 @@ GOOGLE_ANALYTICS_ID=UA-XXXXXXXXX-X
 
 ### Performance & Optimization
 
-```env
+```ini
 # Caching
 ENABLE_CACHE=true
 # Enable Redis caching
@@ -488,7 +488,7 @@ DATABASE_QUERY_TIMEOUT=10000
 
 ### Application Settings
 
-```env
+```ini
 # Environment
 VITE_ENVIRONMENT=development
 # Options: development, staging, production
@@ -506,7 +506,7 @@ VITE_API_TIMEOUT=30000
 
 ### Stellar Network
 
-```env
+```ini
 # Stellar
 VITE_STELLAR_NETWORK=testnet
 # Options: testnet, public
@@ -520,7 +520,7 @@ VITE_STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
 
 ### Third-Party Services
 
-```env
+```ini
 # Google Maps
 VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 # For maps and location services
@@ -548,7 +548,7 @@ VITE_SENTRY_TRACES_SAMPLE_RATE=0.1
 
 ### Feature Flags
 
-```env
+```ini
 # Features
 VITE_ENABLE_PWA=true
 # Enable Progressive Web App features
@@ -574,7 +574,7 @@ VITE_ENABLE_GEOLOCATION=true
 
 ### App Settings
 
-```env
+```ini
 # App Info
 VITE_APP_NAME=WasteFi
 VITE_APP_VERSION=1.0.0
@@ -634,7 +634,7 @@ debug-assertions = true
 
 **.env.contracts:**
 
-```env
+```ini
 # Network
 SOROBAN_NETWORK=testnet
 # Options: testnet, futurenet, mainnet
@@ -664,24 +664,24 @@ MATERIAL_CONTRACT_ID=CXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ### Security
 
 **DO:**
-- ✅ Use environment variables for secrets
-- ✅ Never commit `.env` files to git
-- ✅ Use different secrets for each environment
-- ✅ Rotate secrets regularly
-- ✅ Use strong, random values for secrets
-- ✅ Store production secrets in secure vault (AWS Secrets Manager, HashiCorp Vault)
-- ✅ Use `.env.example` as template (with fake values)
+- Use environment variables for secrets
+- Never commit `.env` files to git
+- Use different secrets for each environment
+- Rotate secrets regularly
+- Use strong, random values for secrets
+- Store production secrets in secure vault (AWS Secrets Manager, HashiCorp Vault)
+- Use `.env.example` as template (with fake values)
 
 **DON'T:**
-- ❌ Hardcode secrets in source code
-- ❌ Use same secrets across environments
-- ❌ Share secrets in chat or email
-- ❌ Use weak or default values
-- ❌ Commit `.env` files to version control
+- Hardcode secrets in source code
+- Use same secrets across environments
+- Share secrets in chat or email
+- Use weak or default values
+- Commit `.env` files to version control
 
 ### Organization
 
-```env
+```ini
 # Group related variables together
 # Use comments to explain non-obvious values
 # Use consistent naming (SCREAMING_SNAKE_CASE)
@@ -712,23 +712,23 @@ const envSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'staging', 'production')
     .required(),
-  
+
   PORT: Joi.number()
     .port()
     .default(3000),
-  
+
   DATABASE_URL: Joi.string()
     .uri()
     .required(),
-  
+
   JWT_SECRET: Joi.string()
     .min(32)
     .required(),
-  
+
   STELLAR_PLATFORM_SECRET: Joi.string()
     .regex(/^S[A-Z2-7]{55}$/)
     .required(),
-  
+
   // ... other validations
 }).unknown();
 
@@ -764,7 +764,7 @@ const config = {
 
 **.env.development:**
 
-```env
+```ini
 NODE_ENV=development
 PORT=3000
 API_BASE_URL=http://localhost:3000
@@ -792,7 +792,7 @@ CORS_ORIGIN=*
 
 **.env.staging:**
 
-```env
+```ini
 NODE_ENV=staging
 PORT=3000
 API_BASE_URL=https://api-staging.wastefi.org
@@ -822,7 +822,7 @@ CORS_ORIGIN=https://staging.wastefi.org
 
 **.env.production:**
 
-```env
+```ini
 NODE_ENV=production
 PORT=3000
 API_BASE_URL=https://api.wastefi.org

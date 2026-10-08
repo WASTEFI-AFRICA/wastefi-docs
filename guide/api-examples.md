@@ -218,18 +218,18 @@ class WasteFiAPI:
         self.session.headers.update({
             'Content-Type': 'application/json'
         })
-        
+
         if token:
             self.set_token(token)
-    
+
     def set_token(self, token: str):
         self.session.headers.update({
             'Authorization': f'Bearer {token}'
         })
-    
+
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict:
         url = f"{self.base_url}{endpoint}"
-        
+
         try:
             response = self.session.request(method, url, timeout=30, **kwargs)
             response.raise_for_status()
@@ -239,7 +239,7 @@ class WasteFiAPI:
             raise Exception(error_message)
         except requests.exceptions.RequestException as e:
             raise Exception(f'Network error: {str(e)}')
-    
+
     # Authentication
     def login(self, phone: str, pin: str) -> Dict:
         response = self._request('POST', '/auth/login', json={
@@ -248,38 +248,38 @@ class WasteFiAPI:
         })
         self.set_token(response['token'])
         return response
-    
+
     def register(self, user_data: Dict) -> Dict:
         return self._request('POST', '/auth/register', json=user_data)
-    
+
     # Users
     def get_profile(self) -> Dict:
         return self._request('GET', '/users/me')
-    
+
     def update_profile(self, data: Dict) -> Dict:
         return self._request('PATCH', '/users/me', json=data)
-    
+
     # Transactions
     def create_transaction(self, transaction_data: Dict) -> Dict:
         return self._request('POST', '/transactions', json=transaction_data)
-    
+
     def get_transactions(self, params: Optional[Dict] = None) -> List[Dict]:
         return self._request('GET', '/transactions', params=params)
-    
+
     def get_transaction(self, transaction_id: str) -> Dict:
         return self._request('GET', f'/transactions/{transaction_id}')
-    
+
     def confirm_transaction(self, transaction_id: str) -> Dict:
         return self._request('PATCH', f'/transactions/{transaction_id}/confirm')
-    
+
     # Collection Points
     def get_collection_points(self, params: Optional[Dict] = None) -> List[Dict]:
         return self._request('GET', '/collection-points', params=params)
-    
+
     def get_nearby_collection_points(
-        self, 
-        latitude: float, 
-        longitude: float, 
+        self,
+        latitude: float,
+        longitude: float,
         radius: int = 5
     ) -> List[Dict]:
         return self._request('GET', '/collection-points/nearby', params={
@@ -287,14 +287,14 @@ class WasteFiAPI:
             'longitude': longitude,
             'radius': radius
         })
-    
+
     # Materials
     def get_materials(self) -> List[Dict]:
         return self._request('GET', '/materials')
-    
+
     def get_material_pricing(self, material_type: str) -> Dict:
         return self._request('GET', f'/materials/{material_type}/pricing')
-    
+
     # Impact
     def get_impact(self) -> Dict:
         return self._request('GET', '/impact/me')
@@ -308,17 +308,17 @@ from wastefi_api import WasteFiAPI
 
 def main():
     api = WasteFiAPI('http://localhost:3000/api/v1')
-    
+
     try:
         # 1. Login
         print('Logging in...')
         result = api.login('+254712345678', '1234')
         print(f"Logged in as: {result['user']['name']}")
-        
+
         # 2. Get profile
         profile = api.get_profile()
         print(f"Balance: {profile['balance']}")
-        
+
         # 3. Find nearby collection points
         collection_points = api.get_nearby_collection_points(
             latitude=-1.286389,
@@ -326,11 +326,11 @@ def main():
             radius=10
         )
         print(f"Found {len(collection_points)} collection points")
-        
+
         # 4. Get material pricing
         pet_pricing = api.get_material_pricing('PET')
         print(f"PET price: ${pet_pricing['basePrice']} per kg")
-        
+
         # 5. Create transaction
         transaction = api.create_transaction({
             'collectionPointId': collection_points[0]['id'],
@@ -340,11 +340,11 @@ def main():
         })
         print(f"Transaction created: {transaction['id']}")
         print(f"Amount to receive: ${transaction['netAmount']}")
-        
+
         # 6. Get impact
         impact = api.get_impact()
         print(f"Total CO2 saved: {impact['totalCo2Saved']} kg")
-        
+
     except Exception as e:
         print(f'Error: {str(e)}')
 
@@ -366,37 +366,37 @@ class WasteFiAPI {
     private $baseUrl;
     private $token;
     private $timeout = 30;
-    
+
     public function __construct($baseUrl, $token = null) {
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->token = $token;
     }
-    
+
     public function setToken($token) {
         $this->token = $token;
     }
-    
+
     private function request($method, $endpoint, $data = null, $params = []) {
         $url = $this->baseUrl . $endpoint;
-        
+
         if (!empty($params)) {
             $url .= '?' . http_build_query($params);
         }
-        
+
         $headers = [
             'Content-Type: application/json',
         ];
-        
+
         if ($this->token) {
             $headers[] = 'Authorization: Bearer ' . $this->token;
         }
-        
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        
+
         switch ($method) {
             case 'POST':
                 curl_setopt($ch, CURLOPT_POST, true);
@@ -407,23 +407,23 @@ class WasteFiAPI {
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
                 break;
         }
-        
+
         if ($data !== null) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
-        
+
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        
+
         if ($httpCode >= 400) {
             $error = json_decode($response, true);
             throw new Exception($error['message'] ?? 'API Error');
         }
-        
+
         return json_decode($response, true);
     }
-    
+
     // Authentication
     public function login($phone, $pin) {
         $response = $this->request('POST', '/auth/login', [
@@ -433,42 +433,42 @@ class WasteFiAPI {
         $this->setToken($response['token']);
         return $response;
     }
-    
+
     public function register($userData) {
         return $this->request('POST', '/auth/register', $userData);
     }
-    
+
     // Users
     public function getProfile() {
         return $this->request('GET', '/users/me');
     }
-    
+
     public function updateProfile($data) {
         return $this->request('PATCH', '/users/me', $data);
     }
-    
+
     // Transactions
     public function createTransaction($transactionData) {
         return $this->request('POST', '/transactions', $transactionData);
     }
-    
+
     public function getTransactions($params = []) {
         return $this->request('GET', '/transactions', null, $params);
     }
-    
+
     public function getTransaction($id) {
         return $this->request('GET', "/transactions/$id");
     }
-    
+
     public function confirmTransaction($id) {
         return $this->request('PATCH', "/transactions/$id/confirm");
     }
-    
+
     // Collection Points
     public function getCollectionPoints($params = []) {
         return $this->request('GET', '/collection-points', null, $params);
     }
-    
+
     public function getNearbyCollectionPoints($latitude, $longitude, $radius = 5) {
         return $this->request('GET', '/collection-points/nearby', null, [
             'latitude' => $latitude,
@@ -476,16 +476,16 @@ class WasteFiAPI {
             'radius' => $radius
         ]);
     }
-    
+
     // Materials
     public function getMaterials() {
         return $this->request('GET', '/materials');
     }
-    
+
     public function getMaterialPricing($materialType) {
         return $this->request('GET', "/materials/$materialType/pricing");
     }
-    
+
     // Impact
     public function getImpact() {
         return $this->request('GET', '/impact/me');
@@ -507,15 +507,15 @@ try {
     echo "Logging in...\n";
     $result = $api->login('+254712345678', '1234');
     echo "Logged in as: {$result['user']['name']}\n";
-    
+
     // 2. Get profile
     $profile = $api->getProfile();
     echo "Balance: {$profile['balance']}\n";
-    
+
     // 3. Find nearby collection points
     $collectionPoints = $api->getNearbyCollectionPoints(-1.286389, 36.817223, 10);
     echo "Found " . count($collectionPoints) . " collection points\n";
-    
+
     // 4. Create transaction
     $transaction = $api->createTransaction([
         'collectionPointId' => $collectionPoints[0]['id'],
@@ -525,11 +525,11 @@ try {
     ]);
     echo "Transaction created: {$transaction['id']}\n";
     echo "Amount to receive: \${$transaction['netAmount']}\n";
-    
+
     // 5. Get impact
     $impact = $api->getImpact();
     echo "Total CO2 saved: {$impact['totalCo2Saved']} kg\n";
-    
+
 } catch (Exception $e) {
     echo "Error: {$e->getMessage()}\n";
 }
@@ -554,30 +554,30 @@ require 'json'
 
 class WasteFiAPI
   include HTTParty
-  
+
   def initialize(base_url, token = nil)
     self.class.base_uri base_url
     self.class.default_timeout 30
     @token = token
     update_headers
   end
-  
+
   def set_token(token)
     @token = token
     update_headers
   end
-  
+
   private
-  
+
   def update_headers
     headers = { 'Content-Type' => 'application/json' }
     headers['Authorization'] = "Bearer #{@token}" if @token
     self.class.headers headers
   end
-  
+
   def request(method, endpoint, options = {})
     response = self.class.send(method, endpoint, options)
-    
+
     if response.success?
       response.parsed_response
     else
@@ -587,9 +587,9 @@ class WasteFiAPI
   rescue HTTParty::Error => e
     raise StandardError, "Network error: #{e.message}"
   end
-  
+
   public
-  
+
   # Authentication
   def login(phone, pin)
     response = request(:post, '/auth/login', body: {
@@ -599,42 +599,42 @@ class WasteFiAPI
     set_token(response['token'])
     response
   end
-  
+
   def register(user_data)
     request(:post, '/auth/register', body: user_data.to_json)
   end
-  
+
   # Users
   def get_profile
     request(:get, '/users/me')
   end
-  
+
   def update_profile(data)
     request(:patch, '/users/me', body: data.to_json)
   end
-  
+
   # Transactions
   def create_transaction(transaction_data)
     request(:post, '/transactions', body: transaction_data.to_json)
   end
-  
+
   def get_transactions(params = {})
     request(:get, '/transactions', query: params)
   end
-  
+
   def get_transaction(id)
     request(:get, "/transactions/#{id}")
   end
-  
+
   def confirm_transaction(id)
     request(:patch, "/transactions/#{id}/confirm")
   end
-  
+
   # Collection Points
   def get_collection_points(params = {})
     request(:get, '/collection-points', query: params)
   end
-  
+
   def get_nearby_collection_points(latitude, longitude, radius = 5)
     request(:get, '/collection-points/nearby', query: {
       latitude: latitude,
@@ -642,16 +642,16 @@ class WasteFiAPI
       radius: radius
     })
   end
-  
+
   # Materials
   def get_materials
     request(:get, '/materials')
   end
-  
+
   def get_material_pricing(material_type)
     request(:get, "/materials/#{material_type}/pricing")
   end
-  
+
   # Impact
   def get_impact
     request(:get, '/impact/me')
@@ -672,15 +672,15 @@ begin
   puts 'Logging in...'
   result = api.login('+254712345678', '1234')
   puts "Logged in as: #{result['user']['name']}"
-  
+
   # 2. Get profile
   profile = api.get_profile
   puts "Balance: #{profile['balance']}"
-  
+
   # 3. Find nearby collection points
   collection_points = api.get_nearby_collection_points(-1.286389, 36.817223, 10)
   puts "Found #{collection_points.length} collection points"
-  
+
   # 4. Create transaction
   transaction = api.create_transaction(
     collectionPointId: collection_points[0]['id'],
@@ -690,11 +690,11 @@ begin
   )
   puts "Transaction created: #{transaction['id']}"
   puts "Amount to receive: $#{transaction['netAmount']}"
-  
+
   # 5. Get impact
   impact = api.get_impact
   puts "Total CO2 saved: #{impact['totalCo2Saved']} kg"
-  
+
 rescue StandardError => e
   puts "Error: #{e.message}"
 end
@@ -741,7 +741,7 @@ func (c *Client) SetToken(token string) {
 
 func (c *Client) request(method, endpoint string, body interface{}) (map[string]interface{}, error) {
     url := c.baseURL + endpoint
-    
+
     var reqBody io.Reader
     if body != nil {
         jsonData, err := json.Marshal(body)
@@ -750,33 +750,33 @@ func (c *Client) request(method, endpoint string, body interface{}) (map[string]
         }
         reqBody = bytes.NewBuffer(jsonData)
     }
-    
+
     req, err := http.NewRequest(method, url, reqBody)
     if err != nil {
         return nil, err
     }
-    
+
     req.Header.Set("Content-Type", "application/json")
     if c.token != "" {
         req.Header.Set("Authorization", "Bearer "+c.token)
     }
-    
+
     resp, err := c.httpClient.Do(req)
     if err != nil {
         return nil, err
     }
     defer resp.Body.Close()
-    
+
     var result map[string]interface{}
     if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
         return nil, err
     }
-    
+
     if resp.StatusCode >= 400 {
         message := result["message"].(string)
         return nil, fmt.Errorf("API error: %s", message)
     }
-    
+
     return result, nil
 }
 
@@ -789,7 +789,7 @@ func (c *Client) Login(phone, pin string) (map[string]interface{}, error) {
     if err != nil {
         return nil, err
     }
-    
+
     c.SetToken(result["token"].(string))
     return result, nil
 }
@@ -810,7 +810,7 @@ func (c *Client) GetNearbyCollectionPoints(lat, lon float64, radius int) ([]inte
     if err != nil {
         return nil, err
     }
-    
+
     return result["data"].([]interface{}), nil
 }
 
@@ -834,7 +834,7 @@ import (
 
 func main() {
     client := wastefi.NewClient("http://localhost:3000/api/v1", "")
-    
+
     // 1. Login
     fmt.Println("Logging in...")
     loginResult, err := client.Login("+254712345678", "1234")
@@ -843,14 +843,14 @@ func main() {
     }
     user := loginResult["user"].(map[string]interface{})
     fmt.Printf("Logged in as: %s\n", user["name"])
-    
+
     // 2. Find nearby collection points
     collectionPoints, err := client.GetNearbyCollectionPoints(-1.286389, 36.817223, 10)
     if err != nil {
         log.Fatal(err)
     }
     fmt.Printf("Found %d collection points\n", len(collectionPoints))
-    
+
     // 3. Create transaction
     firstPoint := collectionPoints[0].(map[string]interface{})
     transaction, err := client.CreateTransaction(map[string]interface{}{
@@ -864,7 +864,7 @@ func main() {
     }
     fmt.Printf("Transaction created: %s\n", transaction["id"])
     fmt.Printf("Amount to receive: $%.2f\n", transaction["netAmount"])
-    
+
     // 4. Get impact
     impact, err := client.GetImpact()
     if err != nil {
@@ -895,7 +895,7 @@ function verifySignature(payload, signature, secret) {
     .createHmac('sha256', secret)
     .update(JSON.stringify(payload))
     .digest('hex');
-  
+
   return crypto.timingSafeEqual(
     Buffer.from(signature),
     Buffer.from(expectedSignature)
@@ -906,28 +906,28 @@ function verifySignature(payload, signature, secret) {
 app.post('/webhooks/mpesa', (req, res) => {
   const signature = req.headers['x-wastefi-signature'];
   const secret = process.env.WEBHOOK_SECRET;
-  
+
   if (!verifySignature(req.body, signature, secret)) {
     return res.status(401).json({ error: 'Invalid signature' });
   }
-  
+
   const { event, data } = req.body;
-  
+
   switch (event) {
     case 'payment.completed':
       console.log(`Payment completed: ${data.transactionId}`);
       // Update your database
       break;
-      
+
     case 'payment.failed':
       console.log(`Payment failed: ${data.transactionId}`);
       // Handle failure
       break;
-      
+
     default:
       console.log(`Unknown event: ${event}`);
   }
-  
+
   res.status(200).json({ received: true });
 });
 
@@ -945,13 +945,13 @@ async function processBatch(transactions) {
   const results = await Promise.allSettled(
     transactions.map(tx => api.createTransaction(tx))
   );
-  
+
   const successful = results.filter(r => r.status === 'fulfilled');
   const failed = results.filter(r => r.status === 'rejected');
-  
+
   console.log(`Successful: ${successful.length}`);
   console.log(`Failed: ${failed.length}`);
-  
+
   return { successful, failed };
 }
 
@@ -974,18 +974,18 @@ async function getAllTransactions() {
   let allTransactions = [];
   let page = 1;
   let hasMore = true;
-  
+
   while (hasMore) {
     const response = await api.getTransactions({
       page,
       limit: 100
     });
-    
+
     allTransactions = allTransactions.concat(response.data);
     hasMore = response.pagination.hasNextPage;
     page++;
   }
-  
+
   return allTransactions;
 }
 ```
@@ -1014,7 +1014,7 @@ async function apiCallWithRetry(apiCall, maxRetries = 3) {
 }
 
 // Usage
-const transaction = await apiCallWithRetry(() => 
+const transaction = await apiCallWithRetry(() =>
   api.createTransaction(transactionData)
 );
 ```
@@ -1031,7 +1031,7 @@ import nock from 'nock';
 
 export function mockWasteFiAPI(baseURL) {
   const mock = nock(baseURL);
-  
+
   // Mock login
   mock.post('/auth/login')
     .reply(200, {
@@ -1042,7 +1042,7 @@ export function mockWasteFiAPI(baseURL) {
         name: 'Test User'
       }
     });
-  
+
   // Mock get profile
   mock.get('/users/me')
     .reply(200, {
@@ -1051,7 +1051,7 @@ export function mockWasteFiAPI(baseURL) {
       name: 'Test User',
       balance: 10.50
     });
-  
+
   // Mock create transaction
   mock.post('/transactions')
     .reply(201, {
@@ -1059,7 +1059,7 @@ export function mockWasteFiAPI(baseURL) {
       status: 'pending',
       netAmount: 1.94
     });
-  
+
   return mock;
 }
 
@@ -1070,7 +1070,7 @@ describe('WasteFi API Integration', () => {
   beforeEach(() => {
     mockWasteFiAPI('http://localhost:3000/api/v1');
   });
-  
+
   it('should login successfully', async () => {
     const result = await api.login('+254712345678', '1234');
     expect(result.token).toBe('mock-jwt-token');
@@ -1091,7 +1091,7 @@ try {
   if (error.response) {
     // API returned error
     console.error('API Error:', error.response.data.message);
-    
+
     switch (error.response.status) {
       case 400:
         // Validation error

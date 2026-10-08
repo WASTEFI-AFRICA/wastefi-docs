@@ -26,7 +26,7 @@ WasteFi is designed to be extensible and customizable for different regions, use
 // backend/src/config/countries.js
 export const countries = {
   // Existing countries...
-  
+
   // Add new country
   TZ: {
     code: 'TZ',
@@ -37,16 +37,16 @@ export const countries = {
     phoneFormat: /^\+255[67]\d{8}$/,
     locale: 'sw-TZ',
     timezone: 'Africa/Dar_es_Salaam',
-    
+
     // Payment providers
     paymentProviders: ['mpesa', 'tigopesa', 'airtel'],
-    
+
     // Regulations
     taxRate: 0.18, // 18% VAT
     kycRequired: true,
     minTransactionAmount: 1000, // TSh 1,000
     maxTransactionAmount: 5000000, // TSh 5,000,000
-    
+
     // Language
     defaultLanguage: 'sw',
     supportedLanguages: ['sw', 'en']
@@ -60,15 +60,15 @@ export const countries = {
 // backend/src/validators/phone.validator.js
 export function validatePhone(phone, countryCode) {
   const country = countries[countryCode];
-  
+
   if (!country) {
     throw new Error('Unsupported country');
   }
-  
+
   if (!country.phoneFormat.test(phone)) {
     throw new Error(`Invalid phone number format for ${country.name}`);
   }
-  
+
   return true;
 }
 ```
@@ -101,7 +101,7 @@ export class TigoPesaIntegration {
     this.apiSecret = config.apiSecret;
     this.baseUrl = config.baseUrl;
   }
-  
+
   async sendMoney(phoneNumber, amount, reference) {
     // Implementation for Tigo Pesa
     const response = await axios.post(
@@ -118,10 +118,10 @@ export class TigoPesaIntegration {
         }
       }
     );
-    
+
     return response.data;
   }
-  
+
   async getAccessToken() {
     // OAuth implementation
   }
@@ -185,7 +185,7 @@ export enum MaterialType {
 // frontend/src/config/materials.js
 export const materialConfig = {
   GLASS: {
-    icon: '🍾',
+    icon: '',
     color: '#10b981',
     displayName: 'Glass',
     description: 'Bottles, jars, and containers',
@@ -205,19 +205,19 @@ export const materialConfig = {
 // backend/src/services/quality.service.js
 export function gradeGlass(material) {
   let score = 100;
-  
+
   // Check for contamination
   if (material.hasContamination) score -= 30;
-  
+
   // Check for breakage
   if (material.isBroken) score -= 20;
-  
+
   // Check for labels
   if (material.hasLabels) score -= 10;
-  
+
   // Check for caps
   if (material.hasCaps) score -= 10;
-  
+
   // Determine grade
   if (score >= 90) return 'A';
   if (score >= 70) return 'B';
@@ -236,22 +236,22 @@ export class PricingService {
   constructor() {
     this.rules = [];
   }
-  
+
   addRule(rule) {
     this.rules.push(rule);
   }
-  
+
   calculatePrice(transaction) {
     let basePrice = transaction.material.basePrice;
     let finalPrice = basePrice;
-    
+
     // Apply all rules
     for (const rule of this.rules) {
       if (rule.condition(transaction)) {
         finalPrice = rule.apply(finalPrice, transaction);
       }
     }
-    
+
     return finalPrice * transaction.weight;
   }
 }
@@ -329,9 +329,9 @@ import { PaymentProvider, PaymentResult, PaymentStatus } from '../interfaces';
 
 export class CustomPaymentProvider implements PaymentProvider {
   name = 'custom-payment';
-  
+
   constructor(private config: any) {}
-  
+
   async sendMoney(phoneNumber: string, amount: number, reference: string): Promise<PaymentResult> {
     try {
       // Your payment API integration here
@@ -352,9 +352,9 @@ export class CustomPaymentProvider implements PaymentProvider {
           }
         })
       });
-      
+
       const data = await response.json();
-      
+
       return {
         success: response.ok,
         transactionId: data.transactionId,
@@ -368,7 +368,7 @@ export class CustomPaymentProvider implements PaymentProvider {
       };
     }
   }
-  
+
   async checkStatus(transactionId: string): Promise<PaymentStatus> {
     const response = await fetch(
       `${this.config.apiUrl}/payments/${transactionId}`,
@@ -378,31 +378,31 @@ export class CustomPaymentProvider implements PaymentProvider {
         }
       }
     );
-    
+
     const data = await response.json();
-    
+
     return {
       status: data.status,
       transactionId: data.id,
       amount: data.amount
     };
   }
-  
+
   async handleWebhook(payload: any): Promise<WebhookResult> {
     // Verify webhook signature
     const isValid = this.verifySignature(payload);
-    
+
     if (!isValid) {
       throw new Error('Invalid webhook signature');
     }
-    
+
     return {
       event: payload.event,
       transactionId: payload.data.transactionId,
       status: payload.data.status
     };
   }
-  
+
   private verifySignature(payload: any): boolean {
     // Implement signature verification
     return true;
@@ -448,26 +448,26 @@ export const customTheme = {
     warning: '#f59e0b',
     error: '#ef4444',
     info: '#3b82f6',
-    
+
     // Backgrounds
     background: '#ffffff',
     surface: '#f9fafb',
-    
+
     // Text
     textPrimary: '#111827',
     textSecondary: '#6b7280',
     textDisabled: '#9ca3af',
-    
+
     // Borders
     border: '#e5e7eb',
     divider: '#f3f4f6'
   },
-  
+
   fonts: {
     primary: 'Inter, sans-serif',
     mono: 'JetBrains Mono, monospace'
   },
-  
+
   spacing: {
     xs: '4px',
     sm: '8px',
@@ -475,14 +475,14 @@ export const customTheme = {
     lg: '24px',
     xl: '32px'
   },
-  
+
   borderRadius: {
     sm: '4px',
     md: '8px',
     lg: '12px',
     full: '9999px'
   },
-  
+
   shadows: {
     sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -524,16 +524,16 @@ export const whitelabelConfig = {
   companyName: 'EcoPoints Ltd',
   logo: '/custom-logo.svg',
   favicon: '/custom-favicon.ico',
-  
+
   // Colors (override theme)
   primaryColor: '#2563eb',
   secondaryColor: '#1e40af',
-  
+
   // Contact
   supportEmail: 'support@ecopoints.com',
   supportPhone: '+254700000000',
   website: 'https://ecopoints.com',
-  
+
   // Features (enable/disable)
   features: {
     referrals: true,
@@ -541,11 +541,11 @@ export const whitelabelConfig = {
     leaderboard: true,
     achievements: true
   },
-  
+
   // Terms & Privacy
   termsUrl: 'https://ecopoints.com/terms',
   privacyUrl: 'https://ecopoints.com/privacy',
-  
+
   // Social Media
   social: {
     facebook: 'https://facebook.com/ecopoints',
@@ -567,16 +567,16 @@ export const whitelabelConfig = {
 // backend/src/workflows/transaction.workflow.ts
 export class TransactionWorkflow {
   private steps: WorkflowStep[] = [];
-  
+
   addStep(step: WorkflowStep) {
     this.steps.push(step);
   }
-  
+
   async execute(transaction: Transaction) {
     for (const step of this.steps) {
       try {
         await step.execute(transaction);
-        
+
         if (step.shouldStop && step.shouldStop(transaction)) {
           break;
         }
@@ -588,7 +588,7 @@ export class TransactionWorkflow {
         }
       }
     }
-    
+
     return transaction;
   }
 }
@@ -599,7 +599,7 @@ const photoVerificationStep: WorkflowStep = {
   execute: async (transaction) => {
     if (transaction.photoUrl) {
       const result = await verifyPhoto(transaction.photoUrl);
-      
+
       if (!result.isValid) {
         transaction.status = 'rejected';
         transaction.rejectionReason = 'Photo verification failed';
@@ -612,7 +612,7 @@ const fraudDetectionStep: WorkflowStep = {
   name: 'Fraud Detection',
   execute: async (transaction) => {
     const riskScore = await calculateRiskScore(transaction);
-    
+
     if (riskScore > 0.8) {
       transaction.requiresManualReview = true;
       await notifyAdmins(transaction);
@@ -644,22 +644,22 @@ await workflow.execute(transaction);
 // backend/src/validators/custom.validator.ts
 export class CustomTransactionValidator {
   private rules: ValidationRule[] = [];
-  
+
   addRule(rule: ValidationRule) {
     this.rules.push(rule);
   }
-  
+
   async validate(transaction: Transaction): Promise<ValidationResult> {
     const errors: string[] = [];
-    
+
     for (const rule of this.rules) {
       const result = await rule.validate(transaction);
-      
+
       if (!result.isValid) {
         errors.push(result.message);
       }
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors
@@ -676,9 +676,9 @@ validator.addRule({
       HDPE: 1.0, // 1kg minimum
       GLASS: 2.0 // 2kg minimum
     };
-    
+
     const minWeight = minWeights[tx.materialType] || 0.1;
-    
+
     return {
       isValid: tx.weight >= minWeight,
       message: `Minimum weight for ${tx.materialType} is ${minWeight} kg`
@@ -692,7 +692,7 @@ validator.addRule({
   validate: async (tx) => {
     const todayCount = await countTransactionsToday(tx.collectorId);
     const maxDaily = 10;
-    
+
     return {
       isValid: todayCount < maxDaily,
       message: `Maximum ${maxDaily} transactions per day`
@@ -714,7 +714,7 @@ validator.addRule({
 export class ReportGenerator {
   async generateMonthlyReport(month: number, year: number) {
     const transactions = await this.getTransactionsForMonth(month, year);
-    
+
     const report = {
       period: `${year}-${month.toString().padStart(2, '0')}`,
       summary: {
@@ -731,13 +731,13 @@ export class ReportGenerator {
       dailyBreakdown: this.getDailyBreakdown(transactions),
       qualityDistribution: this.getQualityDistribution(transactions)
     };
-    
+
     return report;
   }
-  
+
   private groupByMaterial(transactions: Transaction[]) {
     const grouped = {};
-    
+
     for (const tx of transactions) {
       if (!grouped[tx.materialType]) {
         grouped[tx.materialType] = {
@@ -746,19 +746,19 @@ export class ReportGenerator {
           amount: 0
         };
       }
-      
+
       grouped[tx.materialType].count++;
       grouped[tx.materialType].weight += tx.weight;
       grouped[tx.materialType].amount += tx.netAmount;
     }
-    
+
     return grouped;
   }
-  
+
   async exportToPDF(report: any): Promise<Buffer> {
     // Use library like pdfkit or puppeteer
   }
-  
+
   async exportToExcel(report: any): Promise<Buffer> {
     // Use library like exceljs
   }
@@ -772,7 +772,7 @@ export class ReportGenerator {
 export class AnalyticsService {
   track(event: string, properties: any) {
     // Send to analytics provider (Mixpanel, Google Analytics, etc.)
-    
+
     // Also store in database for custom queries
     this.db.events.create({
       name: event,
@@ -810,19 +810,19 @@ analytics.track('milestone_reached', {
 export interface Plugin {
   name: string;
   version: string;
-  
+
   // Lifecycle hooks
   install?(app: Application): Promise<void>;
   uninstall?(): Promise<void>;
-  
+
   // Event hooks
   onTransactionCreated?(transaction: Transaction): Promise<void>;
   onTransactionCompleted?(transaction: Transaction): Promise<void>;
   onUserRegistered?(user: User): Promise<void>;
-  
+
   // Custom routes
   routes?: Route[];
-  
+
   // Custom migrations
   migrations?: string[];
 }
@@ -835,31 +835,31 @@ export interface Plugin {
 export const referralPlugin: Plugin = {
   name: 'referral-system',
   version: '1.0.0',
-  
+
   async install(app) {
     console.log('Installing referral plugin...');
-    
+
     // Run migrations
     await runMigrations(this.migrations);
-    
+
     // Register routes
     this.routes.forEach(route => {
       app.use(route.path, route.handler);
     });
   },
-  
+
   async onUserRegistered(user) {
     // Check if user was referred
     if (user.referralCode) {
       const referrer = await findUserByReferralCode(user.referralCode);
-      
+
       if (referrer) {
         // Award bonus to referrer
         await awardBonus(referrer.id, 5.00);
-        
+
         // Award bonus to new user
         await awardBonus(user.id, 2.00);
-        
+
         // Track referral
         await createReferral({
           referrerId: referrer.id,
@@ -869,24 +869,24 @@ export const referralPlugin: Plugin = {
       }
     }
   },
-  
+
   async onTransactionCompleted(transaction) {
     // Award referrer when referred user makes transactions
     const referral = await findReferral(transaction.collectorId);
-    
+
     if (referral && referral.isActive) {
       const bonus = transaction.netAmount * 0.05; // 5% commission
       await awardBonus(referral.referrerId, bonus);
     }
   },
-  
+
   routes: [
     {
       path: '/api/v1/referrals',
       handler: referralRoutes
     }
   ],
-  
+
   migrations: [
     '001_create_referrals_table.sql',
     '002_add_referral_code_to_users.sql'
@@ -958,8 +958,8 @@ project/
 
 ## Examples Repository
 
-Find more customization examples at:
-https://github.com/wastefi/customization-examples
+Further customization examples live alongside the theme sources in
+[wastefi-docs](https://github.com/WASTEFI-AFRICA/wastefi-docs/tree/main/.vitepress).
 
 ---
 

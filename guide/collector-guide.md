@@ -100,14 +100,14 @@ Get better prices with higher quality!
 
 ### Collection Tips
 
-✅ **DO:**
+Done **DO:**
 - Remove labels when possible
 - Rinse bottles and cans
 - Flatten cardboard boxes
 - Sort by material type
 - Keep materials dry
 
-❌ **DON'T:**
+Not done **DON'T:**
 - Mix food waste with recyclables
 - Bring hazardous materials
 - Collect damaged/broken items
@@ -386,7 +386,7 @@ Yes, but you must deposit at a registered WasteFi collection point to get paid t
 
 ### In-App Support
 
-1. Tap menu (☰)
+1. Tap menu ()
 2. Tap "Help & Support"
 3. Choose your issue
 4. Get instant answers or chat with support
@@ -429,22 +429,19 @@ support@wastefi.org
 
 Now that you know how WasteFi works:
 
-1. ✅ **Register** on app.wastefi.org or via SMS
-2. ✅ **Find** your nearest collection point
-3. ✅ **Collect** materials (aim for Grade A!)
-4. ✅ **Deposit** and get paid instantly
-5. ✅ **Track** your earnings and impact
+1. **Register** on app.wastefi.org or via SMS
+2. **Find** your nearest collection point
+3. **Collect** materials (aim for Grade A!)
+4. **Deposit** and get paid instantly
+5. **Track** your earnings and impact
 
-**Welcome to the WasteFi community! 🌍💚**
+**Welcome to the WasteFi community! **
 
 ---
 
 ## Additional Resources
 
 - [FAQ](/guide/faq) - Frequently asked questions
-- [Collection Points](/guide/collection-points) - Find locations
-- [Material Prices](/guide/prices) - Current rates
-- [Impact Calculator](/guide/impact) - Calculate your CO2 savings
 
 ## Contact Us
 

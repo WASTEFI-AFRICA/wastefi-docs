@@ -339,7 +339,7 @@ describe('Complete Transaction Flow E2E', () => {
     await confirmTransaction(operator.token, transaction.id);
 
     // 6. Wait for payment processing
-    await waitFor(() => 
+    await waitFor(() =>
       getTransaction(transaction.id).then(t => t.status === 'completed'),
       { timeout: 30000 }
     );
@@ -494,7 +494,7 @@ cargo tarpaulin --out Html
 #[test]
 fn test_transaction_workflow_integration() {
     let env = Env::default();
-    
+
     // Deploy contracts
     let transaction_contract = deploy_transaction_contract(&env);
     let payment_contract = deploy_payment_contract(&env);
@@ -738,7 +738,7 @@ test.describe('Transaction Flow', () => {
     await page.goto('/map');
     await page.click('.collection-point-marker').first();
     await page.click('text=Start Transaction');
-    
+
     await page.selectOption('#material-type', 'PET');
     await page.fill('#weight', '5.5');
     await page.click('text=Continue');
@@ -984,31 +984,31 @@ npm run test:coverage -- --check-coverage
 ### Writing Good Tests
 
 **DO:**
-- ✅ Write descriptive test names
-- ✅ Use AAA pattern (Arrange, Act, Assert)
-- ✅ Test one thing per test
-- ✅ Keep tests independent
-- ✅ Mock external dependencies
-- ✅ Use realistic test data
-- ✅ Clean up after tests
+- Write descriptive test names
+- Use AAA pattern (Arrange, Act, Assert)
+- Test one thing per test
+- Keep tests independent
+- Mock external dependencies
+- Use realistic test data
+- Clean up after tests
 
 **DON'T:**
-- ❌ Test implementation details
-- ❌ Make tests dependent on order
-- ❌ Use real API calls in unit tests
-- ❌ Ignore failing tests
-- ❌ Write overly complex tests
-- ❌ Skip error cases
+- Test implementation details
+- Make tests dependent on order
+- Use real API calls in unit tests
+- Ignore failing tests
+- Write overly complex tests
+- Skip error cases
 
 ### Test Naming Conventions
 
 ```
-✅ Good:
+Done Good:
 - should calculate correct amount for Grade A material
 - should throw error for invalid material type
 - should process mobile money payout successfully
 
-❌ Bad:
+Not done Bad:
 - test1
 - it works
 - transaction test
@@ -1038,4 +1038,4 @@ See [CI/CD Documentation](./ci-cd.md) for pipeline configuration.
 
 ---
 
-**Happy testing! 🧪**
+**Happy testing! **

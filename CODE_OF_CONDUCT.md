@@ -262,7 +262,7 @@ If you have questions about this Code of Conduct, please contact:
 **Email:** conduct@wastefi.org
 
 Or open a discussion on GitHub:
-**Discussions:** https://github.com/wastefi/community/discussions
+**Discussions:** https://github.com/orgs/WASTEFI-AFRICA/discussions
 
 ---
 
@@ -272,7 +272,7 @@ Or open a discussion on GitHub:
 
 We're building WasteFi to create positive environmental and social impact. Let's build a community that reflects those values.
 
-Thank you for being part of the WasteFi community! 💚
+Thank you for being part of the WasteFi community!
 
 ---
 

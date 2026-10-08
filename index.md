@@ -11,31 +11,25 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/wastefi
+      link: https://github.com/WASTEFI-AFRICA
 
 features:
-  - icon: 📱
-    title: Mobile-First Waste Banking
+  - title: Mobile-First Waste Banking
     details: Empowering waste collectors in emerging markets with instant mobile money payments and financial inclusion.
-  
-  - icon: 🔗
-    title: Blockchain-Powered
+
+  - title: Blockchain-Powered
     details: Built on Stellar blockchain for fast, low-cost, transparent transactions and verifiable impact data.
-  
-  - icon: 🌍
-    title: Open Material Standards
+
+  - title: Open Material Standards
     details: Integrates RecycleGraph protocol for standardized material identification and digital product passports.
-  
-  - icon: 💰
-    title: Waste-to-Value Platform
+
+  - title: Waste-to-Value Platform
     details: Convert waste collection into carbon credits, EPR compliance, and real financial value for collectors.
-  
-  - icon: 🏪
-    title: Collection Point Network
+
+  - title: Collection Point Network
     details: Manage collection points, track materials, and integrate with mobile money providers across Africa.
-  
-  - icon: 📊
-    title: Verifiable Impact
+
+  - title: Verifiable Impact
     details: Transparent tracking and reporting for environmental impact, carbon credits, and compliance.
 ---
 
@@ -45,7 +39,7 @@ Get started with WasteFi in minutes:
 
 ```bash
 # Clone the repository
-git clone https://github.com/wastefi/wastefi-docs.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-docs.git
 
 # Explore the documentation
 cd wastefi-docs
@@ -72,5 +66,5 @@ Traditional waste management systems exclude informal waste collectors from the 
 ---
 
 ::: info Coming Soon
-This documentation is actively being developed. Check back regularly for updates or contribute on [GitHub](https://github.com/wastefi).
+This documentation is actively being developed. Check back regularly for updates or contribute on [GitHub](https://github.com/WASTEFI-AFRICA).
 :::

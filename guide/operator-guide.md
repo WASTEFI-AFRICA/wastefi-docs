@@ -85,15 +85,15 @@ This guide will help you manage your WasteFi collection point efficiently and se
 
 **Morning Checklist:**
 ```
-☐ Arrive 15 minutes before opening
-☐ Check scale calibration
-☐ Test internet connection
-☐ Check wallet balance
-☐ Review pending transactions
-☐ Prepare storage areas
-☐ Put on safety equipment
-☐ Open WasteFi operator app
-☐ Set status to "Open"
+ Arrive 15 minutes before opening
+ Check scale calibration
+ Test internet connection
+ Check wallet balance
+ Review pending transactions
+ Prepare storage areas
+ Put on safety equipment
+ Open WasteFi operator app
+ Set status to "Open"
 ```
 
 ### Processing Collectors
@@ -185,15 +185,15 @@ Net to collector: $1.94
 
 **Evening Checklist:**
 ```
-☐ Stop accepting new collectors (15 min before close)
-☐ Complete pending transactions
-☐ Reconcile daily totals
-☐ Sort and secure all materials
-☐ Take inventory count
-☐ Clean work area
-☐ Submit daily report
-☐ Set status to "Closed"
-☐ Secure premises
+ Stop accepting new collectors (15 min before close)
+ Complete pending transactions
+ Reconcile daily totals
+ Sort and secure all materials
+ Take inventory count
+ Clean work area
+ Submit daily report
+ Set status to "Closed"
+ Secure premises
 ```
 
 ---
@@ -205,11 +205,11 @@ Net to collector: $1.94
 #### Grade A (+20% bonus)
 
 **Criteria:**
-- ✅ Clean and dry
-- ✅ Labels removed
-- ✅ No contamination
-- ✅ Properly sorted
-- ✅ No damage
+- Clean and dry
+- Labels removed
+- No contamination
+- Properly sorted
+- No damage
 
 **Examples:**
 - PET bottles: rinsed, labels off, caps removed
@@ -219,10 +219,10 @@ Net to collector: $1.94
 #### Grade B (Standard price)
 
 **Criteria:**
-- ✅ Clean
-- ⚠️ Some labels acceptable
-- ✅ Sorted by type
-- ⚠️ Minor contamination OK
+- **+** Clean
+- **!** Some labels acceptable
+- **+** Sorted by type
+- **!** Minor contamination OK
 
 **Examples:**
 - PET bottles: rinsed, some labels on
@@ -232,10 +232,10 @@ Net to collector: $1.94
 #### Grade C (-20% penalty)
 
 **Criteria:**
-- ⚠️ Dirty or wet
-- ⚠️ Mixed materials
-- ⚠️ Significant contamination
-- ⚠️ Damaged
+- Dirty or wet
+- Mixed materials
+- Significant contamination
+- Damaged
 
 **Examples:**
 - PET bottles: not rinsed, labels on, dirty
@@ -245,10 +245,10 @@ Net to collector: $1.94
 #### Grade X (Rejected)
 
 **Not Acceptable:**
-- ❌ Hazardous materials
-- ❌ Medical waste
-- ❌ Severely contaminated
-- ❌ Non-recyclable items
+- Hazardous materials
+- Medical waste
+- Severely contaminated
+- Non-recyclable items
 
 ### Visual Identification Guide
 
@@ -431,31 +431,31 @@ When storage reaches 80% capacity:
 ### Customer Service Excellence
 
 **Do:**
-- ✅ Greet every collector warmly
-- ✅ Be patient and helpful
-- ✅ Explain processes clearly
-- ✅ Help new collectors learn
-- ✅ Maintain positive attitude
-- ✅ Keep area clean and professional
-- ✅ Respect all collectors equally
+- Greet every collector warmly
+- Be patient and helpful
+- Explain processes clearly
+- Help new collectors learn
+- Maintain positive attitude
+- Keep area clean and professional
+- Respect all collectors equally
 
 **Don't:**
-- ❌ Rush collectors
-- ❌ Be rude or dismissive
-- ❌ Negotiate prices (they're standardized)
-- ❌ Accept bribes or favors
-- ❌ Discriminate
-- ❌ Share personal information
+- Rush collectors
+- Be rude or dismissive
+- Negotiate prices (they're standardized)
+- Accept bribes or favors
+- Discriminate
+- Share personal information
 
 ### Quality Control
 
 **Weekly Quality Audit:**
 ```
-☐ Check scale accuracy (use test weights)
-☐ Review grading consistency
-☐ Inspect storage conditions
-☐ Check material sorting
-☐ Review rejection reasons
+ Check scale accuracy (use test weights)
+ Review grading consistency
+ Inspect storage conditions
+ Check material sorting
+ Review rejection reasons
 ```
 
 **Self-Assessment Questions:**
@@ -743,4 +743,4 @@ Support:  [Your regional number]
 
 ---
 
-**Thank you for being a WasteFi collection point operator! Together, we're building a cleaner, more sustainable future. 🌍💚**
+**Thank you for being a WasteFi collection point operator! Together, we're building a cleaner, more sustainable future. **

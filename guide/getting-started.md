@@ -33,13 +33,13 @@ WasteFi consists of four main components:
 ## Next Steps
 
 ::: tip Choose Your Path
-- [User Guide →](/guide/user-guide) - For collectors and operators
-- [Developer Guide →](/guide/developer-guide) - For technical implementation
+- [User Guide →](/guide/collector-guide) - For collectors and operators
+- [Developer Guide →](/guide/local-development) - For technical implementation
 - [About WasteFi →](/about/vision) - Learn about our vision and mission
 :::
 
 ## Need Help?
 
-- 📧 Email: support@wastefi.org
-- 💬 Community: [Join our Discord](https://discord.gg/wastefi)
-- 🐛 Issues: [GitHub Issues](https://github.com/wastefi/wastefi-docs/issues)
+- Email: support@wastefi.org
+- Community: [Join our Discord](https://discord.gg/wastefi)
+- Issues: [GitHub Issues](https://github.com/WASTEFI-AFRICA/wastefi-docs/issues)

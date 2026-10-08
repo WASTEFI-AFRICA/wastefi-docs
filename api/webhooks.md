@@ -16,11 +16,11 @@ Webhooks allow your application to receive real-time notifications when events o
 ```
 ┌─────────┐          ┌──────────┐          ┌──────────────┐
 │ WasteFi │  Event   │ Webhook  │  POST    │ Your Server  │
-│ System  │─────────▶│ Service  │─────────▶│  Endpoint    │
+│ System │─────────│ Service │─────────│ Endpoint │
 └─────────┘          └──────────┘          └──────────────┘
                            │                       │
                            │      200 OK           │
-                           │◀──────────────────────┘
+                           │──────────────────────┘
 ```
 
 ---
@@ -45,16 +45,16 @@ app.use(express.json());
 app.post('/webhooks/wastefi', (req, res) => {
   const signature = req.headers['x-wastefi-signature'];
   const payload = JSON.stringify(req.body);
-  
+
   // Verify signature (see Security section)
   if (!verifySignature(payload, signature)) {
     return res.status(401).send('Invalid signature');
   }
-  
+
   // Process the event
   const event = req.body;
   console.log(`Received event: ${event.type}`);
-  
+
   switch (event.type) {
     case 'transaction.completed':
       handleTransactionCompleted(event.data);
@@ -64,7 +64,7 @@ app.post('/webhooks/wastefi', (req, res) => {
       break;
     // Handle other event types
   }
-  
+
   // Return 200 to acknowledge receipt
   res.status(200).send('Webhook received');
 });
@@ -120,7 +120,7 @@ Content-Type: application/json
 }
 ```
 
-**⚠️ Important:** Store the `signingSecret` securely. You'll need it to verify webhook signatures.
+**Warning Important:**Store the `signingSecret` securely. You'll need it to verify webhook signatures.
 
 ---
 
@@ -482,20 +482,20 @@ function verifyWebhookSignature(payload, header, secret) {
   const items = header.split(',');
   const timestamp = items[0].split('=')[1];
   const signature = items[1].split('=')[1];
-  
+
   // Check timestamp (prevent replay attacks)
   const currentTime = Math.floor(Date.now() / 1000);
   if (Math.abs(currentTime - timestamp) > 300) { // 5 minutes
     throw new Error('Webhook timestamp too old');
   }
-  
+
   // Compute expected signature
   const signedPayload = `${timestamp}.${payload}`;
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(signedPayload)
     .digest('hex');
-  
+
   // Compare signatures (timing-safe)
   return crypto.timingSafeEqual(
     Buffer.from(signature),
@@ -507,16 +507,16 @@ function verifyWebhookSignature(payload, header, secret) {
 app.post('/webhooks/wastefi', express.raw({ type: 'application/json' }), (req, res) => {
   const signature = req.headers['x-wastefi-signature'];
   const payload = req.body.toString();
-  
+
   try {
     verifyWebhookSignature(payload, signature, process.env.WEBHOOK_SECRET);
   } catch (err) {
     return res.status(401).send('Invalid signature');
   }
-  
+
   const event = JSON.parse(payload);
   // Process event...
-  
+
   res.status(200).send('OK');
 });
 ```
@@ -532,11 +532,11 @@ def verify_webhook_signature(payload, header, secret):
     items = dict(item.split('=') for item in header.split(','))
     timestamp = items['t']
     signature = items['v1']
-    
+
     # Check timestamp
     if abs(time.time() - int(timestamp)) > 300:
         raise ValueError('Webhook timestamp too old')
-    
+
     # Compute expected signature
     signed_payload = f"{timestamp}.{payload}"
     expected_signature = hmac.new(
@@ -544,7 +544,7 @@ def verify_webhook_signature(payload, header, secret):
         signed_payload.encode(),
         hashlib.sha256
     ).hexdigest()
-    
+
     # Compare signatures
     return hmac.compare_digest(signature, expected_signature)
 ```
@@ -558,19 +558,19 @@ function verifyWebhookSignature($payload, $header, $secret) {
         list($key, $value) = explode('=', $item);
         $items[$key] = $value;
     }
-    
+
     $timestamp = $items['t'];
     $signature = $items['v1'];
-    
+
     // Check timestamp
     if (abs(time() - $timestamp) > 300) {
         throw new Exception('Webhook timestamp too old');
     }
-    
+
     // Compute expected signature
     $signedPayload = "$timestamp.$payload";
     $expectedSignature = hash_hmac('sha256', $signedPayload, $secret);
-    
+
     // Compare signatures
     return hash_equals($signature, $expectedSignature);
 }
@@ -644,10 +644,10 @@ Return 200 status immediately, then process the event asynchronously:
 app.post('/webhooks/wastefi', async (req, res) => {
   // Verify signature
   verifySignature(req.body, req.headers['x-wastefi-signature']);
-  
+
   // Acknowledge receipt immediately
   res.status(200).send('OK');
-  
+
   // Process asynchronously
   processWebhookAsync(req.body).catch(err => {
     console.error('Webhook processing error:', err);
@@ -666,10 +666,10 @@ function handleWebhook(event) {
     console.log('Event already processed:', event.id);
     return;
   }
-  
+
   // Process event
   processEvent(event);
-  
+
   // Mark as processed
   processedEvents.add(event.id);
 }
@@ -681,16 +681,16 @@ Track webhook failures and response times:
 ```javascript
 app.post('/webhooks/wastefi', async (req, res) => {
   const startTime = Date.now();
-  
+
   try {
     await processWebhook(req.body);
     res.status(200).send('OK');
-    
+
     // Log success metrics
     metrics.recordWebhookSuccess(Date.now() - startTime);
   } catch (err) {
     res.status(500).send('Error');
-    
+
     // Log failure
     metrics.recordWebhookFailure(err);
     alerts.sendAlert('Webhook processing failed');
@@ -815,12 +815,12 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 ### Webhook Not Receiving Events
 
 **Check List:**
-1. ✅ Endpoint URL is publicly accessible via HTTPS
-2. ✅ Webhook is marked as `active: true`
-3. ✅ Events are configured for the webhook
-4. ✅ Firewall allows incoming connections
-5. ✅ Server responds within 5 seconds
-6. ✅ Server returns 200 status code
+1. Endpoint URL is publicly accessible via HTTPS
+2. Webhook is marked as `active: true`
+3. Events are configured for the webhook
+4. Firewall allows incoming connections
+5. Server responds within 5 seconds
+6. Server returns 200 status code
 
 ### Signature Verification Failing
 
@@ -884,12 +884,12 @@ const app = express();
 const WEBHOOK_SECRET = process.env.WASTEFI_WEBHOOK_SECRET;
 
 // Use raw body for signature verification
-app.post('/webhooks/wastefi', 
+app.post('/webhooks/wastefi',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
     const signature = req.headers['x-wastefi-signature'];
     const payload = req.body.toString();
-    
+
     // 1. Verify signature
     try {
       verifyWebhookSignature(payload, signature, WEBHOOK_SECRET);
@@ -897,19 +897,19 @@ app.post('/webhooks/wastefi',
       console.error('Signature verification failed:', err);
       return res.status(401).send('Invalid signature');
     }
-    
+
     const event = JSON.parse(payload);
-    
+
     // 2. Check for duplicates
     const processed = await redis.exists(`webhook:${event.id}`);
     if (processed) {
       console.log('Duplicate event:', event.id);
       return res.status(200).send('OK');
     }
-    
+
     // 3. Acknowledge receipt immediately
     res.status(200).send('OK');
-    
+
     // 4. Process asynchronously
     processWebhook(event).catch(err => {
       console.error('Processing error:', err);
@@ -920,7 +920,7 @@ app.post('/webhooks/wastefi',
 async function processWebhook(event) {
   // Mark as processed
   await redis.setex(`webhook:${event.id}`, 86400, '1');
-  
+
   // Handle event type
   switch (event.type) {
     case 'transaction.completed':
@@ -941,20 +941,20 @@ function verifyWebhookSignature(payload, header, secret) {
   const items = header.split(',');
   const timestamp = items[0].split('=')[1];
   const signature = items[1].split('=')[1];
-  
+
   // Check timestamp
   const currentTime = Math.floor(Date.now() / 1000);
   if (Math.abs(currentTime - timestamp) > 300) {
     throw new Error('Webhook timestamp too old');
   }
-  
+
   // Compute signature
   const signedPayload = `${timestamp}.${payload}`;
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(signedPayload)
     .digest('hex');
-  
+
   // Compare
   if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
     throw new Error('Signature mismatch');

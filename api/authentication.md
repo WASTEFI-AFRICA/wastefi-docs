@@ -286,7 +286,7 @@ POST /auth/refresh-token
 async function getValidToken() {
   const token = localStorage.getItem('accessToken');
   const decoded = jwtDecode(token);
-  
+
   // Refresh if token expires in less than 2 minutes
   if (decoded.exp * 1000 - Date.now() < 120000) {
     const response = await fetch('https://api.wastefi.org/v1/auth/refresh-token', {
@@ -296,12 +296,12 @@ async function getValidToken() {
         refreshToken: localStorage.getItem('refreshToken')
       })
     });
-    
+
     const { data } = await response.json();
     localStorage.setItem('accessToken', data.accessToken);
     return data.accessToken;
   }
-  
+
   return token;
 }
 ```
@@ -540,4 +540,4 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 
 - [Users API](/api/users) - Manage user profiles
 - [Transactions API](/api/transactions) - Create and manage transactions
-- [SDK Documentation](/guide/sdk) - Use official SDKs
+- [SDK Documentation](/guide/api-examples) - Use official SDKs

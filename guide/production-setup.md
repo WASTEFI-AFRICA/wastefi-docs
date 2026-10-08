@@ -9,16 +9,16 @@ This guide covers deploying WasteFi to production using AWS infrastructure. Whil
 ```
 Internet
     │
-    ▼
+
 ┌─────────────────┐
 │   CloudFlare    │ ← CDN, DDoS Protection, SSL
 └────────┬────────┘
          │
-    ┌────▼────┐
+    ┌────────┐
     │   ALB   │ ← Application Load Balancer
     └────┬────┘
          │
-    ┌────▼────────────────┐
+    ┌────────────────────┐
     │   ECS Cluster       │
     │  ┌──────┐ ┌──────┐ │
     │  │ API  │ │ API  │ │ ← Auto-scaled containers
@@ -28,7 +28,7 @@ Internet
          │
     ┌────┴────────────┐
     │                 │
-┌───▼──────┐    ┌────▼────┐
+┌─────────┐ ┌────────┐
 │    RDS   │    │ Redis   │
 │PostgreSQL│    │ Elastic │
 │Multi-AZ  │    │  Cache  │
@@ -156,19 +156,19 @@ resource "aws_db_instance" "postgresql" {
   allocated_storage     = 100
   max_allocated_storage = 500
   storage_encrypted     = true
-  
+
   db_name  = "wastefi_production"
   username = "wastefi_admin"
   password = var.db_password  # Use AWS Secrets Manager
-  
+
   multi_az               = true
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.database.id]
-  
+
   backup_retention_period = 7
   backup_window          = "03:00-04:00"
   maintenance_window     = "sun:04:00-sun:05:00"
-  
+
   deletion_protection = true
   skip_final_snapshot = false
   final_snapshot_identifier = "wastefi-final-snapshot"
@@ -192,20 +192,20 @@ resource "aws_elasticache_subnet_group" "main" {
 resource "aws_elasticache_replication_group" "redis" {
   replication_group_id       = "wastefi-redis"
   replication_group_description = "Redis cluster for WasteFi"
-  
+
   engine               = "redis"
   engine_version       = "7.0"
   node_type            = "cache.t3.medium"
   number_cache_clusters = 2
-  
+
   port                = 6379
   parameter_group_name = "default.redis7"
   subnet_group_name    = aws_elasticache_subnet_group.main.name
   security_group_ids   = [aws_security_group.redis.id]
-  
+
   automatic_failover_enabled = true
   multi_az_enabled          = true
-  
+
   at_rest_encryption_enabled = true
   transit_encryption_enabled = true
   auth_token                = var.redis_password
@@ -573,10 +573,6 @@ CNAME www.wastefi.org    →  wastefi.org
 
 ## Next Steps
 
-- [Monitoring Setup](/guide/monitoring)
-- [Backup Strategy](/guide/backups)
-- [Disaster Recovery](/guide/disaster-recovery)
-- [Performance Tuning](/guide/performance)
 
 ---
 

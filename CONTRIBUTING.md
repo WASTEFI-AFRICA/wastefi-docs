@@ -21,7 +21,7 @@ Thank you for your interest in contributing to WasteFi! This document provides g
 
 1. **Fork the Repository**
    ```bash
-   git clone https://github.com/wastefi/wastefi-docs.git
+   git clone https://github.com/WASTEFI-AFRICA/wastefi-docs.git
    ```
 
 2. **Create a Branch**
@@ -89,4 +89,4 @@ Thank you for your interest in contributing to WasteFi! This document provides g
 - Email: contribute@wastefi.org
 - Open a discussion on GitHub
 
-Thank you for contributing to WasteFi! 🙏
+Thank you for contributing to WasteFi!

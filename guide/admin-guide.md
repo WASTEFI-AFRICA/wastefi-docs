@@ -60,25 +60,25 @@ Staging:    https://admin-staging.wastefi.org
 │  • Collection point opened (15 min ago)                │
 │                                                         │
 │  Alerts & Notifications                 [View All]      │
-│  ⚠️  3 pending disputes                                 │
-│  ℹ️  System maintenance scheduled                      │
-│  ✓  Monthly report ready                               │
+│ Warning 3 pending disputes │
+│ System maintenance scheduled │
+│ Done Monthly report ready │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ### Navigation Menu
 
 **Main Sections:**
-- 📊 Dashboard (Home)
-- 👥 Users
-- 📍 Collection Points
-- 💰 Transactions
-- 💳 Payments
-- 🌍 Impact
-- ⚙️ Settings
-- 📈 Analytics
-- 🔔 Support
-- 📄 Reports
+- Dashboard (Home)
+- Users
+- Collection Points
+- Transactions
+- Payments
+- Impact
+- Settings
+- Analytics
+- Support
+- Reports
 
 ---
 
@@ -758,7 +758,7 @@ Then: Send email to finance@wastefi.org
 6. Exit impersonation
 7. All actions logged
 
-**⚠️ Use responsibly!**
+**Warning Use responsibly!**
 
 ---
 
@@ -904,27 +904,27 @@ The admin dashboard is also available as a mobile app for on-the-go management:
 ### New Admin Onboarding
 
 ```
-☐ Account created
-☐ 2FA enabled
-☐ Role and permissions assigned
-☐ Training completed
-☐ Access to communication channels
-☐ Emergency contacts shared
-☐ Shadowed experienced admin
-☐ First week review completed
+ Account created
+ 2FA enabled
+ Role and permissions assigned
+ Training completed
+ Access to communication channels
+ Emergency contacts shared
+ Shadowed experienced admin
+ First week review completed
 ```
 
 ### Monthly Admin Review
 
 ```
-☐ Review performance metrics
-☐ Check system health
-☐ Review security incidents
-☐ Update procedures if needed
-☐ Team feedback session
-☐ Training opportunities identified
+ Review performance metrics
+ Check system health
+ Review security incidents
+ Update procedures if needed
+ Team feedback session
+ Training opportunities identified
 ```
 
 ---
 
-**You have the power to keep WasteFi running smoothly! Use it wisely. 🚀**
+**You have the power to keep WasteFi running smoothly! Use it wisely. **

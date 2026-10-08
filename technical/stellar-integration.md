@@ -56,23 +56,23 @@ COLLECTION_POINT_SECRET=SXXXXXXXXXXXXXXXXXXXXX
 async function createUserWallet(userId) {
   // Generate new keypair
   const pair = StellarSdk.Keypair.random();
-  
+
   // Store in database (encrypted)
   const wallet = await db.wallets.create({
     userId: userId,
     stellarAddress: pair.publicKey(),
     stellarSeedEncrypted: encrypt(pair.secret())
   });
-  
+
   // Fund the account (minimum 1 XLM for activation)
   await fundAccount(pair.publicKey());
-  
+
   return wallet;
 }
 
 async function fundAccount(publicKey) {
   const platformAccount = await loadPlatformAccount();
-  
+
   // Create account operation
   const transaction = new StellarSdk.TransactionBuilder(platformAccount, {
     fee: StellarSdk.BASE_FEE,
@@ -84,10 +84,10 @@ async function fundAccount(publicKey) {
   }))
   .setTimeout(180)
   .build();
-  
+
   // Sign with platform account
   transaction.sign(getPlatformKeypair());
-  
+
   // Submit to network
   return await server.submitTransaction(transaction);
 }
@@ -105,14 +105,14 @@ function encryptSeed(seed) {
   const algorithm = 'aes-256-gcm';
   const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
   const iv = crypto.randomBytes(16);
-  
+
   const cipher = crypto.createCipheriv(algorithm, key, iv);
-  
+
   let encrypted = cipher.update(seed, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  
+
   const authTag = cipher.getAuthTag();
-  
+
   return {
     encrypted: encrypted,
     iv: iv.toString('hex'),
@@ -124,18 +124,18 @@ function encryptSeed(seed) {
 function decryptSeed(encryptedData) {
   const algorithm = 'aes-256-gcm';
   const key = Buffer.from(process.env.ENCRYPTION_KEY, 'hex');
-  
+
   const decipher = crypto.createDecipheriv(
     algorithm,
     key,
     Buffer.from(encryptedData.iv, 'hex')
   );
-  
+
   decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
-  
+
   let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
-  
+
   return decrypted;
 }
 ```
@@ -147,16 +147,16 @@ For collection points, use multi-signature wallets requiring multiple approvals:
 ```javascript
 async function createMultiSigWallet(operatorKeys) {
   const masterKey = StellarSdk.Keypair.random();
-  
+
   // Load the account
   const account = await server.loadAccount(masterKey.publicKey());
-  
+
   // Build transaction to add signers and set thresholds
   const transaction = new StellarSdk.TransactionBuilder(account, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: StellarSdk.Networks.PUBLIC
   });
-  
+
   // Add each operator as a signer (weight: 1)
   operatorKeys.forEach(key => {
     transaction.addOperation(
@@ -168,7 +168,7 @@ async function createMultiSigWallet(operatorKeys) {
       })
     );
   });
-  
+
   // Set thresholds (require 2 signatures for medium/high operations)
   transaction.addOperation(
     StellarSdk.Operation.setOptions({
@@ -178,10 +178,10 @@ async function createMultiSigWallet(operatorKeys) {
       highThreshold: 3  // Account changes require 3 sigs
     })
   );
-  
+
   const builtTx = transaction.setTimeout(180).build();
   builtTx.sign(masterKey);
-  
+
   return await server.submitTransaction(builtTx);
 }
 ```
@@ -197,7 +197,7 @@ async function sendPayment(fromKeypair, toAddress, amount) {
   try {
     // Load sender account
     const account = await server.loadAccount(fromKeypair.publicKey());
-    
+
     // Build transaction
     const transaction = new StellarSdk.TransactionBuilder(account, {
       fee: StellarSdk.BASE_FEE,
@@ -213,19 +213,19 @@ async function sendPayment(fromKeypair, toAddress, amount) {
     .addMemo(StellarSdk.Memo.text('WasteFi payment'))
     .setTimeout(180)
     .build();
-    
+
     // Sign transaction
     transaction.sign(fromKeypair);
-    
+
     // Submit to network
     const result = await server.submitTransaction(transaction);
-    
+
     return {
       success: true,
       hash: result.hash,
       ledger: result.ledger
     };
-    
+
   } catch (error) {
     console.error('Payment failed:', error);
     throw error;
@@ -242,9 +242,9 @@ async function sendUSDCPayment(fromKeypair, toAddress, amount) {
     'USDC',
     'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN'
   );
-  
+
   const account = await server.loadAccount(fromKeypair.publicKey());
-  
+
   const transaction = new StellarSdk.TransactionBuilder(account, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: StellarSdk.Networks.PUBLIC
@@ -258,9 +258,9 @@ async function sendUSDCPayment(fromKeypair, toAddress, amount) {
   )
   .setTimeout(180)
   .build();
-  
+
   transaction.sign(fromKeypair);
-  
+
   return await server.submitTransaction(transaction);
 }
 ```
@@ -272,18 +272,18 @@ Convert between currencies automatically using Stellar DEX:
 ```javascript
 async function sendPathPayment(fromKeypair, toAddress, sendAsset, destAsset, destAmount) {
   const account = await server.loadAccount(fromKeypair.publicKey());
-  
+
   // Find payment path
   const paths = await server
     .strictReceivePaths(sendAsset, destAsset, destAmount)
     .call();
-  
+
   if (paths.records.length === 0) {
     throw new Error('No payment path found');
   }
-  
+
   const bestPath = paths.records[0];
-  
+
   const transaction = new StellarSdk.TransactionBuilder(account, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: StellarSdk.Networks.PUBLIC
@@ -300,9 +300,9 @@ async function sendPathPayment(fromKeypair, toAddress, sendAsset, destAsset, des
   )
   .setTimeout(180)
   .build();
-  
+
   transaction.sign(fromKeypair);
-  
+
   return await server.submitTransaction(transaction);
 }
 ```
@@ -334,7 +334,7 @@ function streamTransactions(publicKey, callback) {
 const closeStream = streamTransactions(userPublicKey, async (tx) => {
   // Process incoming transaction
   await processTransaction(tx);
-  
+
   // Notify user
   await sendNotification(userId, 'Payment received!');
 });
@@ -349,7 +349,7 @@ const closeStream = streamTransactions(userPublicKey, async (tx) => {
 async function getTransactionStatus(txHash) {
   try {
     const transaction = await server.transactions().transaction(txHash).call();
-    
+
     return {
       success: transaction.successful,
       ledger: transaction.ledger,
@@ -372,13 +372,13 @@ async function getTransactionStatus(txHash) {
 async function getAccountBalance(publicKey) {
   try {
     const account = await server.loadAccount(publicKey);
-    
+
     const balances = account.balances.map(balance => ({
       asset: balance.asset_type === 'native' ? 'XLM' : balance.asset_code,
       balance: balance.balance,
       limit: balance.limit || null
     }));
-    
+
     return balances;
   } catch (error) {
     console.error('Failed to load account:', error);
@@ -396,7 +396,7 @@ Before receiving custom assets, accounts must create trust lines:
 ```javascript
 async function createTrustline(userKeypair, asset) {
   const account = await server.loadAccount(userKeypair.publicKey());
-  
+
   const transaction = new StellarSdk.TransactionBuilder(account, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: StellarSdk.Networks.PUBLIC
@@ -409,9 +409,9 @@ async function createTrustline(userKeypair, asset) {
   )
   .setTimeout(180)
   .build();
-  
+
   transaction.sign(userKeypair);
-  
+
   return await server.submitTransaction(transaction);
 }
 
@@ -421,7 +421,7 @@ async function setupUSDCTrustline(userKeypair) {
     'USDC',
     'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN'
   );
-  
+
   return await createTrustline(userKeypair, USDC);
 }
 ```
@@ -441,22 +441,22 @@ async function sendPaymentWithErrorHandling(from, to, amount) {
     if (error.response?.data?.extras?.result_codes?.operations?.[0] === 'op_underfunded') {
       throw new Error('Insufficient balance');
     }
-    
+
     // Account doesn't exist
     if (error.response?.status === 404) {
       throw new Error('Destination account not found');
     }
-    
+
     // No trustline
     if (error.response?.data?.extras?.result_codes?.operations?.[0] === 'op_no_trust') {
       throw new Error('Recipient has not set up trustline for this asset');
     }
-    
+
     // Transaction timeout
     if (error.response?.data?.extras?.result_codes?.transaction === 'tx_too_late') {
       throw new Error('Transaction expired, please try again');
     }
-    
+
     // Generic error
     throw new Error(`Transaction failed: ${error.message}`);
   }
@@ -502,7 +502,7 @@ async function sendPaymentWithRetry(from, to, amount, maxRetries = 3) {
       return await sendPayment(from, to, amount);
     } catch (error) {
       if (i === maxRetries - 1) throw error;
-      
+
       // Wait before retry (exponential backoff)
       await sleep(Math.pow(2, i) * 1000);
     }
@@ -537,12 +537,12 @@ StellarSdk.Network.useTestNetwork();
 // Create and fund test account
 async function createTestAccount() {
   const pair = StellarSdk.Keypair.random();
-  
+
   // Fund via Friendbot
   await fetch(
     `https://friendbot.stellar.org?addr=${encodeURIComponent(pair.publicKey())}`
   );
-  
+
   return pair;
 }
 ```
@@ -553,23 +553,23 @@ async function createTestAccount() {
 describe('Stellar Integration', () => {
   let platformAccount;
   let userAccount;
-  
+
   beforeAll(async () => {
     platformAccount = await createTestAccount();
     userAccount = await createTestAccount();
   });
-  
+
   test('should send payment successfully', async () => {
     const result = await sendPayment(
       platformAccount,
       userAccount.publicKey(),
       '10'
     );
-    
+
     expect(result.success).toBe(true);
     expect(result.hash).toBeDefined();
   });
-  
+
   test('should handle insufficient balance', async () => {
     await expect(
       sendPayment(userAccount, platformAccount.publicKey(), '100000')
@@ -604,7 +604,7 @@ async function monitorFailedTransactions() {
     .where('successful', false)
     .where('created_at', '>', Date.now() - 86400000) // Last 24h
     .count();
-  
+
   if (failed > 10) {
     await alertOps('High number of failed Stellar transactions');
   }

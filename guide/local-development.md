@@ -44,12 +44,12 @@ psql --version
 mkdir wastefi-dev && cd wastefi-dev
 
 # Clone backend
-git clone https://github.com/wastefi/wastefi-backend.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-backend.git
 cd wastefi-backend
 
 # Clone frontend (optional)
 cd ..
-git clone https://github.com/wastefi/wastefi-frontend.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-frontend.git
 ```
 
 ### 2. Set Up Environment
@@ -562,7 +562,7 @@ npm install -D ts-node-dev
 
 ## Next Steps
 
-- [API Development Guide](/guide/api-development)
+- [API Development Guide](/guide/api-examples)
 - [Testing Guide](/guide/testing)
 - [Production Deployment](/guide/production-setup)
 - [Contributing Guidelines](/CONTRIBUTING.md)
@@ -573,5 +573,5 @@ npm install -D ts-node-dev
 
 - Documentation: https://docs.wastefi.org
 - Discord: https://discord.gg/wastefi
-- GitHub Issues: https://github.com/wastefi/issues
+- GitHub Issues: https://github.com/WASTEFI-AFRICA/wastefi-docs/issues
 - Email: dev@wastefi.org

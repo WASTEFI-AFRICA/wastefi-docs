@@ -47,10 +47,10 @@ mkdir wastefi-dev
 cd wastefi-dev
 
 # Clone all repositories
-git clone https://github.com/wastefi/wastefi-backend.git
-git clone https://github.com/wastefi/wastefi-frontend.git
-git clone https://github.com/wastefi/wastefi-contracts.git
-git clone https://github.com/wastefi/wastefi-docs.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-backend.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-frontend.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-contracts.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-docs.git
 ```
 
 ### 2. Start All Services
@@ -144,7 +144,7 @@ curl http://localhost:6379             # Redis
 
 **Backend (.env):**
 
-```env
+```ini
 # Application
 NODE_ENV=development
 PORT=3000
@@ -198,7 +198,7 @@ ENABLE_REFERRALS=true
 
 **Frontend (.env):**
 
-```env
+```ini
 # API
 VITE_API_URL=http://localhost:3000/api/v1
 VITE_WS_URL=ws://localhost:3000
@@ -544,7 +544,7 @@ docker-compose exec frontend npm run test:e2e:ui
 
 **Frontend (Chrome DevTools):**
 
-1. Open http://localhost:5173
+1. Open `http://localhost:5173`
 2. Open Chrome DevTools (F12)
 3. Source maps enabled automatically
 4. Debug as normal web app
@@ -724,7 +724,7 @@ version: '3.9'
 services:
   backend:
     command: npm run test:ci
-  
+
   frontend:
     command: npm run build
 ```
@@ -832,4 +832,4 @@ services:
 
 ---
 
-**Happy coding! 🚀**
+**Happy coding! **

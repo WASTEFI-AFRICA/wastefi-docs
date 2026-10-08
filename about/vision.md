@@ -165,15 +165,15 @@ We believe that those who contribute most to environmental sustainability should
 ```
 Immediate → Blockchain payments replace exploitative middlemen
           → Collectors earn 30-50% more per kg of material
-          
+
 Short-Term → Transaction history builds credit scores
            → Access to microfinance and insurance
            → Improved living standards and financial security
-           
+
 Medium-Term → Verifiable impact data generates carbon credits
             → Collectors share in environmental finance markets
             → Collection becomes economically attractive career
-            
+
 Long-Term → Open standards adopted globally
           → Network effects increase value for all participants
           → Waste collectors integrated into formal economy
@@ -209,4 +209,4 @@ The timing is right to build infrastructure that lasts decades.
 - [Project Overview](/about/overview) - Detailed architecture and approach
 - [Problem Statement](/about/problem) - Deep dive into the challenges
 - [Get Started](/guide/getting-started) - Begin using WasteFi today
-- [Roadmap](/about/roadmap) - Our path forward
+- [Roadmap](/community/roadmap) - Our path forward

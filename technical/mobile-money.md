@@ -55,17 +55,17 @@ class MpesaService {
     this.consumerKey = process.env.MPESA_CONSUMER_KEY;
     this.consumerSecret = process.env.MPESA_CONSUMER_SECRET;
     this.environment = process.env.MPESA_ENVIRONMENT;
-    
+
     this.baseURL = this.environment === 'production'
       ? 'https://api.safaricom.co.ke'
       : 'https://sandbox.safaricom.co.ke';
   }
-  
+
   async getAccessToken() {
     const auth = Buffer.from(
       `${this.consumerKey}:${this.consumerSecret}`
     ).toString('base64');
-    
+
     try {
       const response = await axios.get(
         `${this.baseURL}/oauth/v1/generate?grant_type=client_credentials`,
@@ -75,7 +75,7 @@ class MpesaService {
           }
         }
       );
-      
+
       return response.data.access_token;
     } catch (error) {
       console.error('Failed to get M-Pesa access token:', error);
@@ -90,10 +90,10 @@ class MpesaService {
 ```javascript
 async sendMpesaPayment(phoneNumber, amount, reference) {
   const accessToken = await this.getAccessToken();
-  
+
   // Format phone number (254XXXXXXXXX)
   const formattedPhone = phoneNumber.replace(/^\+/, '').replace(/^0/, '254');
-  
+
   const payload = {
     InitiatorName: process.env.MPESA_INITIATOR_NAME,
     SecurityCredential: process.env.MPESA_SECURITY_CREDENTIAL,
@@ -106,7 +106,7 @@ async sendMpesaPayment(phoneNumber, amount, reference) {
     ResultURL: process.env.MPESA_RESULT_URL,
     Occasion: reference
   };
-  
+
   try {
     const response = await axios.post(
       `${this.baseURL}/mpesa/b2c/v1/paymentrequest`,
@@ -118,7 +118,7 @@ async sendMpesaPayment(phoneNumber, amount, reference) {
         }
       }
     );
-    
+
     return {
       success: true,
       conversationId: response.data.ConversationID,
@@ -138,7 +138,7 @@ async sendMpesaPayment(phoneNumber, amount, reference) {
 ```javascript
 async handleMpesaCallback(req, res) {
   const { Result } = req.body;
-  
+
   try {
     if (Result.ResultCode === 0) {
       // Payment successful
@@ -146,7 +146,7 @@ async handleMpesaCallback(req, res) {
       const amount = Result.ResultParameters.ResultParameter.find(
         p => p.Key === 'TransactionAmount'
       )?.Value;
-      
+
       // Update database
       await db.payments.update(
         { mpesaTransactionId: Result.ConversationID },
@@ -156,13 +156,13 @@ async handleMpesaCallback(req, res) {
           completedAt: new Date()
         }
       );
-      
+
       // Notify user
       await notifyUser({
         phone: Result.ReceiverPartyPublicName,
         message: `Payment of KES ${amount} received successfully`
       });
-      
+
     } else {
       // Payment failed
       await db.payments.update(
@@ -174,7 +174,7 @@ async handleMpesaCallback(req, res) {
         }
       );
     }
-    
+
     res.status(200).json({ ResultCode: 0, ResultDesc: 'Accepted' });
   } catch (error) {
     console.error('Error processing M-Pesa callback:', error);
@@ -188,7 +188,7 @@ async handleMpesaCallback(req, res) {
 ```javascript
 async checkMpesaTransactionStatus(conversationId) {
   const accessToken = await this.getAccessToken();
-  
+
   const payload = {
     Initiator: process.env.MPESA_INITIATOR_NAME,
     SecurityCredential: process.env.MPESA_SECURITY_CREDENTIAL,
@@ -201,7 +201,7 @@ async checkMpesaTransactionStatus(conversationId) {
     Remarks: 'Status check',
     Occasion: 'Status'
   };
-  
+
   const response = await axios.post(
     `${this.baseURL}/mpesa/transactionstatus/v1/query`,
     payload,
@@ -212,7 +212,7 @@ async checkMpesaTransactionStatus(conversationId) {
       }
     }
   );
-  
+
   return response.data;
 }
 ```
@@ -249,15 +249,15 @@ class MTNMomoService {
     this.apiUser = process.env.MTN_API_USER;
     this.apiKey = process.env.MTN_API_KEY;
     this.environment = process.env.MTN_ENVIRONMENT;
-    
+
     this.baseURL = this.environment === 'production'
       ? 'https://proxy.momoapi.mtn.com'
       : 'https://sandbox.momodeveloper.mtn.com';
   }
-  
+
   async getAccessToken() {
     const auth = Buffer.from(`${this.apiUser}:${this.apiKey}`).toString('base64');
-    
+
     try {
       const response = await axios.post(
         `${this.baseURL}/disbursement/token/`,
@@ -269,7 +269,7 @@ class MTNMomoService {
           }
         }
       );
-      
+
       return response.data.access_token;
     } catch (error) {
       console.error('Failed to get MTN MoMo access token:', error);
@@ -285,10 +285,10 @@ class MTNMomoService {
 async sendMTNPayment(phoneNumber, amount, reference) {
   const accessToken = await this.getAccessToken();
   const transferId = require('uuid').v4();
-  
+
   // Format phone number (country code + number without +)
   const formattedPhone = phoneNumber.replace(/^\+/, '');
-  
+
   const payload = {
     amount: amount.toString(),
     currency: 'GHS', // or NGN, UGX depending on country
@@ -300,7 +300,7 @@ async sendMTNPayment(phoneNumber, amount, reference) {
     payerMessage: 'Payment from WasteFi',
     payeeNote: `Transaction ${reference}`
   };
-  
+
   try {
     await axios.post(
       `${this.baseURL}/disbursement/v1_0/transfer`,
@@ -316,7 +316,7 @@ async sendMTNPayment(phoneNumber, amount, reference) {
         }
       }
     );
-    
+
     return {
       success: true,
       transferId: transferId,
@@ -334,7 +334,7 @@ async sendMTNPayment(phoneNumber, amount, reference) {
 ```javascript
 async checkMTNTransferStatus(transferId) {
   const accessToken = await this.getAccessToken();
-  
+
   try {
     const response = await axios.get(
       `${this.baseURL}/disbursement/v1_0/transfer/${transferId}`,
@@ -346,7 +346,7 @@ async checkMTNTransferStatus(transferId) {
         }
       }
     );
-    
+
     return {
       status: response.data.status, // SUCCESSFUL, FAILED, PENDING
       amount: response.data.amount,
@@ -367,7 +367,7 @@ async checkMTNTransferStatus(transferId) {
 ```javascript
 async handleMTNCallback(req, res) {
   const { financialTransactionId, externalId, status, reason } = req.body;
-  
+
   try {
     if (status === 'SUCCESSFUL') {
       await db.payments.update(
@@ -387,7 +387,7 @@ async handleMTNCallback(req, res) {
         }
       );
     }
-    
+
     res.status(200).send('OK');
   } catch (error) {
     console.error('Error processing MTN callback:', error);
@@ -418,12 +418,12 @@ class AirtelMoneyService {
     this.clientId = process.env.AIRTEL_CLIENT_ID;
     this.clientSecret = process.env.AIRTEL_CLIENT_SECRET;
     this.environment = process.env.AIRTEL_ENVIRONMENT;
-    
+
     this.baseURL = this.environment === 'production'
       ? 'https://openapiuat.airtel.africa'  // Update for production
       : 'https://openapiuat.airtel.africa';
   }
-  
+
   async getAccessToken() {
     try {
       const response = await axios.post(
@@ -439,7 +439,7 @@ class AirtelMoneyService {
           }
         }
       );
-      
+
       return response.data.access_token;
     } catch (error) {
       console.error('Failed to get Airtel Money access token:', error);
@@ -454,12 +454,12 @@ class AirtelMoneyService {
 ```javascript
 async sendAirtelPayment(phoneNumber, amount, reference) {
   const accessToken = await this.getAccessToken();
-  
+
   // Format phone number
   const formattedPhone = phoneNumber.replace(/^\+/, '');
-  const country = formattedPhone.startsWith('254') ? 'KE' : 
+  const country = formattedPhone.startsWith('254') ? 'KE' :
                   formattedPhone.startsWith('233') ? 'GH' : 'NG';
-  
+
   const payload = {
     payee: {
       msisdn: formattedPhone
@@ -472,7 +472,7 @@ async sendAirtelPayment(phoneNumber, amount, reference) {
       type: 'B2C'
     }
   };
-  
+
   try {
     const response = await axios.post(
       `${this.baseURL}/standard/v1/disbursements/`,
@@ -486,7 +486,7 @@ async sendAirtelPayment(phoneNumber, amount, reference) {
         }
       }
     );
-    
+
     return {
       success: response.data.status.code === '200',
       transactionId: response.data.data.transaction.id,
@@ -522,11 +522,11 @@ class MobileMoneyService {
         throw new Error(`Unsupported provider: ${provider}`);
     }
   }
-  
+
   async sendPayment(phoneNumber, amount, reference) {
     return await this.service.sendPayment(phoneNumber, amount, reference);
   }
-  
+
   async checkStatus(transactionId) {
     return await this.service.checkStatus(transactionId);
   }
@@ -536,15 +536,15 @@ class MobileMoneyService {
 async function processPayment(userId, amount) {
   const user = await db.users.findById(userId);
   const provider = getProviderForPhone(user.phone);
-  
+
   const mobileMoneyService = new MobileMoneyService(provider);
-  
+
   const result = await mobileMoneyService.sendPayment(
     user.phone,
     amount,
     `WASTEFI-${Date.now()}`
   );
-  
+
   return result;
 }
 
@@ -555,7 +555,7 @@ function getProviderForPhone(phone) {
   if (phone.startsWith('+234')) return 'mtn';    // Nigeria
   if (phone.startsWith('+256')) return 'mtn';    // Uganda
   if (phone.startsWith('+255')) return 'mpesa';  // Tanzania
-  
+
   throw new Error('Unsupported country');
 }
 ```
@@ -578,9 +578,9 @@ async function sendPaymentWithErrorHandling(phone, amount, reference) {
   try {
     const provider = getProviderForPhone(phone);
     const service = new MobileMoneyService(provider);
-    
+
     return await service.sendPayment(phone, amount, reference);
-    
+
   } catch (error) {
     // Insufficient balance
     if (error.code === 'INSUFFICIENT_FUNDS') {
@@ -590,7 +590,7 @@ async function sendPaymentWithErrorHandling(phone, amount, reference) {
         'Platform has insufficient balance for payout'
       );
     }
-    
+
     // Invalid phone number
     if (error.code === 'INVALID_MSISDN') {
       throw new MobileMoneyError(
@@ -599,7 +599,7 @@ async function sendPaymentWithErrorHandling(phone, amount, reference) {
         'Phone number is invalid or not registered'
       );
     }
-    
+
     // Daily limit exceeded
     if (error.code === 'LIMIT_EXCEEDED') {
       throw new MobileMoneyError(
@@ -608,7 +608,7 @@ async function sendPaymentWithErrorHandling(phone, amount, reference) {
         'Transaction limit exceeded. Try again tomorrow.'
       );
     }
-    
+
     // Generic error
     throw new MobileMoneyError(
       provider,
@@ -633,16 +633,16 @@ async function sendPaymentWithRetry(phone, amount, reference, maxRetries = 3) {
       if (error.code === 'INVALID_PHONE' || error.code === 'LIMIT_EXCEEDED') {
         throw error;
       }
-      
+
       // Last attempt
       if (attempt === maxRetries) {
         throw error;
       }
-      
+
       // Wait before retry (exponential backoff)
       const delay = Math.pow(2, attempt) * 1000;
       await new Promise(resolve => setTimeout(resolve, delay));
-      
+
       console.log(`Retry attempt ${attempt + 1} for ${reference}`);
     }
   }
@@ -660,7 +660,7 @@ class MockMobileMoneyService {
   async sendPayment(phone, amount, reference) {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     // Simulate 90% success rate
     if (Math.random() > 0.1) {
       return {
@@ -672,7 +672,7 @@ class MockMobileMoneyService {
       throw new Error('Mock payment failed');
     }
   }
-  
+
   async checkStatus(transactionId) {
     return {
       status: 'completed',
@@ -702,9 +702,9 @@ async function trackPaymentMetrics(provider, success, duration) {
 async function checkPaymentHealth() {
   const failures = await metrics.get('mobile_money.*.failure', '1h');
   const total = await metrics.get('mobile_money.*.*', '1h');
-  
+
   const failureRate = failures / total;
-  
+
   if (failureRate > 0.1) {  // 10% failure rate
     await alert('High mobile money failure rate', {
       rate: failureRate,

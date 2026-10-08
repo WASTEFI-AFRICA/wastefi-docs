@@ -11,26 +11,26 @@ WasteFi uses GitHub Actions for continuous integration and deployment. This guid
 │                     GitHub Repository                        │
 └─────────────────────┬───────────────────────────────────────┘
                       │
-                      ▼
+
          ┌────────────────────────────┐
          │    Push / Pull Request     │
          └────────────┬───────────────┘
                       │
-                      ▼
+
          ┌────────────────────────────┐
          │    GitHub Actions Runner   │
          └────────────┬───────────────┘
                       │
         ┌─────────────┼─────────────┐
         │             │             │
-        ▼             ▼             ▼
+
    ┌────────┐   ┌────────┐    ┌────────┐
    │  Lint  │   │  Test  │    │ Build  │
    └───┬────┘   └───┬────┘    └───┬────┘
        │            │             │
        └────────────┼─────────────┘
                     │
-                    ▼
+
          ┌────────────────────────────┐
          │    Security Scan           │
          │  - Snyk                    │
@@ -38,7 +38,7 @@ WasteFi uses GitHub Actions for continuous integration and deployment. This guid
          │  - Dependabot              │
          └────────────┬───────────────┘
                       │
-                      ▼
+
          ┌────────────────────────────┐
          │    Deploy (if main branch) │
          │  - Staging (automatic)     │
@@ -609,7 +609,7 @@ jobs:
           status: custom
           custom_payload: |
             {
-              text: "✅ Staging deployment successful!",
+              text: "Done Staging deployment successful!",
               attachments: [{
                 color: 'good',
                 text: `Deployed ${process.env.GITHUB_SHA.substring(0, 7)} to staging`
@@ -625,7 +625,7 @@ jobs:
           status: custom
           custom_payload: |
             {
-              text: "❌ Staging deployment failed!",
+              text: "Not done Staging deployment failed!",
               attachments: [{
                 color: 'danger',
                 text: `Failed to deploy ${process.env.GITHUB_SHA.substring(0, 7)}`
@@ -742,7 +742,7 @@ jobs:
           status: custom
           custom_payload: |
             {
-              text: "🚨 Production health check failed!",
+              text: " Production health check failed!",
               attachments: [{
                 color: 'danger',
                 text: "Service may be down. Please investigate immediately."
@@ -800,12 +800,12 @@ updates:
 ```yaml
 Branch name pattern: main
 
-Require pull request reviews before merging: ✓
+Require pull request reviews before merging: Done
   Required approving reviews: 2
-  Dismiss stale pull request approvals when new commits are pushed: ✓
+  Dismiss stale pull request approvals when new commits are pushed: Done
 
-Require status checks to pass before merging: ✓
-  Require branches to be up to date before merging: ✓
+Require status checks to pass before merging: Done
+  Require branches to be up to date before merging: Done
   Status checks:
     - backend-lint
     - backend-test
@@ -817,11 +817,11 @@ Require status checks to pass before merging: ✓
     - contracts-build
     - security-scan
 
-Require conversation resolution before merging: ✓
+Require conversation resolution before merging: Done
 
-Require signed commits: ✓
+Require signed commits: Done
 
-Include administrators: ✓
+Include administrators: Done
 ```
 
 ---

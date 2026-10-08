@@ -1,7 +1,7 @@
 <template>
   <div class="api-playground">
     <div class="playground-header">
-      <h3>🚀 Interactive API Playground</h3>
+      <h3>Interactive API Playground</h3>
       <p>Test API endpoints directly from your browser</p>
     </div>
 

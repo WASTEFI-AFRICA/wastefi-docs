@@ -83,9 +83,9 @@ CREATE INDEX idx_users_status ON users(status);
 CREATE INDEX idx_users_created_at ON users(created_at DESC);
 
 -- Trigger for updated_at
-CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users 
-    FOR EACH ROW 
+CREATE TRIGGER update_users_updated_at
+    BEFORE UPDATE ON users
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 ```
 
@@ -245,7 +245,7 @@ RETURNS TABLE (
     name VARCHAR(200),
     distance_km DECIMAL
 ) AS $$
-    SELECT 
+    SELECT
         cp.id,
         cp.name,
         ST_Distance(
@@ -389,7 +389,7 @@ CREATE INDEX idx_impact_records_carbon_credit ON impact_records(carbon_credit_id
 
 -- Materialized view for fast impact queries
 CREATE MATERIALIZED VIEW user_impact_summary AS
-SELECT 
+SELECT
     user_id,
     SUM(co2_saved) as total_co2_saved,
     SUM(weight) as total_weight,
@@ -402,7 +402,7 @@ GROUP BY user_id;
 CREATE UNIQUE INDEX idx_user_impact_summary ON user_impact_summary(user_id);
 
 -- Refresh schedule (every hour)
--- SELECT cron.schedule('refresh-impact-summary', '0 * * * *', 
+-- SELECT cron.schedule('refresh-impact-summary', '0 * * * *',
 --   'REFRESH MATERIALIZED VIEW CONCURRENTLY user_impact_summary');
 ```
 
@@ -483,7 +483,7 @@ CREATE TABLE disputes (
     transaction_id UUID NOT NULL,
     disputer_id UUID NOT NULL REFERENCES users(id),
     reason VARCHAR(50) NOT NULL CHECK (
-        reason IN ('weight_incorrect', 'quality_grade_wrong', 'payment_incorrect', 
+        reason IN ('weight_incorrect', 'quality_grade_wrong', 'payment_incorrect',
                    'material_rejected', 'other')
     ),
     description TEXT NOT NULL,
@@ -555,14 +555,14 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Apply to all tables with updated_at
-CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users 
-    FOR EACH ROW 
+CREATE TRIGGER update_users_updated_at
+    BEFORE UPDATE ON users
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER update_materials_updated_at 
-    BEFORE UPDATE ON materials 
-    FOR EACH ROW 
+CREATE TRIGGER update_materials_updated_at
+    BEFORE UPDATE ON materials
+    FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
 -- ... (apply to other tables)
@@ -576,7 +576,7 @@ CREATE TRIGGER update_materials_updated_at
 
 ```sql
 CREATE VIEW active_collectors AS
-SELECT 
+SELECT
     u.id,
     u.name,
     u.phone,
@@ -595,7 +595,7 @@ GROUP BY u.id, u.name, u.phone;
 
 ```sql
 CREATE VIEW collection_point_stats AS
-SELECT 
+SELECT
     cp.id,
     cp.name,
     COUNT(DISTINCT t.user_id) as unique_collectors,
@@ -607,7 +607,7 @@ SELECT
     cp.capacity_max,
     (cp.capacity_current::DECIMAL / NULLIF(cp.capacity_max, 0) * 100) as capacity_percent
 FROM collection_points cp
-LEFT JOIN transactions t ON cp.id = t.collection_point_id 
+LEFT JOIN transactions t ON cp.id = t.collection_point_id
     AND t.status = 'completed'
     AND t.created_at > CURRENT_DATE - INTERVAL '30 days'
 GROUP BY cp.id, cp.name, cp.capacity_current, cp.capacity_max;

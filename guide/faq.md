@@ -224,7 +224,7 @@ Yes! Payments are processed on Stellar blockchain, which is secure and transpare
 
 ### Is my personal information protected?
 
-We only collect essential information (phone, name) and never share it without permission. See our [Privacy Policy](/legal/privacy).
+We only collect essential information (phone, name) and never share it without permission. See our Privacy Policy.
 
 ### What if someone steals my phone?
 
@@ -374,7 +374,7 @@ Email ideas@wastefi.org or use in-app feedback. We read every suggestion!
 ### Contact Support
 
 **Email:** support@wastefi.org  
-**Phone:** 
+**Phone:**
 - Kenya: +254-700-WASTEFI
 - Ghana: +233-50-WASTEFI  
 - Nigeria: +234-800-WASTEFI
@@ -385,10 +385,6 @@ Email ideas@wastefi.org or use in-app feedback. We read every suggestion!
 ### Additional Resources
 
 - [Collector Guide](/guide/collector-guide)
-- [Material Prices](/guide/prices)
-- [Collection Points](/guide/collection-points)
-- [Terms of Service](/legal/terms)
-- [Privacy Policy](/legal/privacy)
 
 ---
 

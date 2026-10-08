@@ -4,7 +4,7 @@
 
 Your security and privacy are paramount to WasteFi. This guide explains how we protect your data, what you can do to stay safe, and your privacy rights.
 
-## 🔐 Security Features
+## Security Features
 
 ### Account Security
 
@@ -21,10 +21,10 @@ Your PIN is your first line of defense:
 
 **If Someone Asks for Your PIN:**
 ```
-❌ WasteFi staff will NEVER ask for your PIN
-❌ Collection point operators don't need your PIN
-❌ Support agents will never request your PIN
-✅ Only enter your PIN in the official WasteFi app
+Not done WasteFi staff will NEVER ask for your PIN
+Not done Collection point operators don't need your PIN
+Not done Support agents will never request your PIN
+Done Only enter your PIN in the official WasteFi app
 ```
 
 #### Two-Factor Authentication (2FA)
@@ -59,9 +59,9 @@ Transaction Preview:
 │ Quality: Grade A           │
 │ Amount: $1.94              │
 │                            │
-│ ✓ Verify these details     │
-│ ✓ Check the amount         │
-│ ✓ Confirm material type    │
+│ Done Verify these details │
+│ Done Check the amount │
+│ Done Confirm material type │
 └─────────────────────────────┘
 ```
 
@@ -102,7 +102,7 @@ Your Stellar wallet holds your earnings:
 5. Never share with anyone
 6. Never take a photo of it
 
-**⚠️ Critical: Without your recovery phrase, lost access = lost funds!**
+**Warning Critical: Without your recovery phrase, lost access = lost funds!**
 
 #### Mobile Money Integration
 
@@ -148,7 +148,7 @@ Your Device → [SSL/TLS Encryption] → WasteFi Servers
 
 ---
 
-## 🛡️ Privacy Protection
+## Privacy Protection
 
 ### Data Collection
 
@@ -177,11 +177,11 @@ Your Device → [SSL/TLS Encryption] → WasteFi Servers
 #### What We DON'T Collect
 
 ```
-❌ We don't track your browsing outside the app
-❌ We don't access your contacts or photos (unless you share)
-❌ We don't record your conversations
-❌ We don't sell your personal data
-❌ We don't share data with advertisers
+Not done We don't track your browsing outside the app
+Not done We don't access your contacts or photos (unless you share)
+Not done We don't record your conversations
+Not done We don't sell your personal data
+Not done We don't share data with advertisers
 ```
 
 ### How We Use Your Data
@@ -292,7 +292,7 @@ Your Device → [SSL/TLS Encryption] → WasteFi Servers
 
 ---
 
-## 🚨 Threat Protection
+## Threat Protection
 
 ### Common Scams
 
@@ -300,7 +300,7 @@ Your Device → [SSL/TLS Encryption] → WasteFi Servers
 
 **Example phishing SMS:**
 ```
-❌ "Your WasteFi account has been suspended.
+Not done "Your WasteFi account has been suspended.
    Click here to reactivate: wastefi-verify.com
    Enter your PIN to continue."
 ```
@@ -338,16 +338,16 @@ Your Device → [SSL/TLS Encryption] → WasteFi Servers
 **Someone pretends to be WasteFi staff:**
 
 ```
-❌ "Hello, I'm from WasteFi support. We need to
+Not done "Hello, I'm from WasteFi support. We need to
    verify your account. Please share your PIN
    and recovery phrase."
 ```
 
 **Real WasteFi staff will:**
-- ✅ Verify YOUR identity (not the other way around)
-- ✅ Never ask for PIN or recovery phrase
-- ✅ Only contact through official channels
-- ✅ Have official email domain (@wastefi.org)
+- Verify YOUR identity (not the other way around)
+- Never ask for PIN or recovery phrase
+- Only contact through official channels
+- Have official email domain (@wastefi.org)
 
 ### Device Security
 
@@ -405,17 +405,17 @@ Your Device → [SSL/TLS Encryption] → WasteFi Servers
 
 ```
 When using public WiFi:
-✅ Use VPN (encrypts all traffic)
-✅ Verify network name with staff
-✅ Avoid sensitive transactions
-✅ Forget network after use
-❌ Don't auto-connect to open networks
-❌ Don't enter financial information
+Done Use VPN (encrypts all traffic)
+Done Verify network name with staff
+Done Avoid sensitive transactions
+Done Forget network after use
+Not done Don't auto-connect to open networks
+Not done Don't enter financial information
 ```
 
 ---
 
-## 🔍 Monitoring & Alerts
+## Monitoring & Alerts
 
 ### Security Alerts
 
@@ -467,49 +467,49 @@ When using public WiFi:
 
 ---
 
-## 📋 Security Checklist
+## Security Checklist
 
 ### Daily
 
 ```
-☐ Check for suspicious transactions
-☐ Verify transaction details before confirming
-☐ Log out from shared devices
-☐ Don't share sensitive information
+ Check for suspicious transactions
+ Verify transaction details before confirming
+ Log out from shared devices
+ Don't share sensitive information
 ```
 
 ### Weekly
 
 ```
-☐ Review account activity
-☐ Check for app updates
-☐ Scan device for malware
-☐ Review active devices
+ Review account activity
+ Check for app updates
+ Scan device for malware
+ Review active devices
 ```
 
 ### Monthly
 
 ```
-☐ Change PIN
-☐ Review privacy settings
-☐ Backup wallet (if not auto-backed up)
-☐ Update recovery information
-☐ Review connected services
+ Change PIN
+ Review privacy settings
+ Backup wallet (if not auto-backed up)
+ Update recovery information
+ Review connected services
 ```
 
 ### Yearly
 
 ```
-☐ Full security audit
-☐ Update all passwords
-☐ Review data permissions
-☐ Request data export (verify what's stored)
-☐ Update emergency contacts
+ Full security audit
+ Update all passwords
+ Review data permissions
+ Request data export (verify what's stored)
+ Update emergency contacts
 ```
 
 ---
 
-## 🆘 Incident Response
+## Incident Response
 
 ### If Your Account is Compromised
 
@@ -567,7 +567,7 @@ When using public WiFi:
 
 ---
 
-## 📚 Privacy Policy
+## Privacy Policy
 
 Full privacy policy: https://wastefi.org/privacy
 
@@ -587,7 +587,7 @@ Full privacy policy: https://wastefi.org/privacy
 
 ---
 
-## 🌍 Regional Compliance
+## Regional Compliance
 
 ### Kenya (Data Protection Act 2019)
 
@@ -621,9 +621,9 @@ Full privacy policy: https://wastefi.org/privacy
 
 ---
 
-## 💡 Security Tips
+## Security Tips
 
-### Do's ✅
+### Do's Done
 
 - **Use strong PINs** (avoid 1234, 0000)
 - **Enable 2FA** for extra security
@@ -636,7 +636,7 @@ Full privacy policy: https://wastefi.org/privacy
 - **Read security alerts** from WasteFi
 - **Educate yourself** on common scams
 
-### Don'ts ❌
+### Don'ts Not done
 
 - **Never share your PIN** with anyone
 - **Never share recovery phrase** with anyone
@@ -651,7 +651,7 @@ Full privacy policy: https://wastefi.org/privacy
 
 ---
 
-## 📞 Get Help
+## Get Help
 
 ### Security Support
 
@@ -677,7 +677,7 @@ Full privacy policy: https://wastefi.org/privacy
 
 ---
 
-## 🎓 Security Training
+## Security Training
 
 **Free courses:**
 
@@ -699,14 +699,14 @@ Full privacy policy: https://wastefi.org/privacy
 **Access:** Settings → Help → Security Training
 
 **Earn badges:**
-- 🔰 Security Novice (complete basics)
-- 🛡️ Security Pro (complete advanced)
-- 🎯 Scam Spotter (complete awareness)
-- 🏆 Security Champion (complete all + pass quiz)
+- Security Novice (complete basics)
+- Security Pro (complete advanced)
+- Scam Spotter (complete awareness)
+- Security Champion (complete all + pass quiz)
 
 ---
 
-**Your security is our priority. Stay safe, stay informed, and don't hesitate to reach out if you need help! 🔐**
+**Your security is our priority. Stay safe, stay informed, and don't hesitate to reach out if you need help! **
 
 ---
 

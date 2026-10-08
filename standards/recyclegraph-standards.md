@@ -278,7 +278,7 @@ Grade F (0-34%): Rejected
     "updatedAt": "2024-09-15T14:30:00Z",
     "status": "active"
   },
-  
+
   "product": {
     "name": "Coca-Cola 500ml Bottle",
     "gtin": "5449000000996",
@@ -289,7 +289,7 @@ Grade F (0-34%): Rejected
       "diameter": 0.06
     }
   },
-  
+
   "material": {
     "type": "PET",
     "grade": "food_grade",
@@ -298,7 +298,7 @@ Grade F (0-34%): Rejected
     "recyclability": 0.95,
     "co2Footprint": 0.082  // kg CO2e
   },
-  
+
   "manufacturer": {
     "name": "ACME Manufacturing",
     "id": "MFG-KE-001234",
@@ -309,7 +309,7 @@ Grade F (0-34%): Rejected
     },
     "certifications": ["ISO9001", "ISO14001"]
   },
-  
+
   "lifecycle": [
     {
       "state": "PRODUCED",
@@ -335,7 +335,7 @@ Grade F (0-34%): Rejected
       "proof": "stellar:tx_hash_here"
     }
   ],
-  
+
   "certificates": [
     {
       "type": "recycled_content",
@@ -345,14 +345,14 @@ Grade F (0-34%): Rejected
       "proof": "ipfs:QmXXXXXXXXXX"
     }
   ],
-  
+
   "epr": {
     "producerResponsible": "The Coca-Cola Company",
     "feesPaid": true,
     "complianceStatus": "compliant",
     "recoveryTarget": 0.70  // 70% recovery target
   },
-  
+
   "cryptography": {
     "hash": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
     "signature": "304402201234567890abcdef...",
@@ -382,7 +382,7 @@ import { StellarSdk } from 'stellar-sdk';
 function createPassport(productData, manufacturerKeypair) {
   // 1. Generate Material ID
   const materialId = generateMaterialId(productData.materialType);
-  
+
   // 2. Create passport
   const passport = {
     passport: {
@@ -400,21 +400,21 @@ function createPassport(productData, manufacturerKeypair) {
       location: productData.manufacturer.coordinates
     }]
   };
-  
+
   // 3. Calculate hash
   const passportJson = JSON.stringify(passport);
   const hash = crypto.createHash('sha256').update(passportJson).digest('hex');
-  
+
   // 4. Sign
   const signature = manufacturerKeypair.sign(Buffer.from(hash, 'hex'));
-  
+
   // 5. Add cryptography
   passport.cryptography = {
     hash: hash,
     signature: signature.toString('base64'),
     publicKey: manufacturerKeypair.publicKey()
   };
-  
+
   return passport;
 }
 ```

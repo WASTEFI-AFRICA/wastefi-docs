@@ -31,26 +31,26 @@ Internet connectivity in target markets (Kenya, Ghana, Nigeria):
 ### Options Considered
 
 **Option A: Online-Only**
-- ✅ Simpler architecture
-- ✅ Real-time data consistency
-- ❌ Unusable without internet
-- ❌ Excludes rural collectors
-- ❌ High data costs for users
+- **+** Simpler architecture
+- **+** Real-time data consistency
+- **−** Unusable without internet
+- **−** Excludes rural collectors
+- **−** High data costs for users
 
 **Option B: Offline-First (Chosen)**
-- ✅ Works without internet
-- ✅ Lower data usage
-- ✅ Better user experience
-- ✅ Inclusive of rural areas
-- ❌ Complex sync logic
-- ❌ Potential conflict resolution
-- ❌ Larger app size (cached data)
+- **+** Works without internet
+- **+** Lower data usage
+- **+** Better user experience
+- **+** Inclusive of rural areas
+- **−** Complex sync logic
+- **−** Potential conflict resolution
+- **−** Larger app size (cached data)
 
 **Option C: Hybrid (Some Features Offline)**
-- ✅ Balanced complexity
-- ✅ Critical features work offline
-- ❌ Confusing user experience
-- ❌ Still excludes users at times
+- **+** Balanced complexity
+- **+** Critical features work offline
+- **−** Confusing user experience
+- **−** Still excludes users at times
 
 ### Decision Rationale
 
@@ -132,48 +132,48 @@ Requirements for blockchain:
 ### Options Considered
 
 **Option A: Ethereum**
-- ✅ Largest ecosystem
-- ✅ Most developer talent
-- ✅ Robust smart contracts (Solidity)
-- ❌ $1-50 transaction fees (prohibitive)
-- ❌ 15+ second block times
-- ❌ High computational requirements
-- ❌ No mobile money integrations
+- **+** Largest ecosystem
+- **+** Most developer talent
+- **+** Robust smart contracts (Solidity)
+- **−** $1-50 transaction fees (prohibitive)
+- **−** 15+ second block times
+- **−** High computational requirements
+- **−** No mobile money integrations
 
 **Option B: Polygon**
-- ✅ Low fees ($0.01-0.10)
-- ✅ Ethereum compatibility
-- ✅ Good ecosystem
-- ❌ Still too expensive for $0.25 transactions
-- ❌ Requires ETH for gas
-- ❌ Limited African partnerships
+- **+** Low fees ($0.01-0.10)
+- **+** Ethereum compatibility
+- **+** Good ecosystem
+- **−** Still too expensive for $0.25 transactions
+- **−** Requires ETH for gas
+- **−** Limited African partnerships
 
 **Option C: Stellar (Chosen)**
-- ✅ $0.00001 transaction fees
-- ✅ 3-5 second finality
-- ✅ Built-in DEX
-- ✅ Mobile-optimized
-- ✅ African mobile money partnerships
-- ✅ Stablecoin ecosystem
-- ❌ Smaller developer community
-- ❌ Less mature smart contract platform (Soroban is new)
+- **+** $0.00001 transaction fees
+- **+** 3-5 second finality
+- **+** Built-in DEX
+- **+** Mobile-optimized
+- **+** African mobile money partnerships
+- **+** Stablecoin ecosystem
+- **−** Smaller developer community
+- **−** Less mature smart contract platform (Soroban is new)
 
 **Option D: Solana**
-- ✅ Very fast (400ms finality)
-- ✅ Low fees
-- ✅ Growing ecosystem
-- ❌ Network stability issues
-- ❌ High hardware requirements
-- ❌ No mobile money focus
+- **+** Very fast (400ms finality)
+- **+** Low fees
+- **+** Growing ecosystem
+- **−** Network stability issues
+- **−** High hardware requirements
+- **−** No mobile money focus
 
 **Option E: Private/Permissioned Blockchain**
-- ✅ Full control
-- ✅ Customizable
-- ✅ No gas fees
-- ❌ Centralization concerns
-- ❌ Lose network effects
-- ❌ Must operate nodes
-- ❌ No existing ecosystem
+- **+** Full control
+- **+** Customizable
+- **+** No gas fees
+- **−** Centralization concerns
+- **−** Lose network effects
+- **−** Must operate nodes
+- **−** No existing ecosystem
 
 ### Decision Matrix
 
@@ -236,7 +236,7 @@ const transaction = new StellarSdk.TransactionBuilder(account, {
 // Payment: $0.25
 // Blockchain fee: $0.000001
 // Effective fee: 0.0004%
-// 
+//
 // vs M-Pesa:
 // Payment: $0.25
 // M-Pesa fee: $0.01 (4%)
@@ -247,7 +247,7 @@ const transaction = new StellarSdk.TransactionBuilder(account, {
 
 - **Smaller Ecosystem:** Fewer developers familiar with Stellar
   - Mitigation: Comprehensive documentation and training
-  
+
 - **Soroban Maturity:** Smart contract platform is new (2023)
   - Mitigation: Keep critical logic off-chain initially
   - Plan: Migrate to Soroban as it matures
@@ -276,24 +276,24 @@ Use separate repositories (multi-repo) for each major component.
 ### Options Considered
 
 **Option A: Monorepo (Nx/Turborepo)**
-- ✅ Single version of dependencies
-- ✅ Atomic commits across projects
-- ✅ Easier code sharing
-- ✅ Unified CI/CD
-- ❌ Large repository size
-- ❌ Longer clone times
-- ❌ All-or-nothing access control
-- ❌ More complex tooling
+- **+** Single version of dependencies
+- **+** Atomic commits across projects
+- **+** Easier code sharing
+- **+** Unified CI/CD
+- **−** Large repository size
+- **−** Longer clone times
+- **−** All-or-nothing access control
+- **−** More complex tooling
 
 **Option B: Multi-Repo (Chosen)**
-- ✅ Independent versioning
-- ✅ Team autonomy
-- ✅ Granular access control
-- ✅ Smaller, faster repositories
-- ✅ Easier open-sourcing
-- ❌ Dependency synchronization
-- ❌ Cross-repo changes harder
-- ❌ Multiple CI/CD pipelines
+- **+** Independent versioning
+- **+** Team autonomy
+- **+** Granular access control
+- **+** Smaller, faster repositories
+- **+** Easier open-sourcing
+- **−** Dependency synchronization
+- **−** Cross-repo changes harder
+- **−** Multiple CI/CD pipelines
 
 ### Decision Rationale
 
@@ -343,39 +343,39 @@ Mobile money landscape in Africa:
 ### Options Considered
 
 **Option A: Blockchain-Only (No Mobile Money)**
-- ✅ Simpler integration
-- ✅ Lower transaction fees
-- ✅ Faster payments
-- ❌ Users can't access funds easily
-- ❌ Limited merchant acceptance
-- ❌ Requires crypto literacy
-- ❌ Misses the point of financial inclusion
+- **+** Simpler integration
+- **+** Lower transaction fees
+- **+** Faster payments
+- **−** Users can't access funds easily
+- **−** Limited merchant acceptance
+- **−** Requires crypto literacy
+- **−** Misses the point of financial inclusion
 
 **Option B: Single Provider (M-Pesa Only)**
-- ✅ Simplest implementation
-- ✅ Proven API
-- ✅ Fastest time to market
-- ❌ Kenya-only initially
-- ❌ Vendor lock-in
-- ❌ Can't expand easily
+- **+** Simplest implementation
+- **+** Proven API
+- **+** Fastest time to market
+- **−** Kenya-only initially
+- **−** Vendor lock-in
+- **−** Can't expand easily
 
 **Option C: Multi-Provider with Abstraction (Chosen)**
-- ✅ Works across countries
-- ✅ User choice
-- ✅ Redundancy if one fails
-- ✅ Better negotiating position
-- ❌ Complex integration
-- ❌ More testing required
-- ❌ Longer initial development
+- **+** Works across countries
+- **+** User choice
+- **+** Redundancy if one fails
+- **+** Better negotiating position
+- **−** Complex integration
+- **−** More testing required
+- **−** Longer initial development
 
 **Option D: Third-Party Aggregator**
-- ✅ Single integration point
-- ✅ They handle provider complexity
-- ✅ Faster to market
-- ❌ Additional fees (2-3%)
-- ❌ Dependency on aggregator
-- ❌ Less control over UX
-- ❌ Still need fallback
+- **+** Single integration point
+- **+** They handle provider complexity
+- **+** Faster to market
+- **−** Additional fees (2-3%)
+- **−** Dependency on aggregator
+- **−** Less control over UX
+- **−** Still need fallback
 
 ### Decision Rationale
 
@@ -420,7 +420,7 @@ class MTNProvider implements MobileMoneyProvider {
 // Factory pattern
 function getProvider(userPhone: string): MobileMoneyProvider {
   const countryCode = userPhone.substring(0, 3);
-  
+
   switch(countryCode) {
     case '254': return new MpesaProvider();      // Kenya
     case '233': return new MTNProvider();         // Ghana
@@ -473,24 +473,24 @@ Use PostgreSQL as primary database, Redis for caching/sessions, Stellar ledger f
 ### Why PostgreSQL Over Alternatives?
 
 **vs MySQL:**
-- ✅ Better JSON support (critical for flexible schemas)
-- ✅ PostGIS for geospatial queries
-- ✅ More advanced indexing (GiST, GIN)
-- ✅ Better handling of concurrent writes
-- ✅ Full ACID compliance (InnoDB has limitations)
+- Better JSON support (critical for flexible schemas)
+- PostGIS for geospatial queries
+- More advanced indexing (GiST, GIN)
+- Better handling of concurrent writes
+- Full ACID compliance (InnoDB has limitations)
 
 **vs MongoDB:**
-- ✅ ACID transactions (critical for money)
-- ✅ Data integrity constraints
-- ✅ Mature replication and backup
-- ✅ Better for relational data (users, transactions)
-- ❌ MongoDB better for flexible schemas (not our primary need)
+- **+** ACID transactions (critical for money)
+- **+** Data integrity constraints
+- **+** Mature replication and backup
+- **+** Better for relational data (users, transactions)
+- **−** MongoDB better for flexible schemas (not our primary need)
 
 **vs CockroachDB:**
-- ✅ Free and open source
-- ✅ Mature ecosystem
-- ✅ Lower operational complexity
-- ❌ CockroachDB has better distributed capabilities (not needed at our scale)
+- **+** Free and open source
+- **+** Mature ecosystem
+- **+** Lower operational complexity
+- **−** CockroachDB has better distributed capabilities (not needed at our scale)
 
 ### Schema Design Philosophy
 
@@ -531,7 +531,7 @@ transactions (
 )
 
 -- Can query JSON fields
-SELECT * FROM transactions 
+SELECT * FROM transactions
 WHERE metadata->>'materialType' = 'PET';
 ```
 
@@ -557,33 +557,33 @@ Target users (waste collectors):
 ### Options Considered
 
 **Option A: Email + Password**
-- ✅ Standard pattern
-- ✅ Familiar to developers
-- ❌ Many collectors don't have email
-- ❌ Password reset requires email
-- ❌ Complex passwords are burden
+- **+** Standard pattern
+- **+** Familiar to developers
+- **−** Many collectors don't have email
+- **−** Password reset requires email
+- **−** Complex passwords are burden
 
 **Option B: Phone + Password**
-- ✅ Everyone has phone
-- ✅ SMS verification possible
-- ❌ Password complexity still an issue
-- ❌ Doesn't match mental model (mobile money uses PIN)
+- **+** Everyone has phone
+- **+** SMS verification possible
+- **−** Password complexity still an issue
+- **−** Doesn't match mental model (mobile money uses PIN)
 
 **Option C: Phone + PIN (Chosen)**
-- ✅ Matches mobile money pattern
-- ✅ Everyone has phone
-- ✅ Simple 4-6 digit PIN
-- ✅ Familiar UX
-- ✅ Easy OTP verification
-- ❌ Less secure than strong password
-- ❌ Potential SIM swap attacks
+- **+** Matches mobile money pattern
+- **+** Everyone has phone
+- **+** Simple 4-6 digit PIN
+- **+** Familiar UX
+- **+** Easy OTP verification
+- **−** Less secure than strong password
+- **−** Potential SIM swap attacks
 
 **Option D: Biometric Only**
-- ✅ Most secure
-- ✅ Best UX
-- ❌ Not all phones support
-- ❌ Fails in dusty/dirty environments
-- ❌ No fallback for device loss
+- **+** Most secure
+- **+** Best UX
+- **−** Not all phones support
+- **−** Fails in dusty/dirty environments
+- **−** No fallback for device loss
 
 ### Decision Rationale
 
@@ -612,7 +612,7 @@ const PIN_CONFIG = {
 async function requireOTP(userId, action) {
   const otp = generateOTP(6);  // 6 digit code
   await sms.send(user.phone, `WasteFi OTP: ${otp}. Valid for 5 minutes.`);
-  
+
   return await verifyOTP(userId, otp, 300); // 5 minute expiry
 }
 ```
@@ -629,7 +629,7 @@ async function requireOTP(userId, action) {
 
 - **SIM Swap Risk:** Attacker with SIM can reset PIN
   - Mitigation: Device binding and alerts
-  
+
 - **PIN Strength:** 4 digits = 10,000 combinations
   - Mitigation: Account lockout after 3 attempts
   - Mitigation: Disallow common patterns
@@ -655,26 +655,26 @@ Traditional waste collection:
 ### Options Considered
 
 **Option A: Fixed Pricing**
-- ✅ Simple and predictable
-- ✅ Easy to communicate
-- ❌ Doesn't reflect market changes
-- ❌ Unprofitable when prices drop
-- ❌ Leave money on table when prices rise
+- **+** Simple and predictable
+- **+** Easy to communicate
+- **−** Doesn't reflect market changes
+- **−** Unprofitable when prices drop
+- **−** Leave money on table when prices rise
 
 **Option B: Negotiated Pricing**
-- ✅ Flexible
-- ✅ Can optimize per transaction
-- ❌ Not scalable
-- ❌ Recreates middleman problem
-- ❌ No transparency
+- **+** Flexible
+- **+** Can optimize per transaction
+- **−** Not scalable
+- **−** Recreates middleman problem
+- **−** No transparency
 
 **Option C: Market-Based with Transparency (Chosen)**
-- ✅ Fair to collectors and platform
-- ✅ Adapts to market conditions
-- ✅ Transparent and verifiable
-- ✅ Competitive with alternatives
-- ❌ Price volatility
-- ❌ Requires data infrastructure
+- **+** Fair to collectors and platform
+- **+** Adapts to market conditions
+- **+** Transparent and verifiable
+- **+** Competitive with alternatives
+- **−** Price volatility
+- **−** Requires data infrastructure
 
 ### Pricing Formula
 
@@ -682,25 +682,25 @@ Traditional waste collection:
 function calculatePayment(material, weight, quality) {
   // Base price from commodity market
   const basePrice = getMarketPrice(material.type);
-  
+
   // Quality multiplier (standardized grading)
   const qualityMultiplier = QUALITY_GRADES[quality];
-  
+
   // Location adjustment (transport costs)
   const locationMultiplier = getLocationMultiplier(collectionPoint);
-  
+
   // Calculate gross payment
   const grossPayment = weight * basePrice * qualityMultiplier * locationMultiplier;
-  
+
   // Platform fee (transparent)
   const platformFee = grossPayment * 0.02; // 2%
-  
+
   // Blockchain fee (actual cost)
   const blockchainFee = 0.00001; // $0.00001 on Stellar
-  
+
   // Net payment to collector
   const netPayment = grossPayment - platformFee - blockchainFee;
-  
+
   return {
     gross: grossPayment,
     platformFee: platformFee,
@@ -789,7 +789,7 @@ describe('Offline Queue', () => {
     await createTransaction(data);
     await goOnline();
     await sync();
-    
+
     const tx = await api.getTransaction(data.id);
     expect(tx).toBeDefined();
   });
@@ -809,16 +809,16 @@ Open source the RecycleGraph protocol and SDKs immediately, core platform after 
 ### Reasoning
 
 **What to Open Source:**
-- ✅ RecycleGraph material identification standards
-- ✅ Developer SDKs and APIs
-- ✅ Documentation and guides
-- ✅ Mobile app (post-security audit)
-- ✅ Smart contracts (after audit)
+- RecycleGraph material identification standards
+- Developer SDKs and APIs
+- Documentation and guides
+- Mobile app (post-security audit)
+- Smart contracts (after audit)
 
 **What to Keep Private (Initially):**
-- ❌ Backend business logic (competitive advantage)
-- ❌ Mobile money integrations (partner agreements)
-- ❌ Machine learning models (training data value)
+- Backend business logic (competitive advantage)
+- Mobile money integrations (partner agreements)
+- Machine learning models (training data value)
 
 **Timeline:**
 - Q4 2024: RecycleGraph protocol + SDK
@@ -855,4 +855,4 @@ These design decisions are living documents. We review them:
 - [Technology Stack](/technical/technology-stack) - Complete stack overview
 - [Architecture](/guide/architecture) - System design
 - [Contribution Guide](/CONTRIBUTING.md) - How to contribute
-- [Roadmap](/about/roadmap) - Future plans
+- [Roadmap](/community/roadmap) - Future plans

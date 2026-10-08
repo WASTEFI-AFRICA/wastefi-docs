@@ -4,7 +4,7 @@
 
 Having trouble with WasteFi? This guide covers common issues and solutions to get you back on track quickly.
 
-## 🚀 Quick Fixes
+## Quick Fixes
 
 Try these first for most common issues:
 
@@ -20,7 +20,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 📱 App Issues
+## App Issues
 
 ### App Won't Open / Crashes on Launch
 
@@ -52,10 +52,10 @@ If problems persist, see specific solutions below.
 
 4. **Reinstall app:**
    ```
-   ⚠️ IMPORTANT: Backup wallet first!
+   Warning IMPORTANT: Backup wallet first!
    Settings → Wallet → Backup
    Write down recovery phrase
-   
+
    Then:
    - Uninstall WasteFi
    - Restart phone
@@ -121,7 +121,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 🔐 Login & Account Issues
+## Login & Account Issues
 
 ### Forgot PIN
 
@@ -154,9 +154,9 @@ If problems persist, see specific solutions below.
 
 1. **Check phone number:**
    ```
-   ✅ Correct: +254712345678
-   ❌ Wrong: 0712345678 (missing country code)
-   ❌ Wrong: 254712345678 (missing +)
+   Done Correct: +254712345678
+   Not done Wrong: 0712345678 (missing country code)
+   Not done Wrong: 254712345678 (missing +)
    ```
 
 2. **Reset PIN:**
@@ -170,8 +170,8 @@ If problems persist, see specific solutions below.
 
 4. **Clear app data:**
    ```
-   ⚠️ Backup wallet first!
-   
+   Warning Backup wallet first!
+
    Settings → Apps → WasteFi
    Storage → Clear Data
    Reopen app and login
@@ -227,7 +227,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 💸 Transaction Issues
+## Transaction Issues
 
 ### Transaction Failed
 
@@ -359,7 +359,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 💳 Payment Issues
+## Payment Issues
 
 ### Mobile Money Payment Not Received
 
@@ -444,11 +444,11 @@ If problems persist, see specific solutions below.
 4. Reversal may be possible (not guaranteed)
 5. Process takes 3-7 days
 
-**⚠️ Always double-check payment number!**
+**Warning Always double-check payment number!**
 
 ---
 
-## 📍 Location & Map Issues
+## Location & Map Issues
 
 ### Can't Find Nearby Collection Points
 
@@ -531,7 +531,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 📶 Connectivity Issues
+## Connectivity Issues
 
 ### "No Internet Connection" Error
 
@@ -583,7 +583,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 🔔 Notification Issues
+## Notification Issues
 
 ### Not Receiving Notifications
 
@@ -635,7 +635,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 🗂️ App Storage & Cache
+## App Storage & Cache
 
 ### "Storage Full" Error
 
@@ -683,7 +683,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 🔄 Sync Issues
+## Sync Issues
 
 ### "Sync Failed" Error
 
@@ -739,7 +739,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 📸 Camera & QR Code Issues
+## Camera & QR Code Issues
 
 ### Camera Not Working
 
@@ -789,7 +789,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 🆘 Emergency Issues
+## Emergency Issues
 
 ### Lost Access to Account (Phone Lost/Stolen)
 
@@ -839,7 +839,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 📞 Contact Support
+## Contact Support
 
 ### Before Contacting Support
 
@@ -893,7 +893,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 💡 Pro Tips
+## Pro Tips
 
 ### Prevent Issues Before They Happen
 
@@ -924,7 +924,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 **Help Center:**
 - https://help.wastefi.org
@@ -949,7 +949,7 @@ If problems persist, see specific solutions below.
 
 ---
 
-**Still stuck? Don't hesitate to reach out to support. We're here to help! 💚**
+**Still stuck? Don't hesitate to reach out to support. We're here to help! **
 
 ---
 

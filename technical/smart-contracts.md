@@ -807,9 +807,7 @@ Requires 3-of-5 admin signatures for production upgrades.
 ## Learn More
 
 - [Soroban Documentation](https://soroban.stellar.org/docs)
-- [Contract Source Code](https://github.com/wastefi/wastefi-contracts)
-- [Audit Reports](/technical/audits)
-- [Integration Guide](/guide/integrating-contracts)
+- [Contract Source Code](https://github.com/WASTEFI-AFRICA/wastefi-contracts)
 
 ---
 

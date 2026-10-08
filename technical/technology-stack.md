@@ -25,11 +25,11 @@ For each technology choice, we evaluated:
 **Purpose:** Cross-platform mobile application
 
 **Why React Native?**
-- ✅ Single codebase for iOS, Android, and Web (PWA)
-- ✅ Large ecosystem of libraries and components
-- ✅ Hot reload speeds up development
-- ✅ Native performance for critical operations
-- ✅ Strong community support in Africa
+- Single codebase for iOS, Android, and Web (PWA)
+- Large ecosystem of libraries and components
+- Hot reload speeds up development
+- Native performance for critical operations
+- Strong community support in Africa
 
 **Alternatives Considered:**
 - Flutter: Excellent performance but smaller ecosystem
@@ -63,10 +63,10 @@ For each technology choice, we evaluated:
 **Purpose:** State management
 
 **Why Redux?**
-- ✅ Predictable state updates
-- ✅ Time-travel debugging
-- ✅ Excellent developer tools
-- ✅ Works well with offline-first architecture
+- Predictable state updates
+- Time-travel debugging
+- Excellent developer tools
+- Works well with offline-first architecture
 
 **State Structure:**
 ```typescript
@@ -107,10 +107,10 @@ interface AppState {
 **Purpose:** Offline data storage
 
 **Why IndexedDB?**
-- ✅ Large storage capacity (50MB+ vs 5-10MB for LocalStorage)
-- ✅ Structured data with indexing
-- ✅ Asynchronous API (doesn't block UI)
-- ✅ Transactional operations
+- Large storage capacity (50MB+ vs 5-10MB for LocalStorage)
+- Structured data with indexing
+- Asynchronous API (doesn't block UI)
+- Transactional operations
 
 **Schema:**
 ```javascript
@@ -131,10 +131,10 @@ db.version(1).stores({
 **Purpose:** Fast, modern admin interface
 
 **Why Vite?**
-- ✅ Lightning-fast hot module replacement
-- ✅ Optimized production builds
-- ✅ Native ES modules support
-- ✅ Better developer experience than Webpack
+- Lightning-fast hot module replacement
+- Optimized production builds
+- Native ES modules support
+- Better developer experience than Webpack
 
 #### Material-UI (MUI)
 **Purpose:** Component library
@@ -165,11 +165,11 @@ db.version(1).stores({
 **Purpose:** Server-side JavaScript runtime
 
 **Why Node.js?**
-- ✅ Same language (JavaScript/TypeScript) for frontend and backend
-- ✅ Excellent performance for I/O-heavy operations
-- ✅ Large ecosystem (npm)
-- ✅ Non-blocking architecture perfect for real-time features
-- ✅ Strong community and hiring pool
+- Same language (JavaScript/TypeScript) for frontend and backend
+- Excellent performance for I/O-heavy operations
+- Large ecosystem (npm)
+- Non-blocking architecture perfect for real-time features
+- Strong community and hiring pool
 
 **Performance Characteristics:**
 - Handles 10,000+ concurrent connections
@@ -183,10 +183,10 @@ db.version(1).stores({
 **Purpose:** HTTP server and routing
 
 **Why Express?**
-- ✅ Minimalist and flexible
-- ✅ Massive ecosystem of middleware
-- ✅ Battle-tested in production
-- ✅ Easy to learn and debug
+- Minimalist and flexible
+- Massive ecosystem of middleware
+- Battle-tested in production
+- Easy to learn and debug
 
 **Alternatives Considered:**
 - Fastify: Faster but smaller ecosystem
@@ -220,12 +220,12 @@ app.use(authenticateJWT);             // JWT validation
 **Purpose:** Primary relational database
 
 **Why PostgreSQL?**
-- ✅ ACID compliance (critical for financial transactions)
-- ✅ JSON support for flexible schemas
-- ✅ Excellent performance and scalability
-- ✅ PostGIS extension for geospatial queries
-- ✅ Strong data integrity guarantees
-- ✅ Open source and free
+- ACID compliance (critical for financial transactions)
+- JSON support for flexible schemas
+- Excellent performance and scalability
+- PostGIS extension for geospatial queries
+- Strong data integrity guarantees
+- Open source and free
 
 **Key Features We Use:**
 - **Transactions:** Ensure payment consistency
@@ -251,11 +251,11 @@ CREATE EXTENSION IF NOT EXISTS "postgis";       -- Geospatial queries
 **Purpose:** Caching and session storage
 
 **Why Redis?**
-- ✅ In-memory = extremely fast (sub-millisecond latency)
-- ✅ Rich data structures (strings, hashes, sets, sorted sets)
-- ✅ Built-in pub/sub for real-time features
-- ✅ Persistence options for durability
-- ✅ Clustering for high availability
+- In-memory = extremely fast (sub-millisecond latency)
+- Rich data structures (strings, hashes, sets, sorted sets)
+- Built-in pub/sub for real-time features
+- Persistence options for durability
+- Clustering for high availability
 
 **Use Cases:**
 ```javascript
@@ -283,11 +283,11 @@ await redis.publish('transactions', JSON.stringify(transaction));
 **Purpose:** File storage (images, documents, backups)
 
 **Why S3?**
-- ✅ Highly durable (99.999999999%)
-- ✅ Scalable and cost-effective
-- ✅ CDN integration (CloudFront)
-- ✅ Versioning and lifecycle policies
-- ✅ Compatible alternatives (MinIO, DigitalOcean Spaces)
+- Highly durable (99.999999999%)
+- Scalable and cost-effective
+- CDN integration (CloudFront)
+- Versioning and lifecycle policies
+- Compatible alternatives (MinIO, DigitalOcean Spaces)
 
 **Storage Strategy:**
 ```
@@ -318,12 +318,12 @@ await redis.publish('transactions', JSON.stringify(transaction));
 **Purpose:** Blockchain integration
 
 **Why Stellar?**
-- ✅ **Fast:** 3-5 second transaction finality
-- ✅ **Cheap:** $0.00001 per transaction
-- ✅ **Scalable:** 1,000+ transactions per second
-- ✅ **Mobile-optimized:** Low computational requirements
-- ✅ **Built-in DEX:** Currency conversion without exchanges
-- ✅ **African adoption:** Partnerships with mobile money providers
+- **Fast:**3-5 second transaction finality
+- **Cheap:**$0.00001 per transaction
+- **Scalable:**1,000+ transactions per second
+- **Mobile-optimized:**Low computational requirements
+- **Built-in DEX:**Currency conversion without exchanges
+- **African adoption:**Partnerships with mobile money providers
 
 **Alternatives Considered:**
 - Ethereum: Too expensive ($1-50 per transaction)
@@ -359,10 +359,10 @@ const transaction = new StellarSdk.TransactionBuilder(account, {
 **Purpose:** On-chain logic and verification
 
 **Why Soroban?**
-- ✅ WebAssembly-based (write in Rust)
-- ✅ Low gas fees compared to Ethereum
-- ✅ Integrated with Stellar network
-- ✅ Formal verification possible
+- WebAssembly-based (write in Rust)
+- Low gas fees compared to Ethereum
+- Integrated with Stellar network
+- Formal verification possible
 
 **Smart Contract Use Cases:**
 - Multi-signature wallets for collection points
@@ -425,10 +425,10 @@ const payment = await mpesa.b2c({
 **Purpose:** SMS notifications and OTP verification
 
 **Why Twilio?**
-- ✅ Reliable global coverage
-- ✅ Fallback to local providers
-- ✅ Excellent API and documentation
-- ✅ Reasonable pricing
+- Reliable global coverage
+- Fallback to local providers
+- Excellent API and documentation
+- Reasonable pricing
 
 **Use Cases:**
 - OTP for registration/login
@@ -545,11 +545,11 @@ services:
 **Purpose:** Container orchestration
 
 **Why ECS over Kubernetes?**
-- ✅ Simpler to set up and manage
-- ✅ Native AWS integration
-- ✅ Lower operational overhead
-- ✅ Cost-effective for our scale
-- ✅ Good enough for microservices
+- Simpler to set up and manage
+- Native AWS integration
+- Lower operational overhead
+- Cost-effective for our scale
+- Good enough for microservices
 
 **When we'd migrate to Kubernetes:**
 - 100+ microservices
@@ -607,10 +607,10 @@ jobs:
 **Purpose:** Manage cloud infrastructure
 
 **Why Terraform?**
-- ✅ Multi-cloud support
-- ✅ Declarative syntax
-- ✅ State management
-- ✅ Large provider ecosystem
+- Multi-cloud support
+- Declarative syntax
+- State management
+- Large provider ecosystem
 
 **Resources Managed:**
 - VPC and networking
@@ -626,7 +626,7 @@ resource "aws_ecs_service" "api" {
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.api.arn
   desired_count   = 3
-  
+
   load_balancer {
     target_group_arn = aws_lb_target_group.api.arn
     container_name   = "api"
@@ -694,7 +694,7 @@ describe('PaymentService', () => {
       weight: 5.5,
       quality: 'A'
     });
-    
+
     expect(amount).toBe(1.65); // 5.5 kg * $0.25 * 1.2
   });
 });
@@ -716,7 +716,7 @@ describe('POST /transactions', () => {
         materialType: 'PET',
         weight: 5.5
       });
-    
+
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('id');
   });
@@ -854,5 +854,5 @@ const encrypted = cipher.update(data, 'utf8', 'hex') + cipher.final('hex');
 
 - [Design Decisions](/technical/design-decisions) - Why we chose these technologies
 - [Architecture](/guide/architecture) - How they all fit together
-- [Development Setup](/guide/local-setup) - Get started developing
+- [Development Setup](/guide/local-development) - Get started developing
 - [Deployment](/guide/deployment) - Deploy to production

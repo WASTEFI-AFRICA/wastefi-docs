@@ -172,20 +172,20 @@ class OfflineQueue {
       status: 'pending'
     });
   }
-  
+
   async syncWhenOnline() {
     const pending = await this.db.operations
       .where('status').equals('pending')
       .toArray();
-    
+
     for (const op of pending) {
       try {
         await this.executeOperation(op);
         await this.db.operations.update(op.id, { status: 'completed' });
       } catch (error) {
-        await this.db.operations.update(op.id, { 
+        await this.db.operations.update(op.id, {
           status: 'failed',
-          error: error.message 
+          error: error.message
         });
       }
     }
@@ -207,7 +207,7 @@ class OfflineQueue {
 │   Primary    │────────>│   Replica 1  │
 │   (writes)   │         │   (reads)    │
 └──────────────┘         └──────────────┘
-       │                          
+       │  
        └────────────>┌──────────────┐
                      │   Replica 2  │
                      │   (reads)    │
@@ -283,12 +283,12 @@ class CircuitBreaker {
     this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
     this.failureCount = 0;
   }
-  
+
   async execute(operation) {
     if (this.state === 'OPEN') {
       throw new Error('Circuit breaker is OPEN');
     }
-    
+
     try {
       const result = await operation();
       this.onSuccess();
@@ -298,7 +298,7 @@ class CircuitBreaker {
       throw error;
     }
   }
-  
+
   onFailure() {
     this.failureCount++;
     if (this.failureCount >= this.failureThreshold) {
@@ -306,7 +306,7 @@ class CircuitBreaker {
       setTimeout(() => this.state = 'HALF_OPEN', this.timeout);
     }
   }
-  
+
   onSuccess() {
     this.failureCount = 0;
     this.state = 'CLOSED';
@@ -323,7 +323,7 @@ async function retryWithBackoff(fn, maxRetries = 3) {
       return await fn();
     } catch (error) {
       if (i === maxRetries - 1) throw error;
-      
+
       const delay = Math.pow(2, i) * 1000; // 1s, 2s, 4s
       await sleep(delay);
     }
@@ -343,7 +343,7 @@ async function processPayment(transaction) {
   } catch (error) {
     // Fallback: Queue for later processing
     await paymentQueue.add(transaction);
-    
+
     // Still provide user feedback
     return {
       status: 'queued',
@@ -370,7 +370,7 @@ app.get('/health/ready', async (req, res) => {
     checkStellar(),
     checkMobileMoney()
   ]);
-  
+
   const healthy = checks.every(c => c.status === 'ok');
   res.status(healthy ? 200 : 503).json({ checks });
 });
@@ -383,12 +383,12 @@ app.get('/health/ready', async (req, res) => {
 **Indexing:**
 ```sql
 -- Compound index for common query
-CREATE INDEX idx_transactions_user_date 
+CREATE INDEX idx_transactions_user_date
 ON transactions(user_id, created_at DESC);
 
 -- Partial index for active records
-CREATE INDEX idx_active_users 
-ON users(status) 
+CREATE INDEX idx_active_users
+ON users(status)
 WHERE status = 'active';
 ```
 
@@ -404,7 +404,7 @@ WHERE t.created_at > NOW() - INTERVAL '30 days'
   AND t.status = 'completed';
 
 -- Add covering index to avoid table lookups
-CREATE INDEX idx_transactions_covering 
+CREATE INDEX idx_transactions_covering
 ON transactions(created_at, status, user_id, material_id);
 ```
 
@@ -530,7 +530,7 @@ async function getSecret(secretName) {
   const data = await secretsManager
     .getSecretValue({ SecretId: secretName })
     .promise();
-  
+
   return JSON.parse(data.SecretString);
 }
 
@@ -558,15 +558,15 @@ async function processPayment(transaction) {
   const span = tracer.startSpan('payment.process');
   span.setAttribute('user.id', transaction.userId);
   span.setAttribute('amount', transaction.amount);
-  
+
   try {
     const result = await stellarService.sendPayment(transaction);
     span.setStatus({ code: SpanStatusCode.OK });
     return result;
   } catch (error) {
-    span.setStatus({ 
+    span.setStatus({
       code: SpanStatusCode.ERROR,
-      message: error.message 
+      message: error.message
     });
     throw error;
   } finally {
@@ -605,4 +605,3 @@ transactionCounter.inc({ status: 'completed', material_type: 'PET' });
 - [Architecture Overview](/guide/architecture) - High-level system architecture
 - [API Documentation](/api/overview) - RESTful API reference
 - [Deployment Guide](/guide/deployment) - Production deployment
-- [Performance Tuning](/technical/performance) - Optimization strategies

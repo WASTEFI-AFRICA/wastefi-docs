@@ -336,7 +336,7 @@ GET /materials/categories
       "id": "plastic",
       "name": "Plastics",
       "description": "All types of plastic materials",
-      "icon": "🥤",
+      "icon": "",
       "materialCount": 8,
       "totalCollected": 450000,
       "avgPrice": 0.28
@@ -345,7 +345,7 @@ GET /materials/categories
       "id": "metal",
       "name": "Metals",
       "description": "Aluminum, steel, and other metals",
-      "icon": "🥫",
+      "icon": "",
       "materialCount": 5,
       "totalCollected": 125000,
       "avgPrice": 0.65
@@ -354,7 +354,7 @@ GET /materials/categories
       "id": "paper",
       "name": "Paper & Cardboard",
       "description": "Paper products and cardboard",
-      "icon": "📦",
+      "icon": "",
       "materialCount": 4,
       "totalCollected": 200000,
       "avgPrice": 0.15
@@ -363,7 +363,7 @@ GET /materials/categories
       "id": "glass",
       "name": "Glass",
       "description": "Glass bottles and containers",
-      "icon": "🍾",
+      "icon": "",
       "materialCount": 3,
       "totalCollected": 75000,
       "avgPrice": 0.08

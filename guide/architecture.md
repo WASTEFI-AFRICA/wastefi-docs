@@ -336,10 +336,10 @@ function calculateImpact(materialType, weight) {
     'Cardboard': 1.3,
     'Glass': 0.5
   };
-  
+
   const diversionRate = 0.85; // 85% would have gone to landfill
   const emissionFactor = emissionFactors[materialType];
-  
+
   return weight * emissionFactor * diversionRate;
 }
 ```
@@ -408,7 +408,7 @@ const server = new StellarSdk.Server('https://horizon.stellar.org');
 // Create payment transaction
 async function sendPayment(fromAccount, toAddress, amount) {
   const account = await server.loadAccount(fromAccount.publicKey());
-  
+
   const transaction = new StellarSdk.TransactionBuilder(account, {
     fee: StellarSdk.BASE_FEE,
     networkPassphrase: StellarSdk.Networks.PUBLIC
@@ -420,9 +420,9 @@ async function sendPayment(fromAccount, toAddress, amount) {
   }))
   .setTimeout(180)
   .build();
-  
+
   transaction.sign(fromAccount);
-  
+
   return await server.submitTransaction(transaction);
 }
 ```
@@ -489,7 +489,7 @@ class MpesaProvider extends MobileMoneyProvider {
       },
       { headers: this.getHeaders() }
     );
-    
+
     return response.data;
   }
 }
@@ -559,7 +559,7 @@ CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_wallets_stellar ON wallets(stellar_address);
 
 -- Geographic queries
-CREATE INDEX idx_collection_points_location ON collection_points 
+CREATE INDEX idx_collection_points_location ON collection_points
 USING GIST(location); -- PostGIS extension
 ```
 
@@ -592,17 +592,17 @@ rate_limit:{ip}:{endpoint}     # Rate limiting (TTL: 1 min)
 // Cache-aside pattern
 async function getUserProfile(userId) {
   const cacheKey = `user:${userId}:profile`;
-  
+
   // Try cache first
   let profile = await redis.get(cacheKey);
   if (profile) return JSON.parse(profile);
-  
+
   // Cache miss: fetch from DB
   profile = await db.users.findById(userId);
-  
+
   // Update cache
   await redis.setex(cacheKey, 3600, JSON.stringify(profile));
-  
+
   return profile;
 }
 ```
@@ -739,4 +739,4 @@ Collection Point Wallet:
 - [Smart Contract Documentation](/technical/smart-contracts) - Soroban contract details
 - [API Reference](/api/overview) - Complete API documentation
 - [Deployment Guide](/guide/deployment) - Infrastructure setup
-- [Security Best Practices](/technical/security) - Security guidelines
+- [Security Best Practices](/guide/security) - Security guidelines

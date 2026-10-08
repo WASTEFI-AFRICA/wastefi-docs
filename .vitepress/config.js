@@ -14,7 +14,9 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'API', link: '/api/overview' },
+      { text: 'Technical', link: '/technical/system-design' },
       { text: 'Standards', link: '/standards/recyclegraph-standards' },
+      { text: 'Community', link: '/community/roadmap' },
       { text: 'About', link: '/about/overview' }
     ],
 
@@ -119,12 +121,12 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/wastefi' }
+      { icon: 'github', link: 'https://github.com/WASTEFI-AFRICA' }
     ],
 
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present WasteFi Team'
+      copyright: 'Copyright © 2026-present WasteFi Africa'
     },
 
     search: {

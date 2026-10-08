@@ -70,7 +70,7 @@ git --version        # v2.40+ required
 
 ```bash
 # Clone repository
-git clone https://github.com/wastefi/wastefi-backend.git
+git clone https://github.com/WASTEFI-AFRICA/wastefi-backend.git
 cd wastefi-backend
 
 # Copy environment file
@@ -228,14 +228,14 @@ VITE_SENTRY_DSN=your_sentry_dsn
                     │   CDN + WAF  │
                     └──────┬───────┘
                            │
-                    ┌──────▼───────┐
+                    ┌─────────────┐
                     │Application   │
                     │Load Balancer │
                     └──────┬───────┘
                            │
           ┌────────────────┼────────────────┐
           │                │                │
-    ┌─────▼─────┐   ┌─────▼─────┐   ┌─────▼─────┐
+    ┌──────────┐ ┌──────────┐ ┌──────────┐
     │API Server │   │API Server │   │API Server │
     │ (ECS Task)│   │ (ECS Task)│   │ (ECS Task)│
     └─────┬─────┘   └─────┬─────┘   └─────┬─────┘
@@ -244,7 +244,7 @@ VITE_SENTRY_DSN=your_sentry_dsn
                            │
           ┌────────────────┼────────────────┐
           │                │                │
-    ┌─────▼─────┐   ┌─────▼──────┐   ┌────▼──────┐
+    ┌──────────┐ ┌───────────┐ ┌──────────┐
     │PostgreSQL │   │   Redis    │   │    S3     │
     │    RDS    │   │ElastiCache │   │  Storage  │
     └───────────┘   └────────────┘   └───────────┘
@@ -352,7 +352,7 @@ curl https://api.wastefi.org/health/live
 ### Readiness Check
 ```bash
 curl https://api.wastefi.org/health/ready
-# Response: 
+# Response:
 # {
 #   "status": "ok",
 #   "checks": {
@@ -566,7 +566,6 @@ docker-compose restart api
 
 - [Local Development Setup](/guide/local-development) - Set up dev environment
 - [Production Setup](/guide/production-setup) - Detailed production guide
-- [Monitoring Guide](/guide/monitoring) - Set up monitoring
 - [Security Best Practices](/guide/security) - Secure your deployment
 
 ---
@@ -574,6 +573,6 @@ docker-compose restart api
 ## Support
 
 - Documentation: https://docs.wastefi.org
-- Issues: https://github.com/wastefi/issues
+- Issues: https://github.com/WASTEFI-AFRICA/wastefi-docs/issues
 - Email: devops@wastefi.org
 - Discord: https://discord.gg/wastefi
