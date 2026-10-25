@@ -401,7 +401,7 @@ const payment = await mpesa.b2c({
   Amount: 250,
   PartyB: '254712345678',
   Remarks: 'Waste collection payment',
-  Occassion: 'Transaction TXN123'
+  Occasion: 'Transaction TXN123'
 });
 ```
 
