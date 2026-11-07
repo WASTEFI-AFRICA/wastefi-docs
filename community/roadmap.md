@@ -26,8 +26,8 @@ See the [app](https://wastefi-frontend.vercel.app),
 
 The next steps are:
 
-1. Correct the API reference against the backend routes, then publish the docs
-   with a build check on pull requests.
+1. Publish the docs with a build check on pull requests, after reviewing the
+   remaining guides for unsupported claims.
 2. Replace sample wallet and profile screens with account data and paid collection
    history. Connect collection point dashboard statistics to the API.
 3. Give admins a user list and a way to activate pending accounts.

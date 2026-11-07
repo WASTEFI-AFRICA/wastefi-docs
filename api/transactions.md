@@ -1,553 +1,147 @@
-# Transactions API
+# Collections
 
-## Overview
+Waste deliveries are recorded under `/api/v1/collections`. This page retains its
+old documentation URL for existing links. There is no standalone transactions
+router for deliveries; [payment records](/api/payments) are a separate resource.
+All collection endpoints require an access token for an active account.
 
-The Transactions API allows you to create, retrieve, and manage waste collection transactions.
+## Submit a collection
 
----
+`POST /api/v1/collections` records a delivery for the authenticated user.
 
-## Create Transaction
+| Field | Requirement |
+| --- | --- |
+| `collectionPointId` | Required ID of an existing active point |
+| `materialType` | Required code from [public materials](/api/materials), such as `PET` |
+| `materialCategory` | Required category from the same material record, such as `Plastic` |
+| `weight` | Required number in kilograms, at least 0.1 |
+| `quantity` | Optional integer, at least 1 |
+| `imageUrls` | Optional array of image URL records |
+| `notes` | Optional trimmed text |
 
-Create a new transaction for material deposit.
-
-### Endpoint
-```
-POST /transactions
-```
-
-### Headers
-```
+```http
+POST /api/v1/collections
 Authorization: Bearer YOUR_ACCESS_TOKEN
 Content-Type: application/json
-```
 
-### Request Body
-```json
 {
-  "collectionPointId": "cp_1a2b3c4d",
+  "collectionPointId": "REPLACE_WITH_AN_ACTIVE_POINT_ID",
   "materialType": "PET",
-  "weight": 5.5,
-  "qualityGrade": "A",
-  "photos": [
-    "https://storage.wastefi.org/photos/abc123.jpg"
-  ],
-  "notes": "Clean bottles, labels removed"
+  "materialCategory": "Plastic",
+  "weight": 5.5
 }
 ```
 
-### Parameters
+Fetch a real point ID first; the placeholder above is not a usable database ID.
+The API calculates `paymentAmount` in KES and returns HTTP 201 with the collection
+in `data`. Do not send `collectorId`, a payout amount or chain identifiers. The
+pricing helper currently accepts unknown codes with a fallback price, so clients
+must use the published list instead of treating that fallback as a supported material.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| collectionPointId | string | Yes | Collection point ID |
-| materialType | string | Yes | Material type code (PET, HDPE, etc.) |
-| weight | number | Yes | Weight in kilograms |
-| qualityGrade | string | Yes | A (excellent), B (good), or C (fair) |
-| photos | array | No | URLs of material photos |
-| notes | string | No | Additional notes |
+## Read collections
 
-### Response (201 Created)
-```json
-{
-  "success": true,
-  "data": {
-    "id": "txn_9z8y7x6w5v",
-    "userId": "usr_2a1b3c4d5e6f",
-    "collectionPointId": "cp_1a2b3c4d",
-    "materialType": "PET",
-    "weight": 5.5,
-    "qualityGrade": "A",
-    "payment": {
-      "grossAmount": 1.89,
-      "platformFee": 0.04,
-      "netAmount": 1.85,
-      "currency": "USD",
-      "breakdown": {
-        "basePrice": 0.30,
-        "qualityMultiplier": 1.2,
-        "locationMultiplier": 1.05
-      }
-    },
-    "impact": {
-      "co2Saved": 13.75,
-      "unit": "kg"
-    },
-    "status": "pending",
-    "createdAt": "2024-09-15T10:30:00Z",
-    "estimatedPaymentTime": "2024-09-15T10:32:00Z"
-  }
-}
-```
+| Method | Path | Access | Response |
+| --- | --- | --- | --- |
+| GET | `/api/v1/collections/me` | Active account, own history | `data`, `pagination`, `summary` |
+| GET | `/api/v1/collections/:id` | Owner, `ADMIN`, `VERIFIER` or `COLLECTION_POINT` | Collection in `data`; 404 if absent, 403 for another collector's record |
+| GET | `/api/v1/collections` | `ADMIN`, `COLLECTION_POINT` or `VERIFIER` | Filtered `data` and `pagination` |
 
-### Transaction Status Values
+Both list routes accept `page` (default 1) and `limit` (default 20, range 1 to
+100). The staff list also accepts `collectorId`, `collectionPointId` (UUIDs),
+`materialType` (case-insensitive partial match), `status` (filters
+`paymentStatus`), `verified` (boolean), and ISO 8601 `startDate`, `endDate`
+(filter creation time). `status` values are `PENDING`, `PROCESSING`, `COMPLETED`,
+`FAILED` and `CANCELLED`.
 
-| Status | Description |
-|--------|-------------|
-| `pending` | Awaiting collection point authorization |
-| `authorized` | Authorized by collection point |
-| `processing` | Payment being processed |
-| `completed` | Payment completed successfully |
-| `failed` | Payment failed |
-| `disputed` | Transaction disputed |
-| `cancelled` | Transaction cancelled |
+For the unreviewed queue, use:
 
-### Errors
-
-**400 Bad Request**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_WEIGHT",
-    "message": "Weight must be between 0.1 and 1000 kg",
-    "field": "weight"
-  }
-}
-```
-
-**404 Not Found**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "COLLECTION_POINT_NOT_FOUND",
-    "message": "Collection point does not exist"
-  }
-}
-```
-
-### Example
-```javascript
-const transaction = await fetch('https://api.wastefi.org/v1/transactions', {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${accessToken}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    collectionPointId: 'cp_1a2b3c4d',
-    materialType: 'PET',
-    weight: 5.5,
-    qualityGrade: 'A'
-  })
-});
-
-const { data } = await transaction.json();
-console.log(`Transaction ID: ${data.id}`);
-console.log(`You will receive: $${data.payment.netAmount}`);
-```
-
----
-
-## Get Transaction
-
-Retrieve details of a specific transaction.
-
-### Endpoint
-```
-GET /transactions/:id
-```
-
-### Headers
-```
+```http
+GET /api/v1/collections?verified=false&page=1&limit=20
 Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
-### Response (200 OK)
+`verified=false` means no review timestamp and sorts oldest first. `verified=true`
+means reviewed, including rejected records; it is not an approval-only filter.
+Other lists sort newest first. Operators currently have access to the full queue;
+filtering by a point is not yet an enforced operator-to-point assignment.
+
+The own-history `summary` contains `totalCollections`, `totalWeight` and
+`totalEarnings`, aggregated across that user's submissions. `totalEarnings` is a
+sum of KES collection values, not confirmation of completed payments.
+
+## Review a delivery
+
+`POST /api/v1/collections/:id/verify` requires `ADMIN`, `VERIFIER` or
+`COLLECTION_POINT`. Send a boolean `approved`, optional `notes`, optional
+`adjustedWeight` (at least 0.1 kg) and optional `adjustedAmount` (nonnegative KES).
+
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "txn_9z8y7x6w5v",
-    "userId": "usr_2a1b3c4d5e6f",
-    "user": {
-      "id": "usr_2a1b3c4d5e6f",
-      "name": "John Doe",
-      "phone": "+254712345678"
-    },
-    "collectionPointId": "cp_1a2b3c4d",
-    "collectionPoint": {
-      "id": "cp_1a2b3c4d",
-      "name": "Nairobi Central Collection",
-      "location": {
-        "latitude": -1.286389,
-        "longitude": 36.817223,
-        "address": "Tom Mboya St, Nairobi"
-      }
-    },
-    "materialType": "PET",
-    "weight": 5.5,
-    "qualityGrade": "A",
-    "payment": {
-      "grossAmount": 1.89,
-      "platformFee": 0.04,
-      "netAmount": 1.85,
-      "currency": "USD",
-      "stellarTxHash": "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889"
-    },
-    "impact": {
-      "co2Saved": 13.75,
-      "unit": "kg"
-    },
-    "status": "completed",
-    "photos": [
-      "https://storage.wastefi.org/photos/abc123.jpg"
-    ],
-    "notes": "Clean bottles, labels removed",
-    "timeline": [
-      {
-        "status": "pending",
-        "timestamp": "2024-09-15T10:30:00Z"
-      },
-      {
-        "status": "authorized",
-        "timestamp": "2024-09-15T10:31:00Z",
-        "authorizedBy": "op_5h4g3f2d"
-      },
-      {
-        "status": "completed",
-        "timestamp": "2024-09-15T10:31:30Z"
-      }
-    ],
-    "createdAt": "2024-09-15T10:30:00Z",
-    "updatedAt": "2024-09-15T10:31:30Z"
-  }
+  "approved": true,
+  "notes": "Weight checked at intake"
 }
 ```
 
----
+The response is HTTP 200 with the updated collection in `data` and a message.
+Both approval and rejection set `verifiedAt` and `verifiedBy`. Rejection sets
+`paymentStatus` to `CANCELLED`. A reviewed collection cannot be reviewed again.
 
-## List Transactions
+When on-chain recording is enabled, approval queues the Soroban workflow and
+returns before payment finishes. The current service applies `adjustedAmount`
+only when truthy, so zero does not override the amount even though validation
+accepts it. KES adjustments do not set the WASTE token price on-chain.
 
-Get transaction history with filtering and pagination.
+## On-chain fields
 
-### Endpoint
-```
-GET /transactions/history
-```
+Read a collection again to observe background progress:
 
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
+| Field | Meaning |
+| --- | --- |
+| `chainStatus` | `null` until queued; then `PENDING`, `RECORDED`, `VERIFIED`, `PAID`, or `FAILED` |
+| `chainTransactionId`, `chainPaymentId` | Numeric contract IDs stored as strings |
+| `chainAmount` | WASTE amount as an integer base-unit string, seven decimal places |
+| `chainRecordTxHash`, `chainVerifyTxHash`, `chainPaymentTxHash` | Stellar transaction hashes as they become available |
+| `chainAttempts`, `chainError` | Retry information and latest error, when present |
 
-### Query Parameters
+`chainStatus = PAID` reports the completed WASTE mint. `paymentStatus` belongs to
+the separate legacy payment flow and can remain `PENDING` for a WASTE-paid
+collection. Do not use it as the WASTE payment indicator. See
+[smart contracts](/technical/smart-contracts#from-approval-to-waste).
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| page | number | Page number (default: 1) |
-| limit | number | Items per page (default: 20, max: 100) |
-| status | string | Filter by status |
-| materialType | string | Filter by material type |
-| startDate | string | Start date (ISO 8601) |
-| endDate | string | End date (ISO 8601) |
-| sort | string | Sort field (prefix with `-` for descending) |
+`imageUrls` is returned as a JSON-encoded string, not an array. Collections also
+include material, weight, KES payment fields, review timestamps, notes and related
+collector or point selections; those relation selections vary by operation.
 
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "txn_9z8y7x6w5v",
-      "materialType": "PET",
-      "weight": 5.5,
-      "payment": {
-        "netAmount": 1.85,
-        "currency": "USD"
-      },
-      "impact": {
-        "co2Saved": 13.75
-      },
-      "status": "completed",
-      "createdAt": "2024-09-15T10:30:00Z"
-    },
-    // ... more transactions
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 45,
-    "pages": 3,
-    "hasNext": true,
-    "hasPrev": false
-  },
-  "summary": {
-    "totalEarnings": 125.50,
-    "totalWeight": 250.5,
-    "totalCO2Saved": 626.25,
-    "transactionCount": 45
-  }
-}
-```
+## Statistics
 
-### Example Queries
+| Method | Path | Access | Filters |
+| --- | --- | --- | --- |
+| GET | `/api/v1/collections/statistics` | `ADMIN` or `COLLECTION_POINT` | `userId`, `collectionPointId`, `startDate`, `endDate` |
+| GET | `/api/v1/collections/statistics/materials` | `ADMIN` or `COLLECTION_POINT` | `collectionPointId`, `startDate`, `endDate` |
 
-```bash
-# Get completed transactions
-GET /transactions/history?status=completed
+IDs in these filters must be UUIDs; dates must be ISO 8601. Results are under
+`data`. General statistics contain `totalCollections`, `totalWeight`,
+`totalPayments`, `byMaterial` and `byStatus`. These aggregates include matching
+submissions across review and payment states. For approval-only public totals,
+use [public statistics](/api/impact).
 
-# Get PET transactions from last month
-GET /transactions/history?materialType=PET&startDate=2024-08-01&endDate=2024-08-31
+The materials statistics payload contains `summary`, `byMaterialType`,
+`byCategory` and `filters`. It is cached for five minutes through the cache
+helper, which falls back to the database when Redis is unavailable.
 
-# Sort by date descending
-GET /transactions/history?sort=-createdAt
+## Images and deletion
 
-# Get page 2 with 50 items
-GET /transactions/history?page=2&limit=50
-```
+| Method | Path | Access | Input or behavior |
+| --- | --- | --- | --- |
+| POST | `/api/v1/collections/:collectionId/images` | Active account | JSON `imageUrls`: nonempty array of valid URLs; appends stored URLs |
+| DELETE | `/api/v1/collections/:id` | `ADMIN` | Deletes a collection unless the service considers its legacy payment completed |
 
----
+The images endpoint stores URLs; it does not upload image files. Its current
+handler does not enforce collection ownership. File upload and authorization
+improvements remain contributor work. There are no collection cancellation,
+dispute or export routes in this router.
 
-## Get User Statistics
-
-Get summary statistics for a user's transactions.
-
-### Endpoint
-```
-GET /transactions/stats
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "totalTransactions": 45,
-    "totalEarnings": 125.50,
-    "totalWeight": 250.5,
-    "totalCO2Saved": 626.25,
-    "currency": "USD",
-    "byMaterial": [
-      {
-        "materialType": "PET",
-        "count": 30,
-        "weight": 165.0,
-        "earnings": 82.50,
-        "co2Saved": 412.5
-      },
-      {
-        "materialType": "HDPE",
-        "count": 10,
-        "weight": 55.0,
-        "earnings": 27.50,
-        "co2Saved": 137.5
-      },
-      {
-        "materialType": "Aluminum",
-        "count": 5,
-        "weight": 30.5,
-        "earnings": 15.50,
-        "co2Saved": 76.25
-      }
-    ],
-    "byMonth": [
-      {
-        "month": "2024-09",
-        "count": 12,
-        "earnings": 35.20,
-        "weight": 66.0,
-        "co2Saved": 165.0
-      },
-      {
-        "month": "2024-08",
-        "count": 15,
-        "earnings": 42.30,
-        "weight": 82.5,
-        "co2Saved": 206.25
-      }
-    ],
-    "averageTransaction": {
-      "weight": 5.57,
-      "earnings": 2.79,
-      "co2Saved": 13.92
-    }
-  }
-}
-```
-
----
-
-## Cancel Transaction
-
-Cancel a pending transaction.
-
-### Endpoint
-```
-DELETE /transactions/:id
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "id": "txn_9z8y7x6w5v",
-    "status": "cancelled",
-    "cancelledAt": "2024-09-15T10:35:00Z"
-  }
-}
-```
-
-### Errors
-
-**400 Bad Request**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "CANNOT_CANCEL",
-    "message": "Can only cancel transactions with status 'pending'"
-  }
-}
-```
-
----
-
-## Dispute Transaction
-
-Create a dispute for a transaction.
-
-### Endpoint
-```
-POST /transactions/:id/dispute
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-### Request Body
-```json
-{
-  "reason": "weight_incorrect",
-  "description": "The weight recorded was 5.5kg but I brought 7kg",
-  "evidence": [
-    "https://storage.wastefi.org/evidence/photo1.jpg"
-  ]
-}
-```
-
-### Dispute Reasons
-
-| Reason | Description |
-|--------|-------------|
-| `weight_incorrect` | Weight measurement disputed |
-| `quality_grade_wrong` | Quality grade assessment disputed |
-| `payment_incorrect` | Payment amount incorrect |
-| `material_rejected` | Material wrongly rejected |
-| `other` | Other reason (provide description) |
-
-### Response (201 Created)
-```json
-{
-  "success": true,
-  "data": {
-    "disputeId": "dis_1a2b3c4d",
-    "transactionId": "txn_9z8y7x6w5v",
-    "reason": "weight_incorrect",
-    "status": "under_review",
-    "createdAt": "2024-09-15T10:40:00Z",
-    "estimatedResolution": "2024-09-17T10:40:00Z"
-  }
-}
-```
-
----
-
-## Export Transactions
-
-Export transaction history as CSV or PDF.
-
-### Endpoint
-```
-GET /transactions/export
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-### Query Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| format | string | `csv` or `pdf` (default: csv) |
-| startDate | string | Start date (ISO 8601) |
-| endDate | string | End date (ISO 8601) |
-| status | string | Filter by status |
-
-### Response (200 OK)
-
-Returns file download with appropriate Content-Type:
-- CSV: `text/csv`
-- PDF: `application/pdf`
-
-### Example
-```javascript
-// Download CSV export
-const response = await fetch(
-  'https://api.wastefi.org/v1/transactions/export?format=csv&startDate=2024-01-01',
-  {
-    headers: {
-      'Authorization': `Bearer ${accessToken}`
-    }
-  }
-);
-
-const blob = await response.blob();
-const url = window.URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'transactions.csv';
-a.click();
-```
-
----
-
-## Webhooks
-
-Subscribe to transaction events via webhooks:
-
-### Event Types
-- `transaction.created` - New transaction created
-- `transaction.authorized` - Transaction authorized
-- `transaction.completed` - Payment completed
-- `transaction.failed` - Payment failed
-- `transaction.disputed` - Dispute created
-
-### Webhook Payload Example
-```json
-{
-  "event": "transaction.completed",
-  "timestamp": "2024-09-15T10:31:30Z",
-  "data": {
-    "id": "txn_9z8y7x6w5v",
-    "userId": "usr_2a1b3c4d5e6f",
-    "payment": {
-      "netAmount": 1.85,
-      "stellarTxHash": "3389e9f0f1a65f19736cacf544c2e825313e8447f569233bb8db39aa607c8889"
-    }
-  }
-}
-```
-
----
-
-## Next Steps
-
-- [Payments API](/api/payments) - Process payments and cashouts
-- [Materials API](/api/materials) - Material types and pricing
-- [Impact API](/api/impact) - Environmental impact tracking
+Source: [router](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/routes/waste-collection.routes.ts),
+[controller](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/controllers/waste-collection.controller.ts),
+[collection service](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/services/waste-collection.service.ts)
+and [on-chain service](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/services/onchain-collection.service.ts).

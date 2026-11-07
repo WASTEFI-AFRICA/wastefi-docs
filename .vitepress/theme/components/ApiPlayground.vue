@@ -1,490 +1,161 @@
-<template>
-  <div class="api-playground">
-    <div class="playground-header">
-      <h3>Interactive API Playground</h3>
-      <p>Test API endpoints directly from your browser</p>
-    </div>
-
-    <div class="playground-config">
-      <div class="config-row">
-        <label for="environment">Environment:</label>
-        <select v-model="environment" id="environment">
-          <option value="testnet">Testnet</option>
-          <option value="production">Production</option>
-        </select>
-      </div>
-
-      <div class="config-row">
-        <label for="auth-token">Auth Token:</label>
-        <input 
-          v-model="authToken" 
-          id="auth-token"
-          type="password" 
-          placeholder="Enter your JWT token (optional)"
-          class="token-input"
-        />
-      </div>
-    </div>
-
-    <div class="endpoint-selector">
-      <label for="endpoint">Select Endpoint:</label>
-      <select v-model="selectedEndpoint" id="endpoint" @change="onEndpointChange">
-        <option v-for="ep in endpoints" :key="ep.id" :value="ep.id">
-          {{ ep.method }} {{ ep.path }}
-        </option>
-      </select>
-    </div>
-
-    <div v-if="currentEndpoint" class="endpoint-details">
-      <div class="detail-section">
-        <h4>{{ currentEndpoint.method }} {{ currentEndpoint.path }}</h4>
-        <p class="endpoint-description">{{ currentEndpoint.description }}</p>
-      </div>
-
-      <div v-if="currentEndpoint.params.length > 0" class="params-section">
-        <h4>Parameters</h4>
-        <div v-for="param in currentEndpoint.params" :key="param.name" class="param-row">
-          <label :for="param.name">
-            {{ param.name }}
-            <span v-if="param.required" class="required">*</span>
-            <span class="param-type">{{ param.type }}</span>
-          </label>
-          <input 
-            v-model="paramValues[param.name]"
-            :id="param.name"
-            :type="param.type === 'number' ? 'number' : 'text'"
-            :placeholder="param.placeholder"
-            class="param-input"
-          />
-        </div>
-      </div>
-
-      <div v-if="currentEndpoint.body" class="body-section">
-        <h4>Request Body (JSON)</h4>
-        <textarea 
-          v-model="requestBody" 
-          class="json-editor"
-          rows="8"
-          placeholder='{ "key": "value" }'
-        ></textarea>
-      </div>
-
-      <button @click="sendRequest" :disabled="loading" class="send-button">
-        {{ loading ? 'Sending...' : 'Send Request' }}
-      </button>
-
-      <div v-if="response" class="response-section">
-        <div class="response-header">
-          <h4>Response</h4>
-          <span :class="['status-badge', responseStatus]">
-            {{ responseStatusText }}
-          </span>
-        </div>
-        <pre class="response-body"><code>{{ response }}</code></pre>
-      </div>
-
-      <div v-if="error" class="error-section">
-        <h4>Error</h4>
-        <pre class="error-body"><code>{{ error }}</code></pre>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
-const environment = ref('testnet')
-const authToken = ref('')
-const selectedEndpoint = ref('get-materials')
-const paramValues = ref({})
-const requestBody = ref('')
-const loading = ref(false)
-const response = ref(null)
-const error = ref(null)
-const responseStatusText = ref('')
-const responseStatus = ref('')
-
-const baseUrls = {
-  testnet: 'https://api-testnet.wastefi.org/v1',
-  production: 'https://api.wastefi.org/v1'
+const servers = {
+  demo: 'https://wastefi-backend.onrender.com/api/v1',
+  local: 'http://localhost:3001/api/v1'
 }
-
 const endpoints = [
-  {
-    id: 'get-materials',
-    method: 'GET',
-    path: '/materials',
-    description: 'Retrieve list of supported material types',
-    params: [],
-    requiresAuth: false,
-    body: false
-  },
-  {
-    id: 'get-material',
-    method: 'GET',
-    path: '/materials/{id}',
-    description: 'Get details of a specific material',
-    params: [
-      { name: 'id', type: 'text', required: true, placeholder: 'e.g., PET' }
-    ],
-    requiresAuth: false,
-    body: false
-  },
-  {
-    id: 'get-users',
-    method: 'GET',
-    path: '/users',
-    description: 'List all users (requires authentication)',
-    params: [
-      { name: 'limit', type: 'number', required: false, placeholder: '20' },
-      { name: 'cursor', type: 'text', required: false, placeholder: 'usr_abc123' }
-    ],
-    requiresAuth: true,
-    body: false
-  },
-  {
-    id: 'create-transaction',
-    method: 'POST',
-    path: '/transactions',
-    description: 'Create a new waste collection transaction',
-    params: [],
-    requiresAuth: true,
-    body: true,
-    sampleBody: {
-      userId: 'usr_123',
-      materialType: 'PET',
-      weight: 5.5,
-      collectionPointId: 'cp_456'
-    }
-  },
-  {
-    id: 'get-transactions',
-    method: 'GET',
-    path: '/transactions',
-    description: 'List transactions with optional filters',
-    params: [
-      { name: 'userId', type: 'text', required: false, placeholder: 'usr_123' },
-      { name: 'status', type: 'text', required: false, placeholder: 'completed' },
-      { name: 'limit', type: 'number', required: false, placeholder: '20' }
-    ],
-    requiresAuth: true,
-    body: false
-  },
-  {
-    id: 'get-collection-points',
-    method: 'GET',
-    path: '/collection-points',
-    description: 'List all collection points',
-    params: [
-      { name: 'latitude', type: 'number', required: false, placeholder: '-1.2921' },
-      { name: 'longitude', type: 'number', required: false, placeholder: '36.8219' },
-      { name: 'radius', type: 'number', required: false, placeholder: '10' }
-    ],
-    requiresAuth: false,
-    body: false
-  },
-  {
-    id: 'get-impact',
-    method: 'GET',
-    path: '/impact/{userId}',
-    description: 'Get environmental impact metrics for a user',
-    params: [
-      { name: 'userId', type: 'text', required: true, placeholder: 'usr_123' }
-    ],
-    requiresAuth: true,
-    body: false
-  }
+  { path: '/public/materials', label: 'Material catalogue', description: 'Accepted material codes, display labels and KES prices.' },
+  { path: '/public/stats', label: 'Public statistics', description: 'Anonymous collection aggregates and recorded WASTE payouts.' },
+  { path: '/collection-points?limit=10', label: 'Collection points', description: 'The first page of active collection points.' }
 ]
 
-const currentEndpoint = computed(() => {
-  return endpoints.find(ep => ep.id === selectedEndpoint.value)
-})
+const server = ref('demo')
+const selectedPath = ref(endpoints[0].path)
+const endpoint = computed(() => endpoints.find(item => item.path === selectedPath.value))
+const requestUrl = computed(() => servers[server.value] + selectedPath.value)
+const loading = ref(false)
+const responseBody = ref(null)
+const responseStatus = ref('')
+const responseOk = ref(false)
+const error = ref('')
+let controller
 
-const onEndpointChange = () => {
-  paramValues.value = {}
-  response.value = null
-  error.value = null
-  if (currentEndpoint.value?.sampleBody) {
-    requestBody.value = JSON.stringify(currentEndpoint.value.sampleBody, null, 2)
-  } else {
-    requestBody.value = ''
-  }
+function resetResponse() {
+  responseBody.value = null
+  responseStatus.value = ''
+  error.value = ''
 }
 
-const sendRequest = async () => {
+watch([server, selectedPath], resetResponse)
+onBeforeUnmount(() => controller?.abort())
+
+async function sendRequest() {
+  if (loading.value) return
+  resetResponse()
   loading.value = true
-  response.value = null
-  error.value = null
-  responseStatusText.value = ''
-  responseStatus.value = ''
+  controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 45000)
 
   try {
-    const endpoint = currentEndpoint.value
-    let url = baseUrls[environment.value] + endpoint.path
-
-    // Replace path parameters
-    for (const param of endpoint.params) {
-      if (url.includes(`{${param.name}}`)) {
-        url = url.replace(`{${param.name}}`, paramValues.value[param.name] || '')
-      }
+    const result = await fetch(requestUrl.value, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      credentials: 'omit',
+      signal: controller.signal
+    })
+    responseStatus.value = `${result.status} ${result.statusText}`.trim()
+    responseOk.value = result.ok
+    const text = await result.text()
+    try {
+      responseBody.value = JSON.stringify(JSON.parse(text), null, 2)
+    } catch {
+      responseBody.value = text || '(empty response)'
     }
-
-    // Add query parameters
-    const queryParams = endpoint.params.filter(p => !endpoint.path.includes(`{${p.name}}`))
-    if (queryParams.length > 0) {
-      const params = new URLSearchParams()
-      queryParams.forEach(p => {
-        if (paramValues.value[p.name]) {
-          params.append(p.name, paramValues.value[p.name])
-        }
-      })
-      const queryString = params.toString()
-      if (queryString) {
-        url += '?' + queryString
-      }
-    }
-
-    const options = {
-      method: endpoint.method,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
-
-    if (authToken.value && endpoint.requiresAuth) {
-      options.headers['Authorization'] = `Bearer ${authToken.value}`
-    }
-
-    if (endpoint.body && requestBody.value) {
-      try {
-        JSON.parse(requestBody.value) // Validate JSON
-        options.body = requestBody.value
-      } catch (e) {
-        throw new Error('Invalid JSON in request body')
-      }
-    }
-
-    const res = await fetch(url, options)
-    responseStatusText.value = `${res.status} ${res.statusText}`
-    responseStatus.value = res.ok ? 'success' : 'error'
-    
-    const data = await res.json()
-    response.value = JSON.stringify(data, null, 2)
-  } catch (e) {
-    error.value = e.message
-    responseStatus.value = 'error'
+    if (!result.ok) error.value = `The server returned HTTP ${result.status}. See the response below.`
+  } catch (cause) {
+    error.value = cause?.name === 'AbortError'
+      ? 'The request timed out. The demo may be waking up; try again shortly.'
+      : 'Could not reach this server. It may be offline, waking up, or blocked by browser CORS. Try curl or your local backend.'
   } finally {
+    clearTimeout(timeout)
     loading.value = false
+    controller = undefined
   }
-}
-
-// Initialize with sample body if available
-if (currentEndpoint.value?.sampleBody) {
-  requestBody.value = JSON.stringify(currentEndpoint.value.sampleBody, null, 2)
 }
 </script>
 
+<template>
+  <section class="api-playground" aria-label="Public API playground" :aria-busy="loading">
+    <div class="playground-heading">
+      <span class="read-badge">Public GET requests</span>
+      <p>Explore the API with real responses. No sign-in needed.</p>
+    </div>
+
+    <div class="playground-fields">
+      <div>
+        <label for="api-server">Server</label>
+        <select id="api-server" v-model="server" :disabled="loading">
+          <option value="demo">Hosted demo (Stellar testnet)</option>
+          <option value="local">Local backend</option>
+        </select>
+      </div>
+      <div>
+        <label for="api-endpoint">Endpoint</label>
+        <select id="api-endpoint" v-model="selectedPath" :disabled="loading">
+          <option v-for="item in endpoints" :key="item.path" :value="item.path">{{ item.label }}</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="endpoint-description">{{ endpoint.description }}</p>
+    <div class="request-preview"><span>GET</span><code>{{ requestUrl }}</code></div>
+    <div class="request-actions">
+      <button type="button" :disabled="loading" @click="sendRequest">
+        {{ loading ? 'Waiting for response…' : 'Send request' }}
+      </button>
+      <span class="request-hint">The hosted demo can take time to wake.</span>
+    </div>
+
+    <p v-if="error" class="request-error" role="alert">{{ error }}</p>
+    <div class="response-status" role="status" aria-live="polite">
+      <span v-if="responseStatus" :class="responseOk ? 'status-success' : 'status-error'">{{ responseStatus }}</span>
+    </div>
+    <pre v-if="responseBody !== null" class="response-body" tabindex="0" aria-label="API response"><code>{{ responseBody }}</code></pre>
+  </section>
+</template>
+
 <style scoped>
 .api-playground {
-  margin: 2rem 0;
+  margin: 1.5rem 0;
   padding: 1.5rem;
   border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--vp-c-bg-soft);
 }
-
-.playground-header {
-  margin-bottom: 1.5rem;
+.playground-heading { margin-bottom: 1.25rem; }
+.read-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
-
-.playground-header h3 {
-  margin: 0 0 0.5rem 0;
-  color: var(--vp-c-brand);
-}
-
-.playground-header p {
-  margin: 0;
-  color: var(--vp-c-text-2);
-  font-size: 0.9rem;
-}
-
-.playground-config,
-.endpoint-selector {
-  margin-bottom: 1rem;
-}
-
-.config-row,
-.param-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  gap: 1rem;
-}
-
-label {
-  min-width: 120px;
-  font-weight: 500;
-  color: var(--vp-c-text-1);
-}
-
-select,
-input[type="text"],
-input[type="password"],
-input[type="number"],
-.token-input,
-.param-input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 4px;
-  background: var(--vp-c-bg);
-  color: var(--vp-c-text-1);
-  font-family: inherit;
-}
-
-.endpoint-details {
-  margin-top: 1.5rem;
-}
-
-.detail-section h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-  color: var(--vp-c-text-1);
-  font-family: var(--vp-font-family-mono);
-}
-
-.endpoint-description {
-  margin: 0 0 1rem 0;
-  color: var(--vp-c-text-2);
-}
-
-.params-section,
-.body-section {
-  margin: 1.5rem 0;
-}
-
-.params-section h4,
-.body-section h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1rem;
-  color: var(--vp-c-text-1);
-}
-
-.required {
-  color: var(--vp-c-danger);
-  margin-left: 2px;
-}
-
-.param-type {
-  margin-left: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--vp-c-text-3);
-  font-family: var(--vp-font-family-mono);
-}
-
-.json-editor {
+.playground-heading p { margin: 0.5rem 0 0; }
+.playground-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.playground-fields > div { min-width: 0; }
+label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 600; }
+select {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.65rem;
   border: 1px solid var(--vp-c-divider);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--vp-c-bg);
   color: var(--vp-c-text-1);
-  font-family: var(--vp-font-family-mono);
-  font-size: 0.9rem;
-  resize: vertical;
+  font: inherit;
 }
-
-.send-button {
-  padding: 0.75rem 1.5rem;
-  background: var(--vp-c-brand);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.send-button:hover:not(:disabled) {
-  background: var(--vp-c-brand-dark);
-}
-
-.send-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.response-section,
-.error-section {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border-radius: 4px;
-  background: var(--vp-c-bg);
-}
-
-.response-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
-.response-header h4 {
-  margin: 0;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.status-badge.success {
-  background: var(--vp-c-success-soft);
-  color: var(--vp-c-success);
-}
-
-.status-badge.error {
-  background: var(--vp-c-danger-soft);
-  color: var(--vp-c-danger);
-}
-
-.response-body,
-.error-body {
-  margin: 0;
-  padding: 1rem;
-  background: var(--vp-code-block-bg);
-  border-radius: 4px;
-  overflow-x: auto;
-}
-
-.response-body code,
-.error-body code {
-  font-family: var(--vp-font-family-mono);
-  font-size: 0.9rem;
-  color: var(--vp-c-text-1);
-}
-
-.error-section {
-  border: 1px solid var(--vp-c-danger-soft);
-}
-
-.error-section h4 {
-  margin: 0 0 1rem 0;
-  color: var(--vp-c-danger);
-}
-
-@media (max-width: 768px) {
-  .config-row,
-  .param-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  label {
-    min-width: auto;
-  }
+.endpoint-description, .request-hint { color: var(--vp-c-text-2); font-size: 0.85rem; }
+.endpoint-description { margin: 1rem 0 0.75rem; }
+.request-preview { display: flex; align-items: baseline; gap: 0.75rem; padding: 0.85rem; border-radius: 6px; background: var(--vp-c-bg); }
+.request-preview span { color: var(--vp-c-brand-1); font: 600 0.8rem var(--vp-font-family-mono); }
+.request-preview code { padding: 0; background: transparent; overflow-wrap: anywhere; font-size: 0.8rem; }
+.request-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+button { padding: 0.6rem 1rem; border-radius: 6px; background: var(--vp-button-brand-bg); color: var(--vp-button-brand-text); font-weight: 600; cursor: pointer; }
+button:hover:not(:disabled) { background: var(--vp-button-brand-hover-bg); }
+button:disabled, select:disabled { opacity: 0.65; cursor: wait; }
+button:focus-visible, select:focus-visible, pre:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 3px; }
+.request-error { margin-bottom: 0; color: var(--vp-c-danger-1); font-size: 0.85rem; }
+.response-status { margin-top: 0.75rem; font: 600 0.85rem var(--vp-font-family-mono); }
+.status-success { color: var(--vp-c-tip-1); }
+.status-error { color: var(--vp-c-danger-1); }
+.response-body { max-height: 22rem; overflow: auto; padding: 1rem; border: 1px solid var(--vp-c-divider); border-radius: 6px; background: var(--vp-c-bg); font-size: 0.8rem; line-height: 1.6; }
+.response-body code { padding: 0; background: transparent; color: var(--vp-c-text-1); }
+@media (max-width: 640px) {
+  .api-playground { padding: 1rem; }
+  .playground-fields { grid-template-columns: 1fr; }
+  .request-hint { flex-basis: 100%; }
 }
 </style>

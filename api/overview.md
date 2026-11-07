@@ -1,261 +1,132 @@
-# API Overview
+# API overview
 
-The WasteFi API provides programmatic access to the platform's core functionality. This RESTful API enables developers to integrate waste collection, payment processing, and impact tracking into their applications.
+The WasteFi backend is an Express API. The current demo uses Stellar testnet;
+its WASTE rewards are separate from KES collection estimates and mobile money.
+
+## Base URLs
+
+| Server | Base URL |
+| --- | --- |
+| Hosted demo | `https://wastefi-backend.onrender.com/api/v1` |
+| Local backend | `http://localhost:3001/api/v1` |
+
+Every business endpoint below includes the `/api/v1` prefix. The hosted service
+can take time to wake after being idle. Use the local backend for development
+writes; the public examples below only read data.
+
+```sh
+curl --fail-with-body https://wastefi-backend.onrender.com/api/v1/public/materials
+```
+
+## Try a public request
 
 <ApiPlayground />
 
-## Base URL
+The playground sends a request only when you select **Send request**. Browser
+requests also require the backend's allowed origins to include the docs origin.
+If the browser blocks a request, try the curl command above or your local setup.
 
+## Reference
+
+| Area | Routes | Reference |
+| --- | --- | --- |
+| Authentication | `/api/v1/auth` | [Passwords, tokens and API keys](/api/authentication) |
+| Users | `/api/v1/users` | [Profile, KYC and admin user actions](/api/users) |
+| Wallet | `/api/v1/wallet` | [WASTE balance and Stellar wallet operations](/api/wallet) |
+| Collection points | `/api/v1/collection-points` | [Discovery and admin management](/api/collection-points) |
+| Collections | `/api/v1/collections` | [Submission, review and history](/api/transactions) |
+| Payments | `/api/v1/payments` | [Payment records and legacy payout routes](/api/payments) |
+| Public materials | `/api/v1/public/materials` | [Codes, labels and KES prices](/api/materials) |
+| Public statistics | `/api/v1/public/stats` | [Verified activity and on-chain totals](/api/impact) |
+| Provider callbacks | `/api/v1/payments/callbacks` | [Existing callbacks and their limitations](/api/webhooks) |
+| Admin, passports and backups | `/api/v1/admin`, `/api/v1/passports`, `/api/v1/backups` | [Additional mounted routes](/api/operations) |
+
+`GET /api/v1` returns the API name, version and documentation location. The
+backend also exposes Swagger UI at `/api/docs` and its JSON at `/api/docs.json`.
+Some Swagger comments are older than the implementation; this reference follows
+the routers, controllers and services in
+[`wastefi-backend/src`](https://github.com/WASTEFI-AFRICA/wastefi-backend/tree/main/src).
+
+## Authentication and roles
+
+Protected routes use an access token:
+
+```http
+Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
-Production:  https://api.wastefi.org/v1
-Testnet:     https://api-testnet.wastefi.org/v1
-```
 
-## API Principles
+The account must exist and be `ACTIVE`. A token issued during registration does
+not bypass pending-account activation. Role names are `COLLECTOR`,
+`COLLECTION_POINT`, `VERIFIER` and `ADMIN`; each page lists the router's role
+requirements. API keys are not a substitute for JWT on routes that use
+`authenticateJWT`. See [authentication](/api/authentication).
 
-### RESTful Design
-- **Resources**: Nouns represent entities (users, transactions, materials)
-- **Methods**: HTTP verbs indicate actions (GET, POST, PUT, DELETE)
-- **Stateless**: Each request contains all necessary information
-- **HATEOAS**: Responses include links to related resources
+## Responses and errors
 
-### Response Format
-All responses are JSON with consistent structure:
+Most endpoints return JSON with `success` and `data`, sometimes with a `message`:
 
 ```json
 {
   "success": true,
-  "data": {
-    // Response data here
-  },
-  "meta": {
-    "timestamp": "2024-09-15T10:30:00Z",
-    "version": "1.0.0"
-  }
+  "data": {}
 }
 ```
 
-**Error Response:**
+This is an envelope example, not the payload of a specific endpoint. Failures
+usually include `success: false`, `error`, and sometimes `message` or `details`:
+
 ```json
 {
   "success": false,
-  "error": {
-    "code": "INVALID_REQUEST",
-    "message": "Missing required field: phone",
-    "details": {
-      "field": "phone",
-      "expected": "string"
-    }
-  },
-  "meta": {
-    "timestamp": "2024-09-15T10:30:00Z",
-    "requestId": "req_abc123"
-  }
+  "error": "Authentication required",
+  "message": "No token provided"
 }
 ```
 
-## Authentication
+Validation normally returns HTTP 400. Missing or invalid authentication returns
+401; insufficient role or collection ownership returns 403. Some lookup handlers
+return 404, while service failures in several controllers return 500 even for a
+bad resource ID or an invalid state. Do not assume a uniform error-code object.
+Provider callback envelopes are different and documented [separately](/api/webhooks).
 
-All API requests require authentication using JWT tokens. See [Authentication](/api/authentication) for details.
+HTTP 429 indicates rate limiting. Respect the response headers and back off;
+there is no documented subscription tier or per-API-key quota. Retry reads after
+transient failures. Do not assume writes support an `Idempotency-Key` header:
+no general idempotency middleware is mounted.
 
-```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+## Pagination and units
 
-## Rate Limiting
+Paginated endpoints use `page` and `limit`, not cursors. Most default to page 1
+and limit 20; the users list defaults to limit 10. Their responses put the array
+in `data` and metadata in a sibling `pagination` object:
 
-API requests are rate-limited to ensure fair usage:
-
-| Tier | Requests/Minute | Requests/Hour | Requests/Day |
-|------|----------------|---------------|--------------|
-| Free | 60 | 1,000 | 10,000 |
-| Basic | 300 | 10,000 | 100,000 |
-| Pro | 1,000 | 50,000 | 500,000 |
-| Enterprise | Custom | Custom | Custom |
-
-**Rate Limit Headers:**
-```http
-X-RateLimit-Limit: 60
-X-RateLimit-Remaining: 45
-X-RateLimit-Reset: 1694776200
-```
-
-When rate limit is exceeded:
-```json
-{
-  "success": false,
-  "error": {
-    "code": "RATE_LIMIT_EXCEEDED",
-    "message": "Too many requests. Try again in 30 seconds.",
-    "retryAfter": 30
-  }
-}
-```
-
-## Pagination
-
-List endpoints support cursor-based pagination:
-
-```http
-GET /v1/transactions?limit=20&cursor=txn_abc123
-```
-
-**Response:**
 ```json
 {
   "success": true,
-  "data": [...],
-  "pagination": {
-    "limit": 20,
-    "nextCursor": "txn_def456",
-    "prevCursor": "txn_xyz789",
-    "hasMore": true
-  }
+  "data": [],
+  "pagination": { "page": 1, "limit": 20, "total": 0, "totalPages": 0 }
 }
 ```
 
-## Filtering & Sorting
+Collections and collection points also return `hasNextPage` and
+`hasPreviousPage`. The nearby-points endpoint returns `count` instead of
+pagination. Follow each endpoint's documented filters; arbitrary `sort`,
+`cursor` or `fields` query parameters are not supported by these list routes.
 
-Use query parameters for filtering and sorting:
+API collection weights use kilograms. Collection `paymentAmount` is a KES value;
+it is not a WASTE balance. On-chain amounts such as `chainAmount` and the WASTE
+wallet balance are integer strings with seven decimal places. Keep them as
+strings or use `BigInt` for arithmetic. See [wallet](/api/wallet) and the
+[contract reference](/technical/smart-contracts).
 
-```http
-GET /v1/transactions?status=completed&startDate=2024-01-01&sort=-createdAt
-```
+## Scope
 
-**Common Parameters:**
-- `limit` - Number of results (default: 20, max: 100)
-- `cursor` - Pagination cursor
-- `sort` - Sort field (prefix with `-` for descending)
-- `fields` - Comma-separated list of fields to include
+There is no general transactions, material CRUD, impact-reporting or webhook
+subscription API. Client SDK packages, OTP login, PIN changes, server logout,
+password reset and webhook signing are not implemented by the mounted routes.
+The [roadmap](/community/roadmap) separates planned capabilities from current
+testnet functionality.
 
-## Versioning
-
-The API is versioned via URL path:
-```
-/v1/  → Current stable version
-/v2/  → Next version (beta)
-```
-
-Breaking changes will increment the major version. We maintain backward compatibility for at least 6 months after releasing a new version.
-
-## Error Codes
-
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `SUCCESS` | 200 | Request succeeded |
-| `CREATED` | 201 | Resource created |
-| `BAD_REQUEST` | 400 | Invalid request parameters |
-| `UNAUTHORIZED` | 401 | Missing or invalid authentication |
-| `FORBIDDEN` | 403 | Insufficient permissions |
-| `NOT_FOUND` | 404 | Resource not found |
-| `CONFLICT` | 409 | Resource conflict (duplicate) |
-| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
-| `INTERNAL_ERROR` | 500 | Server error |
-| `SERVICE_UNAVAILABLE` | 503 | Service temporarily unavailable |
-
-## Idempotency
-
-POST and PUT requests support idempotency keys to prevent duplicate operations:
-
-```http
-POST /v1/transactions
-Idempotency-Key: unique-key-123
-Content-Type: application/json
-
-{
-  "userId": "usr_123",
-  "amount": 5.25
-}
-```
-
-If the same key is used within 24 hours, the original response is returned without creating a duplicate.
-
-## Webhooks
-
-Subscribe to real-time events via webhooks. Configure webhook URLs in your dashboard.
-
-**Event Types:**
-- `transaction.created`
-- `transaction.completed`
-- `transaction.failed`
-- `payment.processed`
-- `impact.calculated`
-
-**Webhook Payload:**
-```json
-{
-  "id": "evt_abc123",
-  "type": "transaction.completed",
-  "createdAt": "2024-09-15T10:30:00Z",
-  "data": {
-    "transactionId": "txn_def456",
-    "userId": "usr_123",
-    "amount": 5.25
-  }
-}
-```
-
-## SDKs & Client Libraries
-
-Official SDKs available for:
-- JavaScript/TypeScript (npm: `@wastefi/sdk`)
-- Python (pip: `wastefi`)
-- PHP (composer: `wastefi/sdk`)
-- Java (maven: `org.wastefi:wastefi-sdk`)
-
-**Example (JavaScript):**
-```javascript
-import WasteFi from '@wastefi/sdk';
-
-const client = new WasteFi({
-  apiKey: 'your-api-key',
-  environment: 'production'
-});
-
-const transaction = await client.transactions.create({
-  userId: 'usr_123',
-  materialType: 'PET',
-  weight: 5.5
-});
-```
-
-## Testing
-
-Use testnet for development and testing:
-- API: `https://api-testnet.wastefi.org/v1`
-- No real money transactions
-- Separate database from production
-- Request testnet API keys from dashboard
-
-## Support
-
-- **Documentation**: https://docs.wastefi.org
-- **API Status**: https://status.wastefi.org
-- **Email**: api@wastefi.org
-- **Discord**: https://discord.gg/wastefi
-
----
-
-## Quick Start
-
-1. [Create an account](https://app.wastefi.org/register)
-2. [Generate API keys](https://app.wastefi.org/settings/api)
-3. [Authenticate](/api/authentication) and get access token
-4. Make your first request:
-
-```bash
-curl https://api.wastefi.org/v1/materials \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-## API Endpoints
-
-Explore detailed documentation for each endpoint:
-
-- [Authentication](/api/authentication) - Login, register, and token management
-- [Users](/api/users) - User profiles and management
-- [Transactions](/api/transactions) - Material deposit transactions
-- [Materials](/api/materials) - Material types and pricing
-- [Collection Points](/api/collection-points) - Collection point management
-- [Payments](/api/payments) - Payment processing and history
-- [Impact](/api/impact) - Environmental impact tracking
+Source: [route mounts](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/server.ts),
+[JWT middleware](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/middleware/auth.middleware.ts)
+and [error handling](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/middleware/error.middleware.ts).

@@ -67,12 +67,14 @@ export default defineConfig({
             { text: 'Overview', link: '/api/overview' },
             { text: 'Authentication', link: '/api/authentication' },
             { text: 'Users', link: '/api/users' },
-            { text: 'Transactions', link: '/api/transactions' },
-            { text: 'Materials', link: '/api/materials' },
+            { text: 'Wallet', link: '/api/wallet' },
+            { text: 'Collections', link: '/api/transactions' },
+            { text: 'Public Materials', link: '/api/materials' },
             { text: 'Collection Points', link: '/api/collection-points' },
             { text: 'Payments', link: '/api/payments' },
-            { text: 'Impact', link: '/api/impact' },
-            { text: 'Webhooks', link: '/api/webhooks' }
+            { text: 'Public Statistics', link: '/api/impact' },
+            { text: 'Provider Callbacks', link: '/api/webhooks' },
+            { text: 'Admin, Passports & Backups', link: '/api/operations' }
           ]
         }
       ],

@@ -1,362 +1,80 @@
-# Users API
+# Users
 
-## Overview
+All endpoints on this page require an access token for an `ACTIVE` account.
+An admin is needed to activate a pending account before it can use private routes.
 
-The Users API manages user accounts, profiles, and statistics.
+## Current profile
 
----
+| Method | Path | Result |
+| --- | --- | --- |
+| GET | `/api/v1/users/me` | Current user's stored profile in `data` |
+| PUT | `/api/v1/users/me` | Updated profile fields in `data`, plus a message |
+| POST | `/api/v1/users/me/profile-picture` | Profile with the updated picture URL in `data` |
 
-## Get Current User
+The GET profile includes `id`, `phoneNumber`, `email`, `firstName`, `lastName`,
+`role`, `status`, `kycStatus`, `profilePicture`, `nationalId`, `address`, `city`,
+`country`, `stellarPublicKey`, `mobileMoneyNumber`, `createdAt`, `updatedAt` and
+`lastLoginAt`. Optional database values can be `null`. Passwords and wallet
+secrets are not included in this selected response.
 
-Retrieve the authenticated user's profile.
+The documented profile update fields are optional `firstName`, `lastName`,
+`email`, `address` and `city`. Names must remain nonempty after trimming and an
+email must be valid. For example:
 
-### Endpoint
-```
-GET /users/me
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "id": "usr_2a1b3c4d5e6f",
-    "phone": "+254712345678",
-    "phoneVerified": true,
-    "name": "John Doe",
-    "role": "collector",
-    "language": "en",
-    "wallet": {
-      "stellarAddress": "GCXKG6RN4ONIEPCMNFB732A436Z5PNDSRLGWK7GBLCMQLIFO4S7EYWVU",
-      "balance": 15.75,
-      "lockedBalance": 0.00,
-      "currency": "USD"
-    },
-    "stats": {
-      "totalTransactions": 45,
-      "totalEarnings": 125.50,
-      "totalWeight": 250.5,
-      "totalCO2Saved": 626.25,
-      "averageRating": 4.8
-    },
-    "preferences": {
-      "notifications": {
-        "sms": true,
-        "push": true,
-        "email": false
-      },
-      "defaultCollectionPoint": "cp_1a2b3c4d"
-    },
-    "createdAt": "2024-01-15T10:30:00Z",
-    "lastLoginAt": "2024-09-15T09:00:00Z"
-  }
-}
-```
-
----
-
-## Update User Profile
-
-Update the current user's profile information.
-
-### Endpoint
-```
-PUT /users/me
-```
-
-### Headers
-```
+```http
+PUT /api/v1/users/me
 Authorization: Bearer YOUR_ACCESS_TOKEN
 Content-Type: application/json
-```
 
-### Request Body
-```json
 {
-  "name": "John Doe Updated",
-  "language": "sw",
-  "preferences": {
-    "notifications": {
-      "sms": true,
-      "push": false
-    },
-    "defaultCollectionPoint": "cp_5h4g3f2d"
-  }
+  "firstName": "Amina",
+  "lastName": "Otieno",
+  "city": "Nairobi"
 }
 ```
 
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "id": "usr_2a1b3c4d5e6f",
-    "name": "John Doe Updated",
-    "language": "sw",
-    "preferences": {
-      "notifications": {
-        "sms": true,
-        "push": false
-      },
-      "defaultCollectionPoint": "cp_5h4g3f2d"
-    },
-    "updatedAt": "2024-09-15T10:30:00Z"
-  }
-}
-```
+The update response is a smaller profile selection than GET; refetch GET when
+you need role, account status or wallet address. There is no dedicated
+role-assignment or password-change route in this router.
 
----
+For a profile picture, send `multipart/form-data` with one file named
+`profilePicture`. This is a separate local-file upload handler, not a general
+collection-photo storage service. Collection images are URL records described
+under [collections](/api/transactions#images-and-deletion).
 
-## Get User Statistics
+## KYC records
 
-Retrieve detailed statistics for a user.
+| Method | Path | Access | Input or result |
+| --- | --- | --- | --- |
+| POST | `/api/v1/users/kyc/submit` | Active account | Required `nationalId`, `address`, `city`; optional URL fields `idDocumentUrl`, `photoUrl` |
+| GET | `/api/v1/users/kyc/status` | Active account | Stored KYC fields and status in `data` |
+| POST | `/api/v1/users/:userId/kyc/verify` | `ADMIN` or `VERIFIER` | Required boolean `approved`; optional `notes` |
 
-### Endpoint
-```
-GET /users/:id/stats
-```
+Submission records KYC as `PENDING`. Verification requires a pending KYC record;
+approval sets KYC to `APPROVED` and account status to `ACTIVE`, while rejection
+sets KYC to `REJECTED` and account status to `PENDING`. These are record and
+review endpoints, not an automated identity-verification integration.
 
-### Query Parameters
+## Admin user actions
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| period | string | `week`, `month`, `year`, or `all` (default: `all`) |
+Every route in this table requires `ADMIN`:
 
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "userId": "usr_2a1b3c4d5e6f",
-    "period": "month",
-    "summary": {
-      "totalTransactions": 12,
-      "totalEarnings": 35.20,
-      "totalWeight": 66.0,
-      "totalCO2Saved": 165.0,
-      "currency": "USD"
-    },
-    "byMaterial": [
-      {
-        "materialType": "PET",
-        "count": 8,
-        "weight": 44.0,
-        "earnings": 22.00,
-        "co2Saved": 110.0
-      },
-      {
-        "materialType": "Aluminum",
-        "count": 4,
-        "weight": 22.0,
-        "earnings": 13.20,
-        "co2Saved": 55.0
-      }
-    ],
-    "timeline": [
-      {
-        "date": "2024-09-01",
-        "transactions": 3,
-        "earnings": 8.75,
-        "weight": 16.5,
-        "co2Saved": 41.25
-      },
-      // ... more days
-    ],
-    "milestones": [
-      {
-        "type": "co2_saved",
-        "value": 1000,
-        "achievedAt": "2024-08-20T14:30:00Z",
-        "description": "Saved 1 ton of CO2"
-      }
-    ]
-  }
-}
-```
+| Method | Path | Input or result |
+| --- | --- | --- |
+| GET | `/api/v1/users` | Filtered users in `data`, with sibling `pagination` |
+| GET | `/api/v1/users/:userId` | Selected user profile in `data`; 404 if absent |
+| PUT | `/api/v1/users/:userId/status` | Required `status`: `ACTIVE`, `SUSPENDED` or `BANNED`; optional `reason` |
+| DELETE | `/api/v1/users/:userId` | Service soft-deletes by banning the account; returns a message |
 
----
+The list accepts `status` (`PENDING`, `ACTIVE`, `SUSPENDED`, `BANNED`), `role`
+(`COLLECTOR`, `ADMIN`, `COLLECTION_POINT`, `VERIFIER`), `kycStatus`
+(`NOT_STARTED`, `PENDING`, `APPROVED`, `REJECTED`), `page` (default 1) and `limit`
+(default 10, range 1 to 100). Activation does not assign a role.
 
-## Get User Impact
+There are no per-user statistics, impact reports, wallet subroutes or self-service
+account-deletion endpoints here. Use [collections](/api/transactions),
+[wallet](/api/wallet) and [public statistics](/api/impact) for the existing data.
 
-Retrieve environmental impact data for a user.
-
-### Endpoint
-```
-GET /users/:id/impact
-```
-
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "userId": "usr_2a1b3c4d5e6f",
-    "totalImpact": {
-      "co2Saved": 626.25,
-      "unit": "kg",
-      "equivalent": {
-        "treesPlanted": 28,
-        "milesNotDriven": 1562,
-        "phonesCharged": 75093
-      }
-    },
-    "byMaterial": [
-      {
-        "materialType": "PET",
-        "weight": 165.0,
-        "co2Saved": 412.5,
-        "percentage": 65.9
-      },
-      {
-        "materialType": "HDPE",
-        "weight": 55.0,
-        "co2Saved": 137.5,
-        "percentage": 22.0
-      },
-      {
-        "materialType": "Aluminum",
-        "weight": 30.5,
-        "co2Saved": 76.25,
-        "percentage": 12.1
-      }
-    ],
-    "carbonCredits": {
-      "pending": 2.5,
-      "minted": 18.75,
-      "sold": 15.25,
-      "revenue": 45.75
-    },
-    "ranking": {
-      "local": 12,
-      "national": 456,
-      "global": 12890
-    }
-  }
-}
-```
-
----
-
-## Upload Profile Photo
-
-Upload or update user's profile photo.
-
-### Endpoint
-```
-POST /users/me/photo
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-Content-Type: multipart/form-data
-```
-
-### Request Body
-```
-Form data with 'photo' field containing image file
-```
-
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "photoUrl": "https://storage.wastefi.org/profiles/usr_2a1b3c4d5e6f/avatar.jpg",
-    "updatedAt": "2024-09-15T10:30:00Z"
-  }
-}
-```
-
----
-
-## Get User Wallet
-
-Retrieve user's wallet details and balance.
-
-### Endpoint
-```
-GET /users/me/wallet
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-```
-
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "stellarAddress": "GCXKG6RN4ONIEPCMNFB732A436Z5PNDSRLGWK7GBLCMQLIFO4S7EYWVU",
-    "balance": 15.75,
-    "lockedBalance": 0.00,
-    "currency": "USD",
-    "assets": [
-      {
-        "code": "USDC",
-        "issuer": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-        "balance": 15.75
-      }
-    ],
-    "recentActivity": [
-      {
-        "type": "deposit",
-        "amount": 1.85,
-        "transactionId": "txn_9z8y7x6w5v",
-        "timestamp": "2024-09-15T10:31:30Z"
-      }
-    ]
-  }
-}
-```
-
----
-
-## Delete User Account
-
-Permanently delete a user account (requires OTP verification).
-
-### Endpoint
-```
-DELETE /users/me
-```
-
-### Headers
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
-Content-Type: application/json
-```
-
-### Request Body
-```json
-{
-  "otp": "123456",
-  "reason": "no_longer_needed"
-}
-```
-
-### Response (200 OK)
-```json
-{
-  "success": true,
-  "data": {
-    "message": "Account deleted successfully",
-    "deletedAt": "2024-09-15T10:30:00Z"
-  }
-}
-```
-
----
-
-## Next Steps
-
-- [Transactions API](/api/transactions) - Manage transactions
-- [Payments API](/api/payments) - Process payments
-- [Impact API](/api/impact) - Track environmental impact
+Source: [router](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/routes/user.routes.ts),
+[controller](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/controllers/user.controller.ts)
+and [service](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/services/user.service.ts).
