@@ -1,24 +1,26 @@
-/* Ensure code copy buttons are visible and styled */
-.vp-code-group .tabs {
-  position: relative;
+:root {
+  --vp-c-brand-1: #14734b;
+  --vp-c-brand-2: #12633f;
+  --vp-c-brand-3: #105b3a;
+  --vp-c-brand-soft: rgba(20, 115, 75, 0.12);
+  --vp-home-hero-name-color: var(--vp-c-brand-1);
+  --vp-home-hero-image-background-image: radial-gradient(ellipse, rgba(16, 185, 129, 0.18), transparent 70%);
+  --vp-home-hero-image-filter: blur(32px);
 }
 
-/* Copy button styling */
-div[class*='language-'] .copy {
-  opacity: 0;
-  transition: opacity 0.3s;
+.dark {
+  --vp-c-brand-1: #75dda9;
+  --vp-c-brand-2: #1b754b;
+  --vp-c-brand-3: #14643e;
+  --vp-c-brand-soft: rgba(117, 221, 169, 0.12);
 }
 
-div[class*='language-']:hover .copy {
-  opacity: 1;
-}
+.VPHomeHero .name { letter-spacing: -0.04em; }
+.VPHomeHero .text { letter-spacing: -0.025em; }
+.VPHomeHero .image-src { max-width: 220px; max-height: 220px; }
+.VPFeature { border-radius: 16px; }
+.VPFeature .title { letter-spacing: -0.01em; }
 
-.copied {
-  opacity: 1 !important;
-}
-
-/* Ensure copy button is visible in both light and dark modes */
-.dark div[class*='language-'] .copy,
-div[class*='language-'] .copy {
-  display: block;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }

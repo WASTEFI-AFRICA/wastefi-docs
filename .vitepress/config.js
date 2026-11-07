@@ -1,62 +1,68 @@
 import { defineConfig } from 'vitepress'
 
+const base = '/wastefi-docs/'
+
 export default defineConfig({
   title: 'WasteFi',
-  description: 'Financial Inclusion Through Waste Collection - Powered by Open Material Standards',
-  
+  description: 'A guide to the WasteFi testnet demo, HTTP API and Soroban contracts.',
+  lang: 'en',
+  base,
+  appearance: true,
+  ignoreDeadLinks: false,
+
+  // Keep unchecked guides in the repository without publishing their claims.
+  // Remove an exclusion only after checking the page against the implementation.
+  srcExclude: [
+    'README.md',
+    'CONTRIBUTING.md',
+    'CODE_OF_CONDUCT.md',
+    'about/**',
+    'standards/**',
+    'community/grant-templates.md',
+    'guide/admin-guide.md',
+    'guide/api-examples.md',
+    'guide/architecture.md',
+    'guide/ci-cd.md',
+    'guide/collector-guide.md',
+    'guide/configuration.md',
+    'guide/customization.md',
+    'guide/docker-setup.md',
+    'guide/faq.md',
+    'guide/operator-guide.md',
+    'guide/production-setup.md',
+    'guide/security.md',
+    'guide/testing.md',
+    'guide/troubleshooting.md',
+    'technical/database-schema.md',
+    'technical/design-decisions.md',
+    'technical/mobile-money.md',
+    'technical/recyclegraph-protocol.md',
+    'technical/stellar-integration.md',
+    'technical/system-design.md',
+    'technical/technology-stack.md'
+  ],
+
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}logo.svg` }]
+  ],
+
   themeConfig: {
     logo: '/logo.svg',
-    
-    // Enable dark mode with appearance toggle
-    appearance: 'dark',
-    
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'API', link: '/api/overview' },
-      { text: 'Technical', link: '/technical/system-design' },
-      { text: 'Standards', link: '/standards/recyclegraph-standards' },
-      { text: 'Community', link: '/community/roadmap' },
-      { text: 'About', link: '/about/overview' }
+      { text: 'Contracts', link: '/technical/smart-contracts' },
+      { text: 'Roadmap', link: '/community/roadmap' },
+      { text: 'Try the demo', link: 'https://wastefi-frontend.vercel.app/login' }
     ],
-
     sidebar: {
       '/guide/': [
         {
-          text: 'Introduction',
+          text: 'Start here',
           items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
-            { text: 'Architecture', link: '/guide/architecture' }
-          ]
-        },
-        {
-          text: 'User Guides',
-          items: [
-            { text: 'Collector Guide', link: '/guide/collector-guide' },
-            { text: 'Operator Guide', link: '/guide/operator-guide' },
-            { text: 'Admin Dashboard Guide', link: '/guide/admin-guide' },
-            { text: 'Security & Privacy', link: '/guide/security' },
-            { text: 'Troubleshooting', link: '/guide/troubleshooting' },
-            { text: 'FAQ', link: '/guide/faq' }
-          ]
-        },
-        {
-          text: 'Deployment',
-          items: [
-            { text: 'Deployment Overview', link: '/guide/deployment' },
+            { text: 'Try the Testnet Demo', link: '/guide/getting-started' },
             { text: 'Local Development', link: '/guide/local-development' },
-            { text: 'Production Setup', link: '/guide/production-setup' }
-          ]
-        },
-        {
-          text: 'Developer Resources',
-          items: [
-            { text: 'Docker Development Setup', link: '/guide/docker-setup' },
-            { text: 'Testing Documentation', link: '/guide/testing' },
-            { text: 'CI/CD Pipeline Guide', link: '/guide/ci-cd' },
-            { text: 'Environment Variables & Configuration', link: '/guide/configuration' },
-            { text: 'API Integration Examples', link: '/guide/api-examples' },
-            { text: 'Extending and Customizing WasteFi', link: '/guide/customization' }
+            { text: 'Publish the Docs', link: '/guide/deployment' }
           ]
         }
       ],
@@ -80,90 +86,30 @@ export default defineConfig({
       ],
       '/technical/': [
         {
-          text: 'Technical Documentation',
+          text: 'On Stellar',
           items: [
-            { text: 'System Design', link: '/technical/system-design' },
-            { text: 'Technology Stack', link: '/technical/technology-stack' },
-            { text: 'Design Decisions', link: '/technical/design-decisions' },
-            { text: 'Smart Contracts', link: '/technical/smart-contracts' },
-            { text: 'Database Schema', link: '/technical/database-schema' },
-            { text: 'Stellar Integration', link: '/technical/stellar-integration' },
-            { text: 'Mobile Money Integration', link: '/technical/mobile-money' },
-            { text: 'RecycleGraph Protocol', link: '/technical/recyclegraph-protocol' }
-          ]
-        }
-      ],
-      '/about/': [
-        {
-          text: 'About WasteFi',
-          items: [
-            { text: 'Project Overview', link: '/about/overview' },
-            { text: 'Vision & Mission', link: '/about/vision' },
-            { text: 'The Problem', link: '/about/problem' }
-          ]
-        }
-      ],
-      '/standards/': [
-        {
-          text: 'Open Standards',
-          items: [
-            { text: 'RecycleGraph Standards', link: '/standards/recyclegraph-standards' }
+            { text: 'Smart Contracts', link: '/technical/smart-contracts' }
           ]
         }
       ],
       '/community/': [
         {
-          text: 'Community Resources',
+          text: 'Project',
           items: [
-            { text: 'Grant Templates & Impact Reporting', link: '/community/grant-templates' },
-            { text: 'Roadmap & Changelog', link: '/community/roadmap' }
+            { text: 'Roadmap', link: '/community/roadmap' }
           ]
         }
       ]
     },
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/WASTEFI-AFRICA' }
     ],
-
     footer: {
-      message: 'Released under the MIT License.',
+      message: 'WasteFi testnet MVP. Released under the MIT License.',
       copyright: 'Copyright © 2026-present WasteFi Africa'
     },
-
-    search: {
-      provider: 'local',
-      options: {
-        detailedView: true,
-        miniSearch: {
-          searchOptions: {
-            fuzzy: 0.2,
-            prefix: true,
-            boost: {
-              title: 4,
-              text: 2,
-              titles: 1
-            }
-          }
-        },
-        _render(src, env, md) {
-          const html = md.render(src, env)
-          if (env.frontmatter?.search === false) return ''
-          if (env.relativePath.startsWith('api/')) {
-            return html
-          }
-          return html
-        }
-      }
-    }
+    search: { provider: 'local' }
   },
 
-  head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }]
-  ],
-
-  markdown: {
-    lineNumbers: true,
-    codeTransformers: []
-  }
+  markdown: { lineNumbers: true }
 })

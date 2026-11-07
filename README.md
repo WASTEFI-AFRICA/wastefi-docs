@@ -1,67 +1,72 @@
-# WasteFi — Docs
+# WasteFi Docs
 
-Source for the WasteFi documentation site: platform overview, user and operator
-guides, API reference, and the technical specifications behind the system.
-Built with [VitePress](https://vitepress.dev/).
+[![Build docs](https://github.com/WASTEFI-AFRICA/wastefi-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/WASTEFI-AFRICA/wastefi-docs/actions/workflows/ci.yml)
 
-If you are looking for the code rather than the docs, start with the
-[related repositories](#related-repositories) below.
+Documentation for the WasteFi testnet MVP: a demo walkthrough, the actual HTTP
+API, seven Soroban contracts and remaining work. Built with VitePress.
 
-## Local development
+Site address: [wastefi-africa.github.io/wastefi-docs/](https://wastefi-africa.github.io/wastefi-docs/).
+The address becomes available after GitHub Pages is enabled and the first
+publishing workflow succeeds. The testnet app is at
+[wastefi-frontend.vercel.app](https://wastefi-frontend.vercel.app).
 
-Requires Node.js 18 or later.
+## Run locally
+
+Use Node.js 24, as specified in `.nvmrc`:
 
 ```sh
-npm install
-npm run dev      # dev server with hot reload, at http://localhost:5173
-npm run build    # static build into .vitepress/dist
-npm run preview  # serve the built site
+nvm use
+npm ci
+npm run dev -- --port 5173
+npm run build
+npm run preview -- --port 4174
 ```
 
-## Layout
+Development: `http://localhost:5173/wastefi-docs/`.
+Production preview: `http://localhost:4174/wastefi-docs/`.
+Build output: `.vitepress/dist`.
 
-Each top-level directory is a section of the site, and its sidebar is defined in
-`.vitepress/config.js`:
+## Build and publish
 
-| Directory | Contents |
-| --- | --- |
-| `guide/` | Getting started, role-based user guides, deployment and developer setup |
-| `api/` | REST API reference, grouped by resource |
-| `technical/` | System design, database schema, Stellar and mobile money integration, protocol specs |
-| `standards/` | The RecycleGraph material standards WasteFi implements |
-| `about/` | Project overview, vision, and the problem being addressed |
-| `community/` | Roadmap and grant/impact reporting templates |
+- `.github/workflows/ci.yml` builds every pull request and push to `main` with
+  `npm ci` and `npm run build`. npm downloads are cached.
+- `.github/workflows/pages.yml` builds and publishes official `main` pushes with
+  GitHub's Pages artifact and deployment actions. It can also run manually from
+  `main`. Pull requests do not publish.
+- Before the first deployment, select **GitHub Actions** in **Settings > Pages >
+  Build and deployment > Source**. Push the reviewed changes and verify the
+  publishing workflow and resulting URL before treating the site as live.
+- Once the URL is verified, set it as the repository's Website field.
 
-`index.md` is the landing page. Theme overrides and custom components live in
-`.vitepress/theme/`.
+See [guide/deployment.md](guide/deployment.md) for publishing details. The API
+playground also needs the docs origin in the backend's CORS allowed origins;
+publishing this repo does not change backend configuration.
 
-## Writing
+## Content and contributions
 
-- One page per topic, named for what it covers, in the directory for its
-  section.
-- A new page must be added to the right sidebar array in
-  `.vitepress/config.js` or nothing will link to it.
-- Use relative links between pages (`/guide/architecture`, no `.md` extension).
-- Prefer prose that explains why over bullet lists that restate names. A reader
-  arriving at a page should learn something they could not have guessed from its
-  title.
-- Keep emoji out of headings, prose and tables.
-- Code blocks need a language tag so they get highlighted, and should be
-  copy-pasteable as written.
+Published sections are the home page, `guide/getting-started.md`,
+`guide/local-development.md`, `guide/deployment.md`, the `api/` reference,
+`technical/smart-contracts.md`, and `community/roadmap.md`.
+
+Older guides and specifications still contain unchecked claims. They stay in
+the repository for correction and are excluded from the site and search through
+`srcExclude` in `.vitepress/config.js`. Repo housekeeping documents are excluded
+from the site too. Do not treat draft specifications as implemented features.
+
+Before adding or restoring a page, check the relevant code and live behavior,
+remove unsupported claims, and add it to the sidebar. Link to implementation
+sources for exact interfaces. Internal Markdown links use site paths without the
+base prefix, such as `/api/overview`; VitePress adds `/wastefi-docs/` to generated
+links. Keep `ignoreDeadLinks` false and run `npm run build`.
+
+Check [open issues](https://github.com/WASTEFI-AFRICA/wastefi-docs/issues) and
+assignments before starting. See [CONTRIBUTING.md](CONTRIBUTING.md) and
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for contribution guidelines.
 
 ## Related repositories
 
-- [wastefi-contracts](https://github.com/WASTEFI-AFRICA/wastefi-contracts) — Soroban smart contracts
-- [wastefi-backend](https://github.com/WASTEFI-AFRICA/wastefi-backend) — REST API, indexer, and mobile money integration
-- [wastefi-frontend](https://github.com/WASTEFI-AFRICA/wastefi-frontend) — collector and operator progressive web app
+- [wastefi-frontend](https://github.com/WASTEFI-AFRICA/wastefi-frontend): collector and operator web app.
+- [wastefi-backend](https://github.com/WASTEFI-AFRICA/wastefi-backend): HTTP API and background Soroban workflow.
+- [wastefi-contracts](https://github.com/WASTEFI-AFRICA/wastefi-contracts): deployed Soroban contracts and testnet smoke script.
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) and
-[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Documentation fixes are welcome as
-direct pull requests; for a new section, open an issue first so we can agree
-where it belongs.
-
-## License
-
-MIT. See the LICENSE file at the repository root.
+MIT. See the repository's LICENSE file.

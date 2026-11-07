@@ -5,6 +5,7 @@ node_modules/
 # Build outputs
 .vitepress/dist/
 .vitepress/cache/
+.vitepress/.temp/
 dist/
 
 # Environment files

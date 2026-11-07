@@ -2,69 +2,60 @@
 layout: home
 
 hero:
-  name: "WasteFi"
-  text: "Financial Inclusion Through Waste Collection"
-  tagline: "Powered by Open Material Standards"
+  name: WasteFi
+  text: Collect. Verify. Reward.
+  tagline: Follow a recyclable delivery from submission to a WASTE reward on Stellar testnet.
+  image:
+    src: /logo.svg
+    alt: WasteFi logo
   actions:
     - theme: brand
-      text: Get Started
-      link: /guide/getting-started
+      text: Try the testnet demo
+      link: https://wastefi-frontend.vercel.app/login
     - theme: alt
-      text: View on GitHub
-      link: https://github.com/WASTEFI-AFRICA
+      text: Follow a collection
+      link: /guide/getting-started
 
 features:
-  - title: Mobile-First Waste Banking
-    details: Empowering waste collectors in emerging markets with instant mobile money payments and financial inclusion.
-
-  - title: Blockchain-Powered
-    details: Built on Stellar blockchain for fast, low-cost, transparent transactions and verifiable impact data.
-
-  - title: Open Material Standards
-    details: Integrates RecycleGraph protocol for standardized material identification and digital product passports.
-
-  - title: Waste-to-Value Platform
-    details: Convert waste collection into carbon credits, EPR compliance, and real financial value for collectors.
-
-  - title: Collection Point Network
-    details: Manage collection points, track materials, and integrate with mobile money providers across Africa.
-
-  - title: Verifiable Impact
-    details: Transparent tracking and reporting for environmental impact, carbon credits, and compliance.
+  - title: Record a delivery
+    details: Collectors choose a material and collection point, then submit a weight for review.
+    link: /api/transactions
+    linkText: Collection API
+  - title: Trace the reward
+    details: Approval queues an on-chain record, admin verification and a WASTE mint to the collector.
+    link: /technical/smart-contracts
+    linkText: Seven Soroban contracts
+  - title: Check the evidence
+    details: Public statistics show collection aggregates and recorded testnet payouts, with transaction links.
+    link: /api/impact
+    linkText: Public statistics API
 ---
 
-## Quick Start
+## See the flow for yourself
 
-Get started with WasteFi in minutes:
+Use the demo collector and operator buttons on the
+[sign-in page](https://wastefi-frontend.vercel.app/login). Submit a delivery,
+approve it as an operator, then return to the collector to follow its record,
+verification and payment transactions on Stellar Expert. The
+[quick start](/guide/getting-started) walks through each step.
 
-```bash
-# Clone the repository
-git clone https://github.com/WASTEFI-AFRICA/wastefi-docs.git
+The app runs on Vercel, the API on Render, PostgreSQL on Neon, and the contracts
+on Stellar testnet. The backend creates custodial collector wallets and signs
+the on-chain calls. The contract admin currently authorizes verification and
+supplies payout values.
 
-# Explore the documentation
-cd wastefi-docs
-npm install
-npm run dev
-```
-
-## Architecture Overview
-
-WasteFi uses a hybrid architecture combining immediate impact with long-term infrastructure:
-
-- **Layer 1: Application Layer** - Mobile app, collection management, payments
-- **Layer 2: Protocol Layer** - Open standards, interoperability, verification
-
-## Why WasteFi?
-
-Traditional waste management systems exclude informal waste collectors from the formal economy. WasteFi bridges this gap by:
-
-- Providing instant payment for collected waste
-- Creating verifiable records of environmental impact
-- Enabling access to carbon credit markets
-- Building open standards that anyone can implement
-
----
-
-::: info Coming Soon
-This documentation is actively being developed. Check back regularly for updates or contribute on [GitHub](https://github.com/WASTEFI-AFRICA).
+::: info What this demo establishes
+The demo exercises software and testnet transactions. Seeded activity is not
+evidence of a field pilot, audited environmental impact or commercial adoption.
+WASTE is a testnet reward token. Mobile-money cash-out, carbon-credit minting,
+escrow and mainnet operation are not available product features.
 :::
+
+## Build with WasteFi
+
+Start with the [HTTP API](/api/overview), the
+[contract reference](/technical/smart-contracts), or
+[local development](/guide/local-development). The [roadmap](/community/roadmap)
+lists remaining MVP work and contributor areas. Older guides that have not been
+checked against the implementation stay in the source repository and are excluded
+from this site.
