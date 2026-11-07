@@ -1,821 +1,269 @@
-# Smart Contracts Documentation
+# Smart contracts
 
-## Overview
+WasteFi uses seven Soroban contracts on Stellar testnet to record approved
+collections and mint WASTE rewards. The contracts are written in Rust with
+`soroban-sdk` 23. The `common` crate supplies shared types and helpers; it is a
+library, not an eighth deployed contract.
 
-WasteFi uses Stellar Soroban smart contracts for secure, transparent, and automated operations on the blockchain. All contracts are written in Rust and compiled to WebAssembly (Wasm) for execution on the Stellar network.
+::: warning Current trust model
+The platform admin verifies deliveries and supplies payment recipients and
+amounts. Collection points do not yet authorize verification on-chain, and the
+payment contract does not fetch the amount from the verified collection.
+The contracts have not been audited and there is no mainnet deployment.
+:::
 
-## Contract Architecture
+## Contract map
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                  WasteFi Smart Contracts                │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐ │
-│  │           Payment Contract                       │ │
-│  │  • Process collector payments                    │ │
-│  │  • Multi-signature authorization                 │ │
-│  │  • Escrow for disputed transactions              │ │
-│  └──────────────────────────────────────────────────┘ │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐ │
-│  │           Material Registry Contract             │ │
-│  │  • Register material types                       │ │
-│  │  • Track material transactions                   │ │
-│  │  • Digital product passports                     │ │
-│  └──────────────────────────────────────────────────┘ │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐ │
-│  │           Impact Credit Contract                 │ │
-│  │  • Mint carbon credit tokens                     │ │
-│  │  • Verify environmental impact                   │ │
-│  │  • Distribute revenue to collectors              │ │
-│  └──────────────────────────────────────────────────┘ │
-│                                                         │
-│  ┌──────────────────────────────────────────────────┐ │
-│  │           Collection Point Contract              │ │
-│  │  • Manage collection point wallets               │ │
-│  │  • Operator permissions                          │ │
-│  │  • Inventory tracking on-chain                   │ │
-│  └──────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────┘
-```
+| Contract | Responsibility |
+| --- | --- |
+| `collector_registry` | Collector registration, profile and activation status |
+| `collection_point` | Collection point registration, ownership and verification status |
+| `material_pricing` | Prices per kilogram for each on-chain material category |
+| `waste_transaction` | Delivery records, their calculated value and admin verification |
+| `reputation` | Collector scores and transaction outcome counts |
+| `payment_distribution` | One payment record per transaction and WASTE minting on completion |
+| `waste_token` | WASTE balances, transfers, allowances and capped minting |
 
----
+## From approval to WASTE
 
-## 1. Payment Contract
+In the [live app](https://wastefi-frontend.vercel.app), an operator approves a
+collection through the backend. The
+[on-chain collection service](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/services/onchain-collection.service.ts)
+then runs the following steps in the background:
 
-### Purpose
-Handles all payment operations between collectors, collection points, and the platform. Ensures secure, atomic transactions with multi-signature support.
+1. **Prepare the collector.** The backend creates a custodial testnet wallet if
+   needed, registers it in `collector_registry` under a pseudonym, and uses the
+   admin to activate it. The app does not put the collector's real name or phone
+   number in that registry.
+2. **Record the delivery.** The collector's wallet signs
+   `waste_transaction.record_with_price_lookup`. It reads the material price,
+   calculates `total_amount` and stores a record with `status = Pending` and
+   `verified = false`.
+3. **Verify the record.** The admin signs
+   `waste_transaction.verify_transaction`. It sets `verified = true` and
+   `status = Completed`, then calls `reputation.record_transaction`.
+4. **Create the payment.** The admin signs
+   `payment_distribution.process_payment`. The backend supplies the collector's
+   wallet address and the record's `total_amount`. This creates a pending payment;
+   it does not mint tokens yet.
+5. **Pay the collector.** The admin signs
+   `payment_distribution.update_payment_status` with `Completed`. The payment
+   contract calls `waste_token.mint_from` and the recipient receives WASTE.
 
-### Contract Address
-```
-Mainnet: Coming Soon
-Testnet: CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
-```
+The backend stores transaction hashes and checks existing records before retrying
+interrupted work. Approval in the API returns before the chain work finishes;
+it does not mean the WASTE has already been minted.
 
-### Data Structures
+::: info Collection point identities
+The collection point registry is deployed. For an app collection point without
+an address, the backend generates and stores a random public address without
+registering it or retaining a signing key for that identity. The address is
+recorded on the delivery; it does not authorize the verification. Connecting
+operators to their own registered, signing collection points is
+[planned work](/community/roadmap#mvp-work-remaining).
+:::
 
-#### Payment
-```rust
-pub struct Payment {
-    pub id: BytesN<32>,              // Unique payment ID
-    pub collector: Address,           // Collector's Stellar address
-    pub collection_point: Address,    // Collection point address
-    pub amount: i128,                 // Amount in stroops
-    pub material_type: String,        // Material type code (e.g., "PET")
-    pub weight: i128,                 // Weight in grams
-    pub quality_grade: String,        // Quality grade (A, B, C)
-    pub timestamp: u64,               // Unix timestamp
-    pub status: PaymentStatus,        // Current status
-    pub metadata: Map<String, String> // Additional data
-}
+## Main entry points and authorization
 
-pub enum PaymentStatus {
-    Pending,
-    Authorized,
-    Completed,
-    Failed,
-    Disputed
-}
-```
+These tables cover the main integration calls. An authorization requirement here
+means Soroban authorization by that address, not an HTTP role or access token.
+The backend signs custodial collector calls and admin calls on the user's behalf.
 
-### Functions
+For exact signatures and additional methods, use the Rust source linked under
+each contract. The contracts repository also has a broader
+[`docs/API.md` reference](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/docs/API.md),
+but it contains older examples; the linked implementations are the authority for
+current argument lists, types and authorization.
 
-#### initialize
-Initializes the payment contract with configuration parameters.
+### Collector registry
 
-```rust
-pub fn initialize(
-    env: Env,
-    admin: Address,
-    platform_fee_bps: u32,  // Basis points (e.g., 200 = 2%)
-    fee_recipient: Address
-) -> Result<(), Error>
-```
+[Source: `collector_registry`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/collector_registry/src/lib.rs)
 
-**Parameters:**
-- `admin` - Contract administrator address
-- `platform_fee_bps` - Platform fee in basis points (1 bps = 0.01%)
-- `fee_recipient` - Address to receive platform fees
+| Entry point | Purpose | Required authorization |
+| --- | --- | --- |
+| `register` | Create a collector with `Pending` status | Collector |
+| `update_profile` | Change the stored name and phone fields | Collector |
+| `update_status` | Activate, suspend or ban a collector within allowed transitions | Admin |
+| `get_collector`, `is_active`, `exists` | Read registration and status | None |
 
-**Returns:** Success or error
+The deployed transaction contract is configured to check `is_active` before
+recording a delivery.
 
-**Example:**
-```rust
-// Initialize with 2% platform fee
-contract.initialize(
-    env,
-    admin_address,
-    200,  // 2%
-    fee_address
-);
-```
+### Collection point registry
 
----
+[Source: `collection_point`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/collection_point/src/lib.rs)
 
-#### process_payment
-Processes a payment to a collector for deposited materials.
+| Entry point | Purpose | Required authorization |
+| --- | --- | --- |
+| `register_point` | Store the owner, name, location and accepted materials | Owner |
+| `update_point` | Change a registered point's information | Stored owner |
+| `verify_point`, `update_verification_status` | Set the point's verification status | Admin |
+| `get_point`, `get_point_by_owner` | Read point information or its numeric ID | None |
 
-```rust
-pub fn process_payment(
-    env: Env,
-    collector: Address,
-    amount: i128,
-    material_type: String,
-    weight: i128,
-    quality_grade: String,
-    metadata: Map<String, String>
-) -> Result<BytesN<32>, Error>
-```
+Verifying a point's registration does not grant it permission to verify deliveries.
 
-**Parameters:**
-- `collector` - Collector's Stellar address
-- `amount` - Payment amount in stroops (1 XLM = 10,000,000 stroops)
-- `material_type` - Material type identifier (e.g., "PET", "HDPE")
-- `weight` - Weight in grams
-- `quality_grade` - Quality grade (A, B, or C)
-- `metadata` - Additional transaction data
+### Material pricing
 
-**Returns:** Payment ID (32-byte hash)
+[Source: `material_pricing`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/material_pricing/src/lib.rs)
 
-**Errors:**
-- `InvalidAmount` - Amount is zero or negative
-- `InvalidAddress` - Collector address is invalid
-- `InsufficientBalance` - Collection point lacks funds
+| Entry point | Purpose | Required authorization |
+| --- | --- | --- |
+| `get_price`, `get_price_record`, `get_all_prices` | Read prices and update metadata | None |
+| `set_price`, `batch_update_prices` | Change prices for material categories | Admin |
 
-**Example:**
-```rust
-let payment_id = contract.process_payment(
-    env.clone(),
-    collector_address,
-    250_000,  // 0.025 XLM (2.5 cents if 1 XLM = $1)
-    String::from_str(&env, "PET"),
-    5500,     // 5.5 kg
-    String::from_str(&env, "A"),
-    metadata
-)?;
-```
+Prices are stored values, not a live exchange-rate feed. `record_with_price_lookup`
+uses this contract; `record_collection` accepts a caller-supplied price instead.
 
-**Events Emitted:**
-```rust
-env.events().publish((
-    symbol_short!("payment"),
-    symbol_short!("created")
-), payment_id);
-```
+### Waste transactions
 
----
+[Source: `waste_transaction`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/waste_transaction/src/lib.rs)
 
-#### authorize_payment
-Authorizes a pending payment (requires collection point signature).
+| Entry point | Purpose | Required authorization |
+| --- | --- | --- |
+| `record_with_price_lookup` | Record a delivery using the configured material price | Collector |
+| `record_collection` | Record a delivery with a caller-supplied price | Collector |
+| `verify_transaction` | Mark the record verified and completed, and update reputation | Admin |
+| `update_status` | Set a transaction status | Admin |
+| `get_transaction`, `get_collector_transactions` | Read delivery records | None |
+| `set_material_pricing_contract`, `set_reputation_contract`, `set_collector_registry_contract` | Configure contract dependencies | Admin |
 
-```rust
-pub fn authorize_payment(
-    env: Env,
-    payment_id: BytesN<32>,
-    authorizer: Address
-) -> Result<(), Error>
-```
+Both recording methods require the collector's authorization and apply the same
+validation, active-collector check when a registry is configured, rate limit and
+duplicate detection. Verification rejects an already verified record.
 
-**Parameters:**
-- `payment_id` - ID of the payment to authorize
-- `authorizer` - Address authorizing the payment
+### Reputation
 
-**Returns:** Success or error
+[Source: `reputation`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/reputation/src/lib.rs)
 
-**Errors:**
-- `PaymentNotFound` - Payment ID doesn't exist
-- `UnauthorizedSigner` - Authorizer not permitted
-- `InvalidStatus` - Payment not in pending state
+| Entry point | Purpose | Required authorization |
+| --- | --- | --- |
+| `record_transaction` | Add an outcome to a collector's history and update the score | Supplied caller must be admin or an approved operator |
+| `update_score`, `set_score`, `reset_score` | Update or override reputation | Admin |
+| `add_operator`, `remove_operator` | Manage callers allowed to record outcomes | Admin |
+| `get_score`, `calculate_score` | Read the reputation record or calculated score | None |
 
-**Example:**
-```rust
-// Collection point operator authorizes payment
-contract.authorize_payment(
-    env,
-    payment_id,
-    operator_address
-)?;
-```
+Scores range from 0 to 1000, with a neutral starting score of 500. Deployment
+grants `waste_transaction` the operator role so it can record successful
+verification outcomes. This role is a contract permission, separate from the
+app's collection point operator account.
 
----
+### Payment distribution
 
-#### complete_payment
-Completes an authorized payment, transferring funds to the collector.
+[Source: `payment_distribution`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/payment_distribution/src/lib.rs)
 
-```rust
-pub fn complete_payment(
-    env: Env,
-    payment_id: BytesN<32>
-) -> Result<(), Error>
-```
+| Entry point | Purpose | Required authorization |
+| --- | --- | --- |
+| `process_payment` | Create a payment from a transaction ID, recipient and positive amount | Admin |
+| `batch_process` | Create multiple payments from caller-supplied values | Admin |
+| `update_payment_status` | Change status; `Completed` mints the amount to the recipient | Admin |
+| `get_payment`, `get_payment_for_transaction`, `get_recipient_payments` | Read payments and the transaction-to-payment index | None |
 
-**Parameters:**
-- `payment_id` - ID of the payment to complete
+The transaction-to-payment index rejects a second payment for the same transaction
+ID. Completed and failed payments cannot be modified. If minting fails during
+completion, the call fails and the payment's previous state is preserved.
 
-**Returns:** Success or error
+The contract does not currently read `waste_transaction` to validate the
+transaction, its verification, recipient or amount. Those checks remain dependent
+on the backend and trusted admin.
 
-**Emits:** Transfer event to Stellar network
+### WASTE token
 
-**Example:**
-```rust
-contract.complete_payment(env, payment_id)?;
-```
+[Source: `waste_token`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/waste_token/src/lib.rs)
 
----
+| Entry point | Purpose | Required authorization |
+| --- | --- | --- |
+| `balance`, `total_supply`, `decimals`, `allowance` | Read balances, metadata and allowances | None |
+| `transfer`, `burn` | Move or destroy tokens | Address spending the tokens |
+| `approve` | Set a spender's allowance | Owner |
+| `transfer_from` | Spend within the owner's allowance | Spender |
+| `mint` | Mint within the supply cap | Admin |
+| `mint_from` | Mint within the supply cap as an approved minter | Approved minter |
+| `add_minter`, `remove_minter` | Manage minting permissions | Admin |
 
-#### get_payment
-Retrieves payment details by ID.
+The deployment script approves `payment_distribution` as a minter. The cap is
+`10,000,000,000,000,000` base units, or one billion WASTE with the deployed token's
+seven decimal places. WASTE is a testnet reward token; this flow does not send XLM
+or settle a mobile-money payment.
 
-```rust
-pub fn get_payment(
-    env: Env,
-    payment_id: BytesN<32>
-) -> Result<Payment, Error>
-```
+## Units, categories and states
 
-**Parameters:**
-- `payment_id` - Payment ID to query
+| Value | On-chain representation |
+| --- | --- |
+| Weight | Whole grams (`u64`); the backend converts kilograms by rounding `kg × 1000` |
+| Price per kilogram | Integer base units (`i128`) |
+| Total amount | Integer arithmetic: `(weight_grams × price_per_kg) / 1000`, truncated to a whole base unit |
+| WASTE balance and payment amount | Integer base units; `10,000,000` units = 1 WASTE in this deployment |
+| Transaction and payment IDs | Numeric `u64` identifiers; distinct from backend database IDs and Stellar transaction hashes |
+| Timestamps | Ledger Unix timestamps in seconds |
 
-**Returns:** Payment struct with all details
+For example, 1500 grams at `8,000,000` base units per kilogram produces
+`12,000,000` base units, or 1.2 WASTE. This is an arithmetic example, not a quote.
+The API's KES material prices and the contract's token prices are separate;
+there is no automatic KES-to-WASTE exchange rate.
 
-**Example:**
-```rust
-let payment = contract.get_payment(env, payment_id)?;
-println!("Amount: {} stroops", payment.amount);
-println!("Status: {:?}", payment.status);
-```
+The on-chain `MaterialType` variants are `Plastic`, `Glass`, `Metal`, `Paper`,
+`Cardboard`, `Electronics`, `Organic`, `Textile`, `Rubber` and `Other`. The backend
+maps a material's category to one of these variants; individual API codes such as
+`GLASS_CLEAR` are not contract enum variants.
 
----
+`TransactionStatus` has `Pending`, `Completed`, `Disputed` and `Cancelled`. A
+`WasteRecord` also has a separate `verified` boolean. `PaymentStatus` has `Pending`,
+`Processing`, `Completed`, `Failed` and `Refunded`; those variants do not imply an
+implemented external refund or dispute service. App `chainStatus` values are
+backend progress markers, not these Soroban enums.
 
-#### dispute_payment
-Creates a dispute for a payment, freezing funds until resolution.
+Definitions: [shared types](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/common/src/types.rs)
+and [amount calculation](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/contracts/common/src/utils.rs).
 
-```rust
-pub fn dispute_payment(
-    env: Env,
-    payment_id: BytesN<32>,
-    disputer: Address,
-    reason: String
-) -> Result<(), Error>
+## Testnet deployment
+
+These addresses come from
+[`deployed_addresses_testnet.json`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/deployed_addresses_testnet.json),
+which records deployment on **28 October 2026**, from source commit `9e1b30d`.
+Each link opens the contract on Stellar Expert testnet.
+
+| Contract | Testnet address |
+| --- | --- |
+| `waste_token` | [`CDOK6OEYIINSA2KP23UU72BSNST7PFNVD67DI2PDELCZIQYUV7XK7SH6`](https://stellar.expert/explorer/testnet/contract/CDOK6OEYIINSA2KP23UU72BSNST7PFNVD67DI2PDELCZIQYUV7XK7SH6) |
+| `collector_registry` | [`CCP4QOY57OKA6DNRU2XG5AD5B2YSVNSUG7BRVWR5XJRDMGY62VQ7JHII`](https://stellar.expert/explorer/testnet/contract/CCP4QOY57OKA6DNRU2XG5AD5B2YSVNSUG7BRVWR5XJRDMGY62VQ7JHII) |
+| `collection_point` | [`CDDY7OUFFZ32K2FCISKMKN2B7BPPFW7PS7OE4GHFXX5WR4547C4MOA34`](https://stellar.expert/explorer/testnet/contract/CDDY7OUFFZ32K2FCISKMKN2B7BPPFW7PS7OE4GHFXX5WR4547C4MOA34) |
+| `material_pricing` | [`CA6BP7PC7OPZPT4MFHIJAPXB237BVP72GVNVPI67GPH3QYYBCJDN2Z5G`](https://stellar.expert/explorer/testnet/contract/CA6BP7PC7OPZPT4MFHIJAPXB237BVP72GVNVPI67GPH3QYYBCJDN2Z5G) |
+| `reputation` | [`CCXDYT3RIM2D356CYUZJ7SVD5PRFUVNJDZDAKSI5WITMMW5QMXZHIB5A`](https://stellar.expert/explorer/testnet/contract/CCXDYT3RIM2D356CYUZJ7SVD5PRFUVNJDZDAKSI5WITMMW5QMXZHIB5A) |
+| `waste_transaction` | [`CAFC4QX3LOQKTPZLWJ52XXE7H5NO7PGVBG4IVGA4BN3E6YT6TIDDL7UP`](https://stellar.expert/explorer/testnet/contract/CAFC4QX3LOQKTPZLWJ52XXE7H5NO7PGVBG4IVGA4BN3E6YT6TIDDL7UP) |
+| `payment_distribution` | [`CARON3S57TTYVHG7C3DMOGIQH5GSYTAOOH325AOX5KQJRYGSFD3RT2JO`](https://stellar.expert/explorer/testnet/contract/CARON3S57TTYVHG7C3DMOGIQH5GSYTAOOH325AOX5KQJRYGSFD3RT2JO) |
+
+The manifest records one deployer account as admin for all seven contracts.
+Testnet can reset. After a redeploy, update the manifest, the contracts README,
+the backend's `src/config/soroban-contracts.ts`, the frontend's `lib/contracts.ts`
+and this address table together.
+
+## Build and exercise the contracts
+
+Run these from a checkout of
+[`wastefi-contracts`](https://github.com/WASTEFI-AFRICA/wastefi-contracts):
+
+```sh
+make build              # scripts/build-wasm.sh builds all seven contract Wasm files
+cargo fmt --check
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 ```
 
-**Parameters:**
-- `payment_id` - Payment to dispute
-- `disputer` - Address of party creating dispute
-- `reason` - Reason for dispute
-
-**Returns:** Success or error
-
-**Example:**
-```rust
-contract.dispute_payment(
-    env,
-    payment_id,
-    collector_address,
-    String::from_str(&env, "Material weight incorrect")
-)?;
-```
-
----
-
-#### resolve_dispute
-Resolves a disputed payment (admin only).
-
-```rust
-pub fn resolve_dispute(
-    env: Env,
-    payment_id: BytesN<32>,
-    resolution: DisputeResolution,
-    admin: Address
-) -> Result<(), Error>
-
-pub enum DisputeResolution {
-    PayCollector,         // Release funds to collector
-    RefundCollectionPoint, // Return to collection point
-    SplitPayment(i128)    // Partial payment with amount
-}
-```
-
----
-
-## 2. Material Registry Contract
-
-### Purpose
-Maintains an on-chain registry of material types, digital product passports, and material transaction history.
-
-### Contract Address
-```
-Mainnet: Coming Soon
-Testnet: CBYYD3YSFP5L7ZE3YYZQHPVSJXDJTQVKL5WUJZQ7UXLZ4YGWQHXE2QPM
-```
-
-### Data Structures
-
-#### Material
-```rust
-pub struct Material {
-    pub id: String,                  // Material type ID (e.g., "PET-001")
-    pub name: String,                // Human-readable name
-    pub category: MaterialCategory,  // Plastic, Metal, Paper, etc.
-    pub recyclegraph_id: String,     // RecycleGraph protocol ID
-    pub co2_per_kg: i128,           // CO2 saved per kg (in grams)
-    pub base_price: i128,            // Base price in stroops per kg
-    pub active: bool                 // Is material currently accepted
-}
-
-pub enum MaterialCategory {
-    Plastic,
-    Metal,
-    Paper,
-    Glass,
-    Electronic,
-    Organic
-}
-```
-
-#### ProductPassport
-```rust
-pub struct ProductPassport {
-    pub id: BytesN<32>,              // Unique passport ID
-    pub material_id: String,          // Reference to material type
-    pub manufacturer: Address,        // Manufacturer's address
-    pub product_id: String,           // Manufacturer's product ID
-    pub manufacture_date: u64,        // Unix timestamp
-    pub origin: String,               // Country/region of origin
-    pub composition: Vec<MaterialComposition>, // Material breakdown
-    pub carbon_footprint: i128,      // Manufacturing CO2 (grams)
-    pub recyclable: bool,             // Can be recycled
-    pub metadata: Map<String, String> // Additional product data
-}
-
-pub struct MaterialComposition {
-    pub material: String,  // Material type
-    pub percentage: u32    // Percentage of total (0-100)
-}
-```
-
-### Functions
-
-#### register_material
-Registers a new material type in the registry.
-
-```rust
-pub fn register_material(
-    env: Env,
-    id: String,
-    name: String,
-    category: MaterialCategory,
-    recyclegraph_id: String,
-    co2_per_kg: i128,
-    base_price: i128,
-    admin: Address
-) -> Result<(), Error>
-```
-
-**Parameters:**
-- `id` - Unique material identifier
-- `name` - Display name (e.g., "PET Plastic Bottles")
-- `category` - Material category enum
-- `recyclegraph_id` - RecycleGraph protocol ID
-- `co2_per_kg` - CO2 saved per kg in grams
-- `base_price` - Base price per kg in stroops
-- `admin` - Admin authorizing registration
-
-**Example:**
-```rust
-contract.register_material(
-    env.clone(),
-    String::from_str(&env, "PET-001"),
-    String::from_str(&env, "PET Plastic Bottles"),
-    MaterialCategory::Plastic,
-    String::from_str(&env, "RG-PLASTIC-PET-1"),
-    2500,      // 2.5 kg CO2 saved per kg
-    250_000,   // 0.025 XLM per kg base price
-    admin_address
-)?;
-```
-
----
-
-#### create_product_passport
-Creates a digital product passport for a manufactured item.
-
-```rust
-pub fn create_product_passport(
-    env: Env,
-    material_id: String,
-    manufacturer: Address,
-    product_id: String,
-    manufacture_date: u64,
-    origin: String,
-    composition: Vec<MaterialComposition>,
-    carbon_footprint: i128,
-    recyclable: bool
-) -> Result<BytesN<32>, Error>
-```
-
-**Returns:** Passport ID (32-byte hash)
-
-**Example:**
-```rust
-let composition = vec![
-    &env,
-    MaterialComposition {
-        material: String::from_str(&env, "PET"),
-        percentage: 95
-    },
-    MaterialComposition {
-        material: String::from_str(&env, "PP"),
-        percentage: 5
-    }
-];
-
-let passport_id = contract.create_product_passport(
-    env.clone(),
-    String::from_str(&env, "PET-001"),
-    brand_address,
-    String::from_str(&env, "BRAND-BOTTLE-500ML"),
-    1705276800,  // Jan 15, 2024
-    String::from_str(&env, "Kenya"),
-    composition,
-    80,          // 80g CO2 footprint
-    true
-)?;
-```
-
----
-
-#### get_material
-Retrieves material details by ID.
-
-```rust
-pub fn get_material(
-    env: Env,
-    material_id: String
-) -> Result<Material, Error>
-```
-
----
-
-#### get_passport
-Retrieves product passport by ID.
-
-```rust
-pub fn get_passport(
-    env: Env,
-    passport_id: BytesN<32>
-) -> Result<ProductPassport, Error>
-```
-
----
-
-#### record_collection
-Records when a product with a passport is collected.
-
-```rust
-pub fn record_collection(
-    env: Env,
-    passport_id: BytesN<32>,
-    collector: Address,
-    collection_point: Address,
-    weight: i128,
-    timestamp: u64
-) -> Result<(), Error>
-```
-
-**Purpose:** Links collected materials back to original manufacturers for EPR compliance.
-
----
-
-## 3. Impact Credit Contract
-
-### Purpose
-Mints and manages carbon credit tokens based on verified material collection impact.
-
-### Contract Address
-```
-Mainnet: Coming Soon
-Testnet: CCJFMTX4ZXVHXVNXTQRFHB45VWQYKUFNUSJGD6DQVUOBVQVUIWFMPACT
-```
-
-### Data Structures
-
-#### ImpactCredit
-```rust
-pub struct ImpactCredit {
-    pub id: BytesN<32>,              // Credit token ID
-    pub co2_saved: i128,             // CO2 saved in grams
-    pub materials: Vec<MaterialImpact>, // Materials contributing
-    pub verification_date: u64,      // When verified
-    pub verifier: Address,           // Third-party verifier
-    pub status: CreditStatus,        // Current status
-    pub collectors: Vec<Address>     // Collectors who contributed
-}
-
-pub struct MaterialImpact {
-    pub material_type: String,
-    pub weight: i128,
-    pub co2_saved: i128
-}
-
-pub enum CreditStatus {
-    Pending,      // Awaiting verification
-    Verified,     // Verified by auditor
-    Minted,       // Token minted
-    Sold,         // Credit sold
-    Retired       // Credit retired (used)
-}
-```
-
-### Functions
-
-#### calculate_impact
-Calculates environmental impact from material collection.
-
-```rust
-pub fn calculate_impact(
-    env: Env,
-    materials: Vec<MaterialImpact>
-) -> Result<i128, Error>
-```
-
-**Returns:** Total CO2 saved in grams
-
-**Example:**
-```rust
-let materials = vec![
-    &env,
-    MaterialImpact {
-        material_type: String::from_str(&env, "PET"),
-        weight: 5500,  // 5.5 kg
-        co2_saved: 13750  // 2.5 kg CO2 per kg * 5.5 kg
-    }
-];
-
-let total_co2 = contract.calculate_impact(env, materials)?;
-// Returns: 13750 grams (13.75 kg CO2)
-```
-
----
-
-#### mint_credit
-Mints a carbon credit token after verification.
-
-```rust
-pub fn mint_credit(
-    env: Env,
-    co2_saved: i128,
-    materials: Vec<MaterialImpact>,
-    collectors: Vec<Address>,
-    verifier: Address
-) -> Result<BytesN<32>, Error>
-```
-
-**Returns:** Credit token ID
-
-**Authorization:** Requires verifier signature
-
----
-
-#### distribute_revenue
-Distributes revenue from sold carbon credits to collectors.
-
-```rust
-pub fn distribute_revenue(
-    env: Env,
-    credit_id: BytesN<32>,
-    sale_amount: i128,
-    platform_share_bps: u32  // Basis points
-) -> Result<(), Error>
-```
-
-**Example:**
-```rust
-// Sold credit for 100 XLM, platform takes 30%
-contract.distribute_revenue(
-    env,
-    credit_id,
-    1_000_000_000,  // 100 XLM in stroops
-    3000            // 30% in basis points
-)?;
-// Each collector receives their proportional share of 70 XLM
-```
-
----
-
-#### retire_credit
-Retires a carbon credit (marks as used).
-
-```rust
-pub fn retire_credit(
-    env: Env,
-    credit_id: BytesN<32>,
-    buyer: Address,
-    reason: String
-) -> Result<(), Error>
-```
-
----
-
-## 4. Collection Point Contract
-
-### Purpose
-Manages multi-signature wallets for collection points and operator permissions.
-
-### Data Structures
-
-#### CollectionPoint
-```rust
-pub struct CollectionPoint {
-    pub id: String,                  // Collection point ID
-    pub name: String,                // Display name
-    pub location: Location,          // Geographic coordinates
-    pub wallet: Address,             // Multi-sig wallet address
-    pub operators: Vec<Address>,     // Authorized operators
-    pub required_signatures: u32,    // Number of sigs required
-    pub status: PointStatus,         // Active/inactive status
-    pub inventory: Map<String, i128> // Material inventory (type -> weight)
-}
-
-pub struct Location {
-    pub latitude: i128,   // * 1e7 for precision
-    pub longitude: i128   // * 1e7 for precision
-}
-```
-
-### Functions
-
-#### register_point
-Registers a new collection point with multi-sig wallet.
-
-```rust
-pub fn register_point(
-    env: Env,
-    id: String,
-    name: String,
-    location: Location,
-    operators: Vec<Address>,
-    required_signatures: u32,
-    admin: Address
-) -> Result<Address, Error>
-```
-
-**Returns:** Multi-signature wallet address
-
----
-
-#### add_operator
-Adds an operator to a collection point.
-
-```rust
-pub fn add_operator(
-    env: Env,
-    point_id: String,
-    operator: Address,
-    admin: Address
-) -> Result<(), Error>
-```
-
----
-
-#### update_inventory
-Updates material inventory for a collection point.
-
-```rust
-pub fn update_inventory(
-    env: Env,
-    point_id: String,
-    material_type: String,
-    weight_delta: i128,  // Can be negative (material removed)
-    operator: Address
-) -> Result<(), Error>
-```
-
----
-
-## Security Considerations
-
-### Access Control
-All sensitive operations require appropriate authorization:
-- **Admin Functions:** Contract initialization, material registration
-- **Operator Functions:** Payment authorization, inventory updates
-- **Collector Functions:** Payment disputes
-- **Verifier Functions:** Impact credit minting
-
-### Multi-Signature Requirements
-Collection point wallets require N-of-M signatures:
-```rust
-// Example: 2-of-3 multi-sig
-required_signatures: 2
-operators: [operator1, operator2, operator3]
-```
-
-### Audit Trail
-All state changes emit events for off-chain monitoring:
-```rust
-env.events().publish((
-    symbol_short!("payment"),
-    symbol_short!("completed")
-), (payment_id, collector, amount));
-```
-
-### Rate Limiting
-Contracts implement rate limits to prevent abuse:
-- Max payments per collector per day: 50
-- Max dispute creation per user per month: 5
-
----
-
-## Testing Contracts
-
-### Local Testing
-```bash
-# Run contract tests
-cd wastefi-contracts
-cargo test
-
-# Specific test
-cargo test test_payment_flow
-```
-
-### Testnet Deployment
-```bash
-# Build contract
-cargo build --target wasm32-unknown-unknown --release
-
-# Deploy to testnet
-soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/payment_contract.wasm \
-  --source ADMIN_SECRET_KEY \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015"
-```
-
-### Invoke Function
-```bash
-# Process a payment on testnet
-soroban contract invoke \
-  --id CONTRACT_ID \
-  --source OPERATOR_SECRET_KEY \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015" \
-  -- \
-  process_payment \
-  --collector COLLECTOR_ADDRESS \
-  --amount 250000 \
-  --material_type "PET" \
-  --weight 5500 \
-  --quality_grade "A"
-```
-
----
-
-## Gas Fees
-
-Soroban operations are significantly cheaper than Ethereum:
-
-| Operation | Gas Cost (stroops) | USD Equivalent* |
-|-----------|-------------------|-----------------|
-| Initialize Contract | ~100,000 | ~$0.01 |
-| Process Payment | ~10,000 | ~$0.001 |
-| Register Material | ~20,000 | ~$0.002 |
-| Mint Impact Credit | ~30,000 | ~$0.003 |
-
-*Assuming 1 XLM = $0.10
-
----
-
-## Contract Upgrades
-
-Contracts are upgradeable with multi-sig authorization:
-
-```rust
-pub fn upgrade(
-    env: Env,
-    new_wasm_hash: BytesN<32>,
-    admin1: Address,
-    admin2: Address,
-    admin3: Address
-) -> Result<(), Error>
-```
-
-Requires 3-of-5 admin signatures for production upgrades.
-
----
-
-## Learn More
-
-- [Soroban Documentation](https://soroban.stellar.org/docs)
-- [Contract Source Code](https://github.com/WASTEFI-AFRICA/wastefi-contracts)
-
----
-
-**Contract Versions:**
-- Payment Contract: v1.0.0
-- Material Registry: v1.0.0
-- Impact Credit: v1.0.0
-- Collection Point: v1.0.0
-
-**Last Updated:** 2024-09-15  
-**Audit Status:** Pending (Q4 2024)
+Use `make build` or `scripts/build-wasm.sh` for deployment artifacts. The target is
+`wasm32v1-none`, and the output directory is `target/wasm32v1-none/release/`.
+The repository's pinned Rust toolchain supplies the target.
+
+`make smoke-test` runs the
+[testnet smoke script](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/scripts/smoke-test.sh).
+It creates throwaway accounts and submits real testnet transactions through
+registration, pricing, recording, verification and minting. For deployment and
+wiring instructions, see the
+[contracts README](https://github.com/WASTEFI-AFRICA/wastefi-contracts#deployment).
+
+## Planned capabilities
+
+Collection point authorization, deriving payout recipients and amounts on-chain,
+and reducing reliance on one admin key remain work to do. Multisig escrow,
+dispute arbitration, carbon credit minting and material passport contracts are
+not deployed features. Shared `CarbonCredit` and `MaterialPassport` data types
+do not implement those services. See the [roadmap](/community/roadmap).
