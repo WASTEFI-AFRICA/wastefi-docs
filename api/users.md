@@ -14,7 +14,8 @@ An admin is needed to activate a pending account before it can use private route
 The GET profile includes `id`, `phoneNumber`, `email`, `firstName`, `lastName`,
 `role`, `status`, `kycStatus`, `profilePicture`, `nationalId`, `address`, `city`,
 `country`, `stellarPublicKey`, `mobileMoneyNumber`, `createdAt`, `updatedAt` and
-`lastLoginAt`. Optional database values can be `null`. Passwords and wallet
+`lastLoginAt`. It also includes `collectionPoint`: `null` or the assigned point's
+`id`, `name` and `isActive`. Optional database values can be `null`. Passwords and wallet
 secrets are not included in this selected response.
 
 The documented profile update fields are optional `firstName`, `lastName`,
@@ -64,12 +65,25 @@ Every route in this table requires `ADMIN`:
 | GET | `/api/v1/users` | Filtered users in `data`, with sibling `pagination` |
 | GET | `/api/v1/users/:userId` | Selected user profile in `data`; 404 if absent |
 | PUT | `/api/v1/users/:userId/status` | Required `status`: `ACTIVE`, `SUSPENDED` or `BANNED`; optional `reason` |
+| PUT | `/api/v1/users/:userId/collection-point` | Required `collectionPointId`: an active point UUID, or `null` to remove assignment |
 | DELETE | `/api/v1/users/:userId` | Service soft-deletes by banning the account; returns a message |
 
 The list accepts `status` (`PENDING`, `ACTIVE`, `SUSPENDED`, `BANNED`), `role`
 (`COLLECTOR`, `ADMIN`, `COLLECTION_POINT`, `VERIFIER`), `kycStatus`
 (`NOT_STARTED`, `PENDING`, `APPROVED`, `REJECTED`), `page` (default 1) and `limit`
 (default 10, range 1 to 100). Activation does not assign a role.
+
+The directory includes each user's `collectionPoint` selection. Only existing
+`COLLECTION_POINT` users can receive a point assignment. The assignment endpoint
+rejects other body fields and does not change account status, role or KYC.
+Assignment changes and their audit record commit together. Unknown users or
+points return 404; an inactive point or non-operator account returns 409.
+
+Unassigned operators cannot read the staff queue, collection details or point
+statistics, or review deliveries. Assigning an active point enables access only
+to that point; reassignment or removal takes effect with the current access
+token. Current roles and assignments are read from the database on each request.
+See [collection access](/api/transactions#read-collections).
 
 There are no per-user statistics, impact reports, wallet subroutes or self-service
 account-deletion endpoints here. Use [collections](/api/transactions),

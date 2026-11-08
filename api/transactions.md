@@ -62,8 +62,17 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 
 `verified=false` means no review timestamp and sorts oldest first. `verified=true`
 means reviewed, including rejected records; it is not an approval-only filter.
-Other lists sort newest first. Operators currently have access to the full queue;
-filtering by a point is not yet an enforced operator-to-point assignment.
+Other lists sort newest first. Collection point operators are restricted to their
+assigned active point. A filter naming another point returns 403; a foreign
+collection ID returns 404. Admins and central verifiers retain platform review
+access. Unassigned operators receive 403 with `COLLECTION_POINT_REQUIRED`;
+operators assigned to an inactive point receive `COLLECTION_POINT_INACTIVE`.
+Administrators manage assignments through the [users API](/api/users#admin-user-actions).
+
+Staff list responses include a sibling `scope`: either
+`{"mode":"assigned_point","point":{"id":"...","name":"..."}}` for an operator
+or `{"mode":"platform","point":null}` for central staff. This describes the
+server-enforced access scope; additional list filters still apply.
 
 The own-history `summary` contains `totalCollections`, `totalWeight` and
 `totalEarnings`, aggregated across that user's submissions. `totalEarnings` is a
@@ -85,6 +94,10 @@ sum of KES collection values, not confirmation of completed payments.
 The response is HTTP 200 with the updated collection in `data` and a message.
 Both approval and rejection set `verifiedAt` and `verifiedBy`. Rejection sets
 `paymentStatus` to `CANCELLED`. A reviewed collection cannot be reviewed again.
+Operators can review only deliveries at their assigned active point. A
+conditional write checks assignment again and prevents simultaneous decisions
+from overwriting each other. A duplicate decision or access change during the
+write returns 409; refresh the queue before continuing.
 
 When on-chain recording is enabled, approval queues the Soroban workflow and
 returns before payment finishes. The current service applies `adjustedAmount`
@@ -123,7 +136,9 @@ IDs in these filters must be UUIDs; dates must be ISO 8601. Results are under
 `data`. General statistics contain `totalCollections`, `totalWeight`,
 `totalPayments`, `byMaterial` and `byStatus`. These aggregates include matching
 submissions across review and payment states. For approval-only public totals,
-use [public statistics](/api/impact).
+use [public statistics](/api/impact). Operator statistics are restricted to their
+assigned active point, even when other filters are supplied. General statistics
+include the same sibling `scope` metadata as the staff collection list.
 
 The materials statistics payload contains `summary`, `byMaterialType`,
 `byCategory` and `filters`. It is cached for five minutes through the cache
@@ -136,9 +151,10 @@ helper, which falls back to the database when Redis is unavailable.
 | POST | `/api/v1/collections/:collectionId/images` | Active account | JSON `imageUrls`: nonempty array of valid URLs; appends stored URLs |
 | DELETE | `/api/v1/collections/:id` | `ADMIN` | Deletes a collection unless the service considers its legacy payment completed |
 
-The images endpoint stores URLs; it does not upload image files. Its current
-handler does not enforce collection ownership. File upload and authorization
-improvements remain contributor work. There are no collection cancellation,
+The images endpoint stores URLs; it does not upload image files. Collectors may append URLs only to their own records; operators are restricted
+to their assigned active point. Admins and central verifiers retain staff access.
+A foreign operator record returns 404 and another collector's record returns
+403. File upload remains contributor work. There are no collection cancellation,
 dispute or export routes in this router.
 
 Source: [router](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/routes/waste-collection.routes.ts),
