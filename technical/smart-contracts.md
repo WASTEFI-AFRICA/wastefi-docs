@@ -6,9 +6,11 @@ collections and mint WASTE rewards. The contracts are written in Rust with
 library, not an eighth deployed contract.
 
 ::: warning Current trust model
-The platform admin verifies deliveries and supplies payment recipients and
-amounts. Collection points do not yet authorize verification on-chain, and the
-payment contract does not fetch the amount from the verified collection.
+New point-mode deliveries are verified with the collection point owner's key.
+The backend holds encrypted custodial keys, and the platform administers registry
+trust, retains an explicit verification override and supplies payment recipients
+and amounts. The payment contract does not yet derive them from the verified
+collection. Older saved collections keep their original admin flow.
 The contracts have not been audited and there is no mainnet deployment.
 :::
 
@@ -19,15 +21,15 @@ The contracts have not been audited and there is no mainnet deployment.
 | `collector_registry` | Collector registration, profile and activation status |
 | `collection_point` | Collection point registration, ownership and verification status |
 | `material_pricing` | Prices per kilogram for each on-chain material category |
-| `waste_transaction` | Delivery records, their calculated value and admin verification |
+| `waste_transaction` | Delivery records, calculated value and point or admin verification |
 | `reputation` | Collector scores and transaction outcome counts |
 | `payment_distribution` | One payment record per transaction and WASTE minting on completion |
 | `waste_token` | WASTE balances, transfers, allowances and capped minting |
 
 ## From approval to WASTE
 
-In the [live app](https://wastefi-frontend.vercel.app), an operator approves a
-collection through the backend. The
+An operator approves a collection through the backend. With `point_owner_v1`
+selected for new work, the
 [on-chain collection service](https://github.com/WASTEFI-AFRICA/wastefi-backend/blob/main/src/services/onchain-collection.service.ts)
 then runs the following steps in the background:
 
@@ -39,9 +41,10 @@ then runs the following steps in the background:
    `waste_transaction.record_with_price_lookup`. It reads the material price,
    calculates `total_amount` and stores a record with `status = Pending` and
    `verified = false`.
-3. **Verify the record.** The admin signs
-   `waste_transaction.verify_transaction`. It sets `verified = true` and
-   `status = Completed`, then calls `reputation.record_transaction`.
+3. **Verify the record.** The collection point wallet signs
+   `waste_transaction.verify_transaction_by_point`. The point must be registered
+   and verified, accept the material, and both contracts must be unpaused. This
+   sets `verified = true` and `status = Completed`, then updates reputation.
 4. **Create the payment.** The admin signs
    `payment_distribution.process_payment`. The backend supplies the collector's
    wallet address and the record's `total_amount`. This creates a pending payment;
@@ -54,20 +57,28 @@ The backend stores transaction hashes and checks existing records before retryin
 interrupted work. Approval in the API returns before the chain work finishes;
 it does not mean the WASTE has already been minted.
 
-::: info Collection point identities
-The collection point registry is deployed. For an app collection point without
-an address, the backend generates and stores a random public address without
-registering it or retaining a signing key for that identity. The address is
-recorded on the delivery; it does not authorize the verification. Connecting
-operators to their own registered, signing collection points is
-[planned work](/community/roadmap#mvp-work-remaining).
+::: info Collection point identities and legacy work
+The API provisions an encrypted private point wallet only for an active,
+administratively verified database point. It registers pseudonymous metadata,
+synchronizes accepted material categories and has the registry admin verify that
+trusted point. Operators review only their assigned active point's collections.
+The API signs on behalf of the point; this does not give operators independent
+custody of its key. Failed point authorization never falls back to admin.
+
+Each collection saves its contracts, addresses and flow before recording.
+Historical `admin_v1` work keeps its original admin verification and payment map.
+The old public-only `stellarAddress` remains for those records; it is separate
+from the private signing wallet. A missing or corrupt pinned key is held for
+review. The legacy backfill must complete before switching the API defaults.
+`/stats` reports the configured mode for new work, not the mode of every
+historical transaction. Admin verification remains an explicit contract override.
 :::
 
 ## Main entry points and authorization
 
 These tables cover the main integration calls. An authorization requirement here
 means Soroban authorization by that address, not an HTTP role or access token.
-The backend signs custodial collector calls and admin calls on the user's behalf.
+The backend signs custodial collector, point and admin calls on users' behalf.
 
 For exact signatures and additional methods, use the Rust source linked under
 each contract. The contracts repository also has a broader
@@ -98,9 +109,10 @@ recording a delivery.
 | `register_point` | Store the owner, name, location and accepted materials | Owner |
 | `update_point` | Change a registered point's information | Stored owner |
 | `verify_point`, `update_verification_status` | Set the point's verification status | Admin |
-| `get_point`, `get_point_by_owner` | Read point information or its numeric ID | None |
+| `get_point`, `get_point_by_owner`, `find_point_by_owner` | Read point information or its numeric ID; `find_point_by_owner` returns an optional ID | None |
 
-Verifying a point's registration does not grant it permission to verify deliveries.
+A verified point can authorize its own pending deliveries when the configured
+transaction contract checks this registry and the material is accepted.
 
 ### Material pricing
 
@@ -122,10 +134,11 @@ uses this contract; `record_collection` accepts a caller-supplied price instead.
 | --- | --- | --- |
 | `record_with_price_lookup` | Record a delivery using the configured material price | Collector |
 | `record_collection` | Record a delivery with a caller-supplied price | Collector |
-| `verify_transaction` | Mark the record verified and completed, and update reputation | Admin |
+| `verify_transaction_by_point` | Verify the recorded point's delivery and update reputation after registry, material and pause checks | Recorded point owner |
+| `verify_transaction` | Explicit verification override; also supports legacy records | Admin |
 | `update_status` | Set a transaction status | Admin |
 | `get_transaction`, `get_collector_transactions` | Read delivery records | None |
-| `set_material_pricing_contract`, `set_reputation_contract`, `set_collector_registry_contract` | Configure contract dependencies | Admin |
+| `set_material_pricing_contract`, `set_reputation_contract`, `set_collector_registry_contract`, `set_collection_point_contract` | Configure contract dependencies | Admin |
 
 Both recording methods require the collector's authorization and apply the same
 validation, active-collector check when a registry is configured, rate limit and
@@ -219,18 +232,22 @@ and [amount calculation](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blo
 
 These addresses come from
 [`deployed_addresses_testnet.json`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/deployed_addresses_testnet.json),
-which records deployment on **28 October 2026**, from source commit `9e1b30d`.
+which records a bundle update on **8 November 2026** with new point registry,
+transaction and payment contracts from source `edbbec3`. The token, collector
+registry, pricing and reputation retain their **28 October 2026** deployments.
+The [original manifest](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/deployments/testnet-2026-10-28.json)
+is retained for historical backfill and pending collections.
 Each link opens the contract on Stellar Expert testnet.
 
 | Contract | Testnet address |
 | --- | --- |
 | `waste_token` | [`CDOK6OEYIINSA2KP23UU72BSNST7PFNVD67DI2PDELCZIQYUV7XK7SH6`](https://stellar.expert/explorer/testnet/contract/CDOK6OEYIINSA2KP23UU72BSNST7PFNVD67DI2PDELCZIQYUV7XK7SH6) |
 | `collector_registry` | [`CCP4QOY57OKA6DNRU2XG5AD5B2YSVNSUG7BRVWR5XJRDMGY62VQ7JHII`](https://stellar.expert/explorer/testnet/contract/CCP4QOY57OKA6DNRU2XG5AD5B2YSVNSUG7BRVWR5XJRDMGY62VQ7JHII) |
-| `collection_point` | [`CDDY7OUFFZ32K2FCISKMKN2B7BPPFW7PS7OE4GHFXX5WR4547C4MOA34`](https://stellar.expert/explorer/testnet/contract/CDDY7OUFFZ32K2FCISKMKN2B7BPPFW7PS7OE4GHFXX5WR4547C4MOA34) |
+| `collection_point` | [`CADEZ64CHYORQLRKD3JLV6QLW7IHJAUWEAAOPS6K2DNMQSXZCSPLGMHW`](https://stellar.expert/explorer/testnet/contract/CADEZ64CHYORQLRKD3JLV6QLW7IHJAUWEAAOPS6K2DNMQSXZCSPLGMHW) |
 | `material_pricing` | [`CA6BP7PC7OPZPT4MFHIJAPXB237BVP72GVNVPI67GPH3QYYBCJDN2Z5G`](https://stellar.expert/explorer/testnet/contract/CA6BP7PC7OPZPT4MFHIJAPXB237BVP72GVNVPI67GPH3QYYBCJDN2Z5G) |
 | `reputation` | [`CCXDYT3RIM2D356CYUZJ7SVD5PRFUVNJDZDAKSI5WITMMW5QMXZHIB5A`](https://stellar.expert/explorer/testnet/contract/CCXDYT3RIM2D356CYUZJ7SVD5PRFUVNJDZDAKSI5WITMMW5QMXZHIB5A) |
-| `waste_transaction` | [`CAFC4QX3LOQKTPZLWJ52XXE7H5NO7PGVBG4IVGA4BN3E6YT6TIDDL7UP`](https://stellar.expert/explorer/testnet/contract/CAFC4QX3LOQKTPZLWJ52XXE7H5NO7PGVBG4IVGA4BN3E6YT6TIDDL7UP) |
-| `payment_distribution` | [`CARON3S57TTYVHG7C3DMOGIQH5GSYTAOOH325AOX5KQJRYGSFD3RT2JO`](https://stellar.expert/explorer/testnet/contract/CARON3S57TTYVHG7C3DMOGIQH5GSYTAOOH325AOX5KQJRYGSFD3RT2JO) |
+| `waste_transaction` | [`CB77D77P7RLXHPXNCZG4PJE6OVAXWYWAY2KBDX2SO76FMSBL7XOTYDIT`](https://stellar.expert/explorer/testnet/contract/CB77D77P7RLXHPXNCZG4PJE6OVAXWYWAY2KBDX2SO76FMSBL7XOTYDIT) |
+| `payment_distribution` | [`CA5BJ6WCZEVLV7YNZY7XXERXSDHSYMW5XKCQOU3BTXWNG2DQRR74PB2W`](https://stellar.expert/explorer/testnet/contract/CA5BJ6WCZEVLV7YNZY7XXERXSDHSYMW5XKCQOU3BTXWNG2DQRR74PB2W) |
 
 The manifest records one deployer account as admin for all seven contracts.
 Testnet can reset. After a redeploy, update the manifest, the contracts README,
@@ -262,8 +279,8 @@ wiring instructions, see the
 
 ## Planned capabilities
 
-Collection point authorization, deriving payout recipients and amounts on-chain,
-and reducing reliance on one admin key remain work to do. Multisig escrow,
+Deriving payout recipients and amounts on-chain and reducing reliance on platform
+custody and one admin key remain work to do. Multisig escrow,
 dispute arbitration, carbon credit minting and material passport contracts are
 not deployed features. Shared `CarbonCredit` and `MaterialPassport` data types
 do not implement those services. See the [roadmap](/community/roadmap).

@@ -112,6 +112,7 @@ Read a collection again to observe background progress:
 | --- | --- |
 | `chainStatus` | `null` until queued; then `PENDING`, `RECORDED`, `VERIFIED`, `PAID`, or `FAILED` |
 | `chainTransactionId`, `chainPaymentId` | Numeric contract IDs stored as strings |
+| `chainContext` | Saved public network, contract bundle, signing addresses and flow (`admin_v1` or `point_owner_v1`); no private keys |
 | `chainAmount` | WASTE amount as an integer base-unit string, seven decimal places |
 | `chainRecordTxHash`, `chainVerifyTxHash`, `chainPaymentTxHash` | Stellar transaction hashes as they become available |
 | `chainAttempts`, `chainError` | Retry information and latest error, when present |

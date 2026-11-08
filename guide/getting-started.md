@@ -47,13 +47,15 @@ staff screens still use sample data; follow their notices and the
 ## What the chain does
 
 The backend uses a custodial collector wallet to record the delivery with a
-material-price lookup. The admin verifies it, creates a payment record and
-completes the payment, which mints WASTE. There are four contract calls; the app
-stores links for the record, verification and final payment transactions.
+material-price lookup. In point mode, the assigned collection point's encrypted
+wallet signs verification after registry, material and activation checks. The
+admin creates and completes the payment, which mints WASTE. The app stores
+links for the record, verification and final payment transactions.
 
-The deployed contracts currently trust the admin for delivery verification,
-recipient and amount. Operators are not yet tied to their own point's queue or
-authorized to verify as that point on-chain. See the
+The API holds signing keys. The platform verifies registry entries, retains an
+explicit delivery-verification override and still supplies payout recipient and
+amount. Old collections retain their saved admin flow and original contracts.
+The public `/stats` page reports the API's mode for new work. See the
 [contract flow](/technical/smart-contracts#from-approval-to-waste) and
 [collection chain fields](/api/transactions#on-chain-fields).
 

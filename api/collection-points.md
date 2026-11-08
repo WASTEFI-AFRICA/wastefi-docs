@@ -67,8 +67,11 @@ The documented update fields are optional `name`, `description`, `latitude`,
 `operatingHours`, `acceptedMaterials` and boolean `isActive`. Send objects and
 arrays for the two JSON fields; the service serializes them for storage.
 
-The HTTP verification route changes a database record. It does not register or
-verify a Soroban collection point, nor grant an operator on-chain permissions.
+The HTTP verification route changes a database record. It does not immediately
+submit a Soroban transaction. When point-mode chain work starts, the backend
+uses that trust status to provision a private point wallet, register and verify
+it, and sign its own deliveries. Public `stellarAddress` is retained for legacy
+work; private signing keys and registration leases are never in these responses.
 There are no rating, availability or point-statistics subroutes. Staff can use
 [collection statistics](/api/transactions#statistics) filtered by
 `collectionPointId`.

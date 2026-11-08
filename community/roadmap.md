@@ -8,12 +8,15 @@ a dated release promise or a record of pilot operations, partnerships or impact.
 
 - Collector sign-up, sign-in and collection submission through the app and API.
 - An operator review queue that approves or rejects submitted deliveries.
-- Background recording and admin verification of approved collections on Soroban,
+- Background recording and point-signed verification of new approved collections on Soroban,
   followed by WASTE minting to the collector's custodial wallet.
 - On-chain balance reads and links to the record, verification and payment
   transactions for collectors.
 - Public statistics, with paid-on-chain totals and transaction links.
 - Collection point discovery using API data in the list and map.
+- Real wallet payment history, profile editing and point dashboard totals.
+- Admin account activation and operator assignment to an active point.
+- Published documentation with pull-request build checks.
 
 The frontend runs on Vercel, the backend on Render, and PostgreSQL on Neon.
 Contracts run on Stellar testnet. Demo accounts and seeded collections exercise
@@ -26,18 +29,15 @@ See the [app](https://wastefi-frontend.vercel.app),
 
 The next steps are:
 
-1. Publish the docs with a build check on pull requests, after reviewing the
-   remaining guides for unsupported claims.
-2. Replace sample wallet and profile screens with account data and paid collection
-   history. Connect collection point dashboard statistics to the API.
-3. Give admins a user list and a way to activate pending accounts.
-4. Tie each operator to their own collection point, scope the review queue to it,
-   and give each point a registered on-chain identity capable of authorizing its
-   own deliveries. The deployed contract currently uses admin verification.
-5. Make the payment contract read the recipient and amount from the verified
+1. Make the payment contract read the recipient and amount from the verified
    transaction. Today the admin supplies both values.
-6. Fix or remove the unused offline queue. The submission form currently requires
+2. Fix or remove the unused offline queue. The submission form currently requires
    a connection; queued offline submission is not a working feature.
+
+The point-verification rollout preserves the original token and old contract
+roles. Deployment requires pinning historical collections to their original
+contracts before switching the API defaults. Custodial keys and the explicit
+admin verification override remain part of the trust model.
 
 Contract changes are tracked in
 [collection point verification #43](https://github.com/WASTEFI-AFRICA/wastefi-contracts/issues/43)

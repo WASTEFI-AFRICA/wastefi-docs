@@ -24,6 +24,7 @@ fields inside `data`:
 | `byMaterial` | Up to eight entries with `materialType`, `collections`, `weightKg`, ordered by weight |
 | `recentVerified` | Up to five entries with `materialType`, `weightKg`, `city`, `verifiedAt`, nullable `onChainTxHash` |
 | `onChain.network`, `onChain.explorerUrl` | Configured Stellar network and explorer base URL |
+| `onChain.verificationFlow` | Mode for new work: `point_owner_v1` or `admin_v1`; `null` when recording is disabled. Historical collections retain their saved flow |
 | `onChain.collectionsPaid` | Collections whose stored `chainStatus` is `PAID` |
 | `onChain.wasteMinted` | Sum of stored paid collections' `chainAmount`, converted from base units to WASTE |
 
