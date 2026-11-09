@@ -6,11 +6,14 @@ collections and mint WASTE rewards. The contracts are written in Rust with
 library, not an eighth deployed contract.
 
 ::: warning Current trust model
-New point-mode deliveries are verified with the collection point owner's key.
-The backend holds encrypted custodial keys, and the platform administers registry
-trust, retains an explicit verification override and supplies payment recipients
-and amounts. The payment contract does not yet derive them from the verified
-collection. Older saved collections keep their original admin flow.
+New point-mode deliveries are verified with the collection point owner's key,
+and new payouts are read on-chain from the verified transaction, so the platform
+does not choose the amount or the recipient. The backend still holds encrypted
+custodial keys. The platform administers registry trust and keeps two explicit
+overrides: one for verification and one for payments, which can pay an amount the
+admin supplies and is logged by an event. The token's admin mint also remains.
+Older saved collections keep their original contracts and flow, including the
+earlier payment contract that took amounts from the backend.
 The contracts have not been audited and there is no mainnet deployment.
 :::
 
@@ -46,9 +49,10 @@ then runs the following steps in the background:
    and verified, accept the material, and both contracts must be unpaused. This
    sets `verified = true` and `status = Completed`, then updates reputation.
 4. **Create the payment.** The admin signs
-   `payment_distribution.process_payment`. The backend supplies the collector's
-   wallet address and the record's `total_amount`. This creates a pending payment;
-   it does not mint tokens yet.
+   `payment_distribution.process_verified_payment` with only the transaction ID.
+   The contract reads the record from the bound transaction contract, requires it
+   to be verified, and takes the collector and `total_amount` from it. This
+   creates a pending payment; it does not mint tokens yet.
 5. **Pay the collector.** The admin signs
    `payment_distribution.update_payment_status` with `Completed`. The payment
    contract calls `waste_token.mint_from` and the recipient receives WASTE.
@@ -166,13 +170,19 @@ app's collection point operator account.
 
 | Entry point | Purpose | Required authorization |
 | --- | --- | --- |
-| `process_payment` | Create a payment from a transaction ID, recipient and positive amount | Admin |
-| `batch_process` | Create multiple payments from caller-supplied values | Admin |
+| `set_transaction_contract` | Bind the transaction contract payments are derived from; callable once | Admin |
+| `process_verified_payment` | Create a payment for a verified transaction; the collector and amount are read from its record | Admin |
+| `batch_process_verified` | The same for several transactions; one unverified, unknown or paid transaction aborts the batch | Admin |
+| `process_payment` | Admin override: create a payment from a recipient and positive amount the admin supplies; emits `pay_ovr` | Admin |
+| `batch_process` | Admin override for several payments, from supplied values | Admin |
 | `update_payment_status` | Change status; `Completed` mints the amount to the recipient | Admin |
 | `get_payment`, `get_payment_for_transaction`, `get_recipient_payments` | Read payments and the transaction-to-payment index | None |
 
 The transaction-to-payment index rejects a second payment for the same transaction
-ID. Completed and failed payments cannot be modified. If minting fails during
+ID within one payment contract. Transactions paid by the earlier payment contract
+are not in the new one's index, so an admin could pay one of them again by hand;
+the backend only pays collections that start after the switch. Completed and failed
+payments cannot be modified. If minting fails during
 completion, the call fails and the payment's previous state is preserved.
 
 The contract does not currently read `waste_transaction` to validate the
@@ -232,11 +242,15 @@ and [amount calculation](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blo
 
 These addresses come from
 [`deployed_addresses_testnet.json`](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/deployed_addresses_testnet.json),
-which records a bundle update on **8 November 2026** with new point registry,
-transaction and payment contracts from source `edbbec3`. The token, collector
-registry, pricing and reputation retain their **28 October 2026** deployments.
-The [original manifest](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/deployments/testnet-2026-10-28.json)
-is retained for historical backfill and pending collections.
+which records a payment contract update on **9 November 2026** from source
+`3ca9b1d`, bound to the existing transaction contract so payouts are derived
+on-chain. On **8 November 2026** the point registry and transaction contracts were
+replaced (source `edbbec3`). The token, collector registry, pricing and reputation
+retain their **28 October 2026** deployments. The
+[previous manifest](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/deployments/testnet-2026-11-08.json)
+and the
+[original manifest](https://github.com/WASTEFI-AFRICA/wastefi-contracts/blob/main/deployments/testnet-2026-10-28.json)
+are retained for historical backfill and pending collections.
 Each link opens the contract on Stellar Expert testnet.
 
 | Contract | Testnet address |
@@ -247,7 +261,7 @@ Each link opens the contract on Stellar Expert testnet.
 | `material_pricing` | [`CA6BP7PC7OPZPT4MFHIJAPXB237BVP72GVNVPI67GPH3QYYBCJDN2Z5G`](https://stellar.expert/explorer/testnet/contract/CA6BP7PC7OPZPT4MFHIJAPXB237BVP72GVNVPI67GPH3QYYBCJDN2Z5G) |
 | `reputation` | [`CCXDYT3RIM2D356CYUZJ7SVD5PRFUVNJDZDAKSI5WITMMW5QMXZHIB5A`](https://stellar.expert/explorer/testnet/contract/CCXDYT3RIM2D356CYUZJ7SVD5PRFUVNJDZDAKSI5WITMMW5QMXZHIB5A) |
 | `waste_transaction` | [`CB77D77P7RLXHPXNCZG4PJE6OVAXWYWAY2KBDX2SO76FMSBL7XOTYDIT`](https://stellar.expert/explorer/testnet/contract/CB77D77P7RLXHPXNCZG4PJE6OVAXWYWAY2KBDX2SO76FMSBL7XOTYDIT) |
-| `payment_distribution` | [`CA5BJ6WCZEVLV7YNZY7XXERXSDHSYMW5XKCQOU3BTXWNG2DQRR74PB2W`](https://stellar.expert/explorer/testnet/contract/CA5BJ6WCZEVLV7YNZY7XXERXSDHSYMW5XKCQOU3BTXWNG2DQRR74PB2W) |
+| `payment_distribution` | [`CBUDOQMESUCX3NRTLCS6TRAHPKRZTVBPUTNUBLYRGFPQ76LTQ7N5RLFG`](https://stellar.expert/explorer/testnet/contract/CBUDOQMESUCX3NRTLCS6TRAHPKRZTVBPUTNUBLYRGFPQ76LTQ7N5RLFG) |
 
 The manifest records one deployer account as admin for all seven contracts.
 Testnet can reset. After a redeploy, update the manifest, the contracts README,

@@ -29,10 +29,12 @@ See the [app](https://wastefi-frontend.vercel.app),
 
 The next steps are:
 
-1. Make the payment contract read the recipient and amount from the verified
-   transaction. Today the admin supplies both values.
-2. Fix or remove the unused offline queue. The submission form currently requires
+1. Fix or remove the unused offline queue. The submission form currently requires
    a connection; queued offline submission is not a working feature.
+
+Payouts are now read on-chain from the verified transaction. The contracts keep an
+admin override that can pay a supplied amount, logged by an event, and the token's
+admin mint remains.
 
 The point-verification rollout preserves the original token and old contract
 roles. Deployment requires pinning historical collections to their original

@@ -25,6 +25,7 @@ fields inside `data`:
 | `recentVerified` | Up to five entries with `materialType`, `weightKg`, `city`, `verifiedAt`, nullable `onChainTxHash` |
 | `onChain.network`, `onChain.explorerUrl` | Configured Stellar network and explorer base URL |
 | `onChain.verificationFlow` | Mode for new work: `point_owner_v1` or `admin_v1`; `null` when recording is disabled. Historical collections retain their saved flow |
+| `onChain.payoutMode` | How new payouts are created: `derived_v1` (the payment contract reads the collector and amount from the verified transaction) or `caller_amount_v1` (the backend passes them); `null` when recording is disabled; omitted by older API versions. Historical collections retain their saved mode |
 | `onChain.collectionsPaid` | Collections whose stored `chainStatus` is `PAID` |
 | `onChain.wasteMinted` | Sum of stored paid collections' `chainAmount`, converted from base units to WASTE |
 
