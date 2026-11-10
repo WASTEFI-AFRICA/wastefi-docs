@@ -43,7 +43,7 @@ export default defineConfig({
   ],
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}logo.svg` }]
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }]
   ],
 
   themeConfig: {

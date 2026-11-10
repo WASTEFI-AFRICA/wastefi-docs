@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/brand/wastefi-logo-dark.svg">
+    <img src="public/brand/wastefi-logo.svg" alt="WasteFi" height="64">
+  </picture>
+</p>
+
 # WasteFi Docs
 
 [![Build docs](https://github.com/WASTEFI-AFRICA/wastefi-docs/actions/workflows/ci.yml/badge.svg)](https://github.com/WASTEFI-AFRICA/wastefi-docs/actions/workflows/ci.yml)
